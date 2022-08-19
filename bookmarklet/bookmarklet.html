@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="https://github.com/Tyson3101/Auto-TikTok-Scroller/blob/main/extension/img/tiktokIcon16.png?raw=true"
+      type="image/x-icon"
+    />
+    <style>
+      * {
+        background-color: rgb(51, 51, 51);
+      }
+
+      *:not(a) {
+        color: white;
+      }
+
+      a {
+        color: lightblue;
+        font-size: 5rem;
+      }
+
+      #container {
+        display: flex;
+        min-height: 80vh;
+        min-width: 80vw;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+    </style>
+    <title>Auto Youtube Shorts Scroller</title>
+  </head>
+  <body>
+    <h1>Auto Youtube Shorts Scroller</h1>
+    <div id="container">
+      <h2>
+        Save the link to your bookmarks
+        <i>(Drag to bookmark bar.)</i>
+      </h2>
+      <h4>
+        Link:
+        <a
+          href="javascript:(function() {const script = document.createElement('script'); script.id = 'auto-scroll-bookmarklet'; script.src = 'https://tyson3101.github.io/Auto-Youtube-Shorts-Scroller/bookmarklet/bookmarklet.js'; document.body.appendChild(script)})()"
+          >Auto Youtube Shorts Scroller</a
+        >
+      </h4>
+      <p>
+        Click on the bookmark when wanting to activate it on YT Shorts page.
+      </p>
+      <img src="../img/GoogleExtensionGif.gif" width="486" height="363" />
+    </div>
+  </body>
+</html>

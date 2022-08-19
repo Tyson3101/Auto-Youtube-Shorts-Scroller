@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "rootDir": "./src",
+    "outDir": "extension/dist"
+  },
+  "exclude": ["extension/dist"]
+}
