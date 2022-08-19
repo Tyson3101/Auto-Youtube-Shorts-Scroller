@@ -9,9 +9,13 @@ let applicationIsOn = true;
 
 function startAutoScrolling() {
   applicationIsOn = true;
+  if (window.location.href.includes("hashtag/shorts")) {
+    document
+      .querySelector("#thumbnail [aria-label='Shorts']")
+      .parentElement.parentElement.parentElement.click();
+  }
   getCurrentVideo();
 }
-
 async function getCurrentVideo() {
   let currentvideo = Array.from(document.querySelectorAll("video")).find(
     (video) =>
