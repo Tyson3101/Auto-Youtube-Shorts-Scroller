@@ -45,7 +45,6 @@ async function getCurrentVideo() {
 }
 
 async function endVideoEvent() {
-  console.log("Done");
   if (!applicationIsOn)
     return document.querySelector("video").removeEventListener("ended", this);
 

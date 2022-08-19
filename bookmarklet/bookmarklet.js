@@ -34,7 +34,6 @@ async function getCurrentVideo() {
   if (applicationIsOn) getCurrentVideo();
 }
 async function endVideoEvent() {
-  console.log("Done");
   if (!applicationIsOn)
     return document.querySelector("video").removeEventListener("ended", this);
   document.querySelector(NEXT_VIDEO_ARROW)?.click();
