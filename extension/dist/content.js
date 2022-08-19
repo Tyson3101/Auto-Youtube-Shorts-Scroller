@@ -6,7 +6,6 @@ const sleep = (milliseconds) => {
 let applicationIsOn = false;
 chrome.runtime.onMessage.addListener(({ start, stop }) => {
     if (start) {
-        console.log("HEY ITS WORKING!");
         startAutoScrolling();
     }
     if (stop)

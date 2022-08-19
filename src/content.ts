@@ -10,7 +10,6 @@ let applicationIsOn = false;
 chrome.runtime.onMessage.addListener(
   ({ start, stop }: { [key: string]: boolean }) => {
     if (start) {
-      console.log("HEY ITS WORKING!");
       startAutoScrolling();
     }
     if (stop) stopAutoScrolling();
