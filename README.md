@@ -12,7 +12,7 @@
 
 ## Extension
 
-**Option 1** – Install it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/auto-tiktok-scroller/ngnmmnppfloibngkifccjiljhnjoleaa)
+**Option 1** – Install it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/elggcfikfbaijgcofcapgeahjaclpfnf)
 
 **Option 2** – Install it from source:
 
