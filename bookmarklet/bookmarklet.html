@@ -14,13 +14,28 @@
         background-color: rgb(51, 51, 51);
       }
 
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0 1.5em;
+      }
+
+      .navbar > .links {
+        display: flex;
+        gap: 1em;
+      }
+
       *:not(a) {
         color: white;
       }
 
       a {
-        color: lightblue;
+        color: white;
+      }
+      #container a {
         font-size: 5rem;
+        color: lightblue;
       }
 
       #container {
@@ -31,11 +46,31 @@
         align-items: center;
         flex-direction: column;
       }
+
+      footer h3 {
+        position: relative;
+        margin-top: 3em;
+        color: gray;
+      }
     </style>
     <title>Auto Youtube Shorts Scroller</title>
   </head>
   <body>
-    <h1>Auto Youtube Shorts Scroller</h1>
+    <div class="navbar">
+      <h1>Auto Youtube Shorts Scroller</h1>
+      <div class="links">
+        <a
+          href="https://chrome.google.com/webstore/detail/elggcfikfbaijgcofcapgeahjaclpfnf"
+          target="_blank"
+          >Chrome Web Store</a
+        >
+        <a
+          href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
+          target="_blank"
+          >Github</a
+        >
+      </div>
+    </div>
     <div id="container">
       <h2>
         Save the link to your bookmarks
@@ -52,6 +87,9 @@
         Click on the bookmark when wanting to activate it on YT Shorts page.
       </p>
       <img src="../img/GoogleExtensionGif.gif" width="486" height="363" />
+      <footer>
+        <h3>By Tyson3101</h3>
+      </footer>
     </div>
   </body>
 </html>
