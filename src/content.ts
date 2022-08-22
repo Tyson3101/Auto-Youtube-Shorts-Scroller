@@ -17,13 +17,15 @@ chrome.runtime.onMessage.addListener(
 );
 
 function startAutoScrolling() {
-  applicationIsOn = true;
-  if (window.location.href.includes("hashtag/shorts")) {
-    document
-      .querySelector("#thumbnail [aria-label='Shorts']")
-      .parentElement.parentElement.parentElement.click();
+  if (!applicationIsOn) {
+    applicationIsOn = true;
+    if (window.location.href.includes("hashtag/shorts")) {
+      document
+        .querySelector("#thumbnail [aria-label='Shorts']")
+        .parentElement.parentElement.parentElement.click();
+    }
+    getCurrentVideo();
   }
-  getCurrentVideo();
 }
 
 async function getCurrentVideo() {
@@ -57,3 +59,14 @@ function stopAutoScrolling() {
     video.setAttribute("loop", "");
   }
 }
+
+document.addEventListener("keydown", (e) => {
+  if (!e.isTrusted) return;
+  if (e.key.toLowerCase() === "a" && e.shiftKey) {
+    e.preventDefault();
+    startAutoScrolling();
+  } else if (e.key.toLowerCase() === "s" && e.shiftKey) {
+    e.preventDefault();
+    stopAutoScrolling();
+  }
+});
