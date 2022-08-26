@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Auto Youtube Shorts Scroller",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
       "js": ["./dist/content.js"]
     }
   ],
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "storage"],
   "icons": {
     "16": "./img/ytshortsIcon16.png",
     "48": "./img/ytshortsIcon48.png",
