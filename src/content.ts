@@ -1,4 +1,5 @@
 const NEXT_VIDEO_ARROW = "[aria-label='Next video']";
+const VIDEOS_LIST_SELECTOR = ".reel-video-in-sequence";
 
 const sleep = (milliseconds: number) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -48,8 +49,28 @@ function startAutoScrolling() {
 function endVideoEvent() {
   if (!applicationIsOn)
     return document.querySelector("video").removeEventListener("ended", this);
-
-  (document.querySelector(NEXT_VIDEO_ARROW) as HTMLButtonElement)?.click();
+  const nextArrow = document.querySelector(
+    NEXT_VIDEO_ARROW
+  ) as HTMLButtonElement;
+  const VIDEOS_LIST = [
+    ...(document.querySelectorAll(
+      VIDEOS_LIST_SELECTOR
+    ) as NodeListOf<HTMLDivElement>),
+  ];
+  if (undefined) nextArrow.click();
+  else {
+    const currentVideoParent = VIDEOS_LIST.find((e) => {
+      return e.querySelector("video")?.tabIndex === -1;
+    });
+    const nextVideo = document.getElementById(
+      `${Number(currentVideoParent.id) + 1}`
+    );
+    nextVideo.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "center",
+    });
+  }
 }
 
 function stopAutoScrolling() {
