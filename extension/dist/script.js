@@ -14,7 +14,7 @@ document.onclick = (e) => {
                 chrome.tabs.sendMessage(tabs[0].id, { toggle: true });
             }
             else
-                errMsg.innerText = "Only works for Tiktok!";
+                errMsg.innerText = "Only works for Youtube!";
         });
     if (e.target.id === "shortCutBtn") {
         document.querySelector(".shortCut").classList.toggle("remove");

@@ -15,7 +15,7 @@ document.onclick = (e: Event) => {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (vaildUrls.some((url) => tabs[0]?.url?.includes(url))) {
         chrome.tabs.sendMessage(tabs[0].id, { toggle: true });
-      } else errMsg.innerText = "Only works for Tiktok!";
+      } else errMsg.innerText = "Only works for Youtube!";
     });
   if ((e.target as HTMLButtonElement).id === "shortCutBtn") {
     document.querySelector(".shortCut").classList.toggle("remove");
