@@ -1,34 +1,131 @@
+const YOUTUBE_LINK = "youtube.com";
 const errMsg = document.querySelector("#error");
 const toggleBtn = document.querySelector(".toggleBtn");
-const vaildUrls = ["youtube.com/shorts", "youtube.com/hashtag/shorts"];
+const validUrls = [`${YOUTUBE_LINK}/shorts`, `${YOUTUBE_LINK}/hashtag/shorts`];
+const filteredAuthors = document.querySelector("#filterAuthors");
+const shortCutInput = document.querySelector("#shortCutInput");
+const filterByMaxLength = document.querySelector("#filterByMaxLength");
+const filterByMinLength = document.querySelector("#filterByMinLength");
+const shortCutDisplay = document.querySelector("#shortCutDisplay");
+const nextSettings = document.querySelector("#nextSettings");
+const backSettings = document.querySelector("#backSettings");
+const pageNumber = document.querySelector("#pageNumber");
+chrome.storage.local.get(["shortCutKeys"], async ({ shortCutKeys }) => {
+    if (shortCutKeys == undefined) {
+        await chrome.storage.local.set({ shortCutKeys: ["shift", "s"] });
+        return (shortCutInput.value = "shift+s");
+    }
+    shortCutInput.value = shortCutKeys.join("+");
+    shortCutDisplay.innerText = shortCutKeys.join(" + ");
+    shortCutInput.addEventListener("change", (e) => {
+        const value = e.target.value.trim().split("+");
+        if (!value.length)
+            return;
+        chrome.storage.local.set({
+            shortCutKeys: value,
+        });
+        shortCutInput.value = value.join("+");
+        shortCutDisplay.innerText = value.join(" + ");
+    });
+});
+chrome.storage.local.get("filteredAuthors", (result) => {
+    let value = result["filteredAuthors"];
+    if (value == undefined) {
+        chrome.storage.local.set({
+            filteredAuthors: ["Tyson3101"],
+        });
+        value = ["Tyson3101"];
+    }
+    filteredAuthors.value = value.join(",");
+});
+filteredAuthors.addEventListener("input", () => {
+    const value = filteredAuthors.value.split(",").filter((v) => v);
+    chrome.storage.local.set({
+        filteredAuthors: value,
+    });
+});
+chrome.storage.local.get(["filterByMaxLength"], async (result) => {
+    let value = result["filterByMaxLength"];
+    if (value == undefined) {
+        await chrome.storage.local.set({ filterByMaxLength: "none" });
+        return (filterByMaxLength.value = "none");
+    }
+    filterByMaxLength.value = value;
+});
+chrome.storage.local.get(["filterByMinLength"], async (result) => {
+    let value = result["filterByMinLength"];
+    if (value == undefined) {
+        await chrome.storage.local.set({ filterByMinLength: "none" });
+        return (filterByMinLength.value = "none");
+    }
+    filterByMinLength.value = value;
+});
+filterByMaxLength.addEventListener("change", (e) => {
+    chrome.storage.local.set({
+        filterByMaxLength: e.target.value,
+    });
+});
+filterByMinLength.addEventListener("change", (e) => {
+    chrome.storage.local.set({
+        filterByMinLength: e.target.value,
+    });
+});
 chrome.storage.onChanged.addListener((result) => {
-    changeToggleButton(result.applicationIsOn.newValue);
+    if (result.applicationIsOn?.newValue != undefined)
+        changeToggleButton(result.applicationIsOn.newValue);
+    if (result.shortCutKeys?.newValue != undefined)
+        shortCutDisplay.innerText = result.shortCutKeys.newValue.join(" + ");
 });
 chrome.storage.local.get(["applicationIsOn"], (result) => {
-    changeToggleButton(result.applicationIsOn);
+    if (result.applicationIsOn === undefined) {
+        changeToggleButton(true);
+    }
+    else
+        changeToggleButton(result.applicationIsOn);
 });
 document.onclick = (e) => {
     if (e.target.classList.contains("toggleBtn"))
         chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-            if (vaildUrls.some((url) => tabs[0]?.url?.includes(url))) {
+            if (validUrls.some((url) => tabs[0]?.url?.includes(url)))
                 chrome.tabs.sendMessage(tabs[0].id, { toggle: true });
-            }
             else
                 errMsg.innerText = "Only works for Youtube!";
         });
-    if (e.target.id === "shortCutBtn") {
+    if (e.target.id === "shortCutBtn")
         document.querySelector(".shortCut").classList.toggle("remove");
-    }
+};
+nextSettings.onclick = () => {
+    const settingPage = document.querySelectorAll(".settingsPage");
+    const active = [...settingPage].find((page) => page.classList.contains("active"));
+    const next = (() => {
+        const nextIndex = parseInt(active.dataset["settingindex"]) + 1;
+        if (nextIndex >= settingPage.length)
+            return settingPage[0];
+        return settingPage[nextIndex];
+    })();
+    pageNumber.innerText = `${parseInt(next.dataset["settingindex"]) + 1}/3`;
+    active.classList.remove("active");
+    next.classList.add("active");
+};
+backSettings.onclick = () => {
+    const settingPage = document.querySelectorAll(".settingsPage");
+    const active = [...settingPage].find((page) => page.classList.contains("active"));
+    const last = (() => {
+        const lastIndex = parseInt(active.dataset["settingindex"]) - 1;
+        if (lastIndex < 0) {
+            pageNumber.innerText = `1/3`;
+            return settingPage[2];
+        }
+        else {
+            pageNumber.innerText = `${parseInt(active.dataset["settingindex"])}/3`;
+            return settingPage[lastIndex];
+        }
+    })();
+    active.classList.remove("active");
+    last.classList.add("active");
 };
 function changeToggleButton(result) {
-    if (result) {
-        toggleBtn.innerText = "Stop";
-        toggleBtn.classList.remove("start");
-        toggleBtn.classList.add("stop");
-    }
-    if (!result) {
-        toggleBtn.innerText = "Start";
-        toggleBtn.classList.add("start");
-        toggleBtn.classList.remove("stop");
-    }
+    toggleBtn.innerText = result ? "Stop" : "Start";
+    toggleBtn.classList.remove(result ? "start" : "stop");
+    toggleBtn.classList.add(result ? "stop" : "start");
 }

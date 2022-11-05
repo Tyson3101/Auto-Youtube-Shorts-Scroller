@@ -1,5 +1,10 @@
-const NEXT_VIDEO_ARROW = "[aria-label='Next video']";
 const VIDEOS_LIST_SELECTOR = ".reel-video-in-sequence";
+let shortCutKeys = [];
+let filterMinLength = "none";
+let filterMaxLength = "none";
+let blockedCreators = [];
+
+let currentlyGoingToNextVideo = false;
 
 const sleep = (milliseconds: number) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -15,15 +20,86 @@ let applicationIsOn = false;
     }
     if (result.applicationIsOn) startAutoScrolling();
   });
+  (function getAllSettings() {
+    chrome.storage.local.get(
+      [
+        "shortCutKeys",
+        "filterByMinLength",
+        "filterByMaxLength",
+        "filteredAuthors",
+      ],
+      (result) => {
+        if (result.shortCutKeys) {
+          shortCutKeys = [...result["shortCutKeys"]];
+          shortCutListener();
+        }
+        if (result.filterByMinLength)
+          filterMinLength = result.filterByMinLength;
+        if (result.filterByMaxLength)
+          filterMaxLength = result.filterByMaxLength;
+        if (result.filteredAuthors)
+          blockedCreators = [...result.filteredAuthors];
+      }
+    );
+    chrome.storage.onChanged.addListener((result) => {
+      let newShortCutKeys = result["shortCutKeys"]?.newValue;
+      if (newShortCutKeys != undefined) {
+        shortCutKeys = [...newShortCutKeys];
+      }
+      let newFilterMinLength = result["filterByMinLength"]?.newValue;
+      if (newFilterMinLength != undefined) {
+        filterMinLength = newFilterMinLength;
+      }
+      let newFilterMaxLength = result["filterByMaxLength"]?.newValue;
+      if (newFilterMaxLength != undefined) {
+        filterMaxLength = newFilterMaxLength;
+      }
+      let newBlockedCreators = result["filteredAuthors"]?.newValue;
+      if (newBlockedCreators != undefined) {
+        blockedCreators = [...newBlockedCreators];
+      }
+    });
+  })();
 })();
 
-document.addEventListener("keydown", (e) => {
-  if (!e.isTrusted) return;
-  if (e.key.toLowerCase() === "s" && e.shiftKey) {
-    e.preventDefault();
-    applicationIsOn ? stopAutoScrolling() : startAutoScrolling();
+function shortCutListener() {
+  let pressedKeys = [];
+  // Web Dev Simplifed Debounce
+  function debounce(cb: Function, delay = 700) {
+    let timeout: number;
+
+    return (...args: any) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        cb(...args);
+      }, delay);
+    };
   }
-});
+
+  const checkKeys = debounce(() => {
+    // Github co pilot
+    if (pressedKeys.length == shortCutKeys.length) {
+      let match = true;
+      for (let i = 0; i < pressedKeys.length; i++) {
+        if (pressedKeys[i] != shortCutKeys[i]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) {
+        applicationIsOn ? stopAutoScrolling() : startAutoScrolling();
+      }
+    }
+    pressedKeys = [];
+  });
+
+  document.addEventListener("keydown", (e) => {
+    e.preventDefault();
+    if (!e.key) return;
+    pressedKeys.push(e.key.toLowerCase());
+    checkKeys();
+  });
+}
 
 chrome.runtime.onMessage.addListener(({ toggle }: { toggle: boolean }) => {
   if (toggle) {
@@ -49,28 +125,27 @@ function startAutoScrolling() {
 function endVideoEvent() {
   if (!applicationIsOn)
     return document.querySelector("video").removeEventListener("ended", this);
-  const nextArrow = document.querySelector(
-    NEXT_VIDEO_ARROW
-  ) as HTMLButtonElement;
   const VIDEOS_LIST = [
     ...(document.querySelectorAll(
       VIDEOS_LIST_SELECTOR
     ) as NodeListOf<HTMLDivElement>),
   ];
-  if (undefined) nextArrow.click();
-  else {
-    const currentVideoParent = VIDEOS_LIST.find((e) => {
-      return e.querySelector("video")?.tabIndex === -1;
-    });
-    const nextVideo = document.getElementById(
-      `${Number(currentVideoParent.id) + 1}`
-    );
-    nextVideo.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "center",
-    });
-  }
+
+  const currentVideoParent = VIDEOS_LIST.find((e) => {
+    return e.querySelector("video")?.tabIndex === -1;
+  });
+  const nextVideo = document.getElementById(
+    `${Number(currentVideoParent.id) + 1}`
+  );
+
+  nextVideo?.scrollIntoView({
+    behavior: "smooth",
+    inline: "center",
+    block: "center",
+  });
+  setTimeout(() => {
+    currentlyGoingToNextVideo = false;
+  }, 500);
 }
 
 function stopAutoScrolling() {
@@ -93,6 +168,39 @@ function stopAutoScrolling() {
           video.readyState > 2
         )
     ) as HTMLVideoElement;
+    if (filterMaxLength != "none" || filterMinLength != "none") {
+      if (
+        currentvideo?.duration < parseInt(filterMinLength) ||
+        currentvideo?.duration > parseInt(filterMaxLength)
+      ) {
+        if (currentlyGoingToNextVideo) return;
+        currentvideo.volume = 0;
+        endVideoEvent();
+        currentlyGoingToNextVideo = true;
+      }
+    }
+    const VIDEOS_LIST = [
+      ...(document.querySelectorAll(
+        VIDEOS_LIST_SELECTOR
+      ) as NodeListOf<HTMLDivElement>),
+    ];
+    const currentVideoParent = VIDEOS_LIST.find((e) => {
+      return e.querySelector("video")?.tabIndex === -1;
+    });
+    const authorOfVideo = currentVideoParent
+      ?.querySelector(".ytd-channel-name")
+      ?.querySelector("a")
+      .innerText?.toLowerCase();
+    if (
+      authorOfVideo &&
+      !currentlyGoingToNextVideo &&
+      blockedCreators.map((c) => c.toLowerCase()).includes(authorOfVideo)
+    ) {
+      currentvideo.volume = 0;
+      endVideoEvent();
+      currentlyGoingToNextVideo = true;
+    }
+
     try {
       currentvideo.attributes.removeNamedItem("loop");
       currentvideo.addEventListener("ended", endVideoEvent);
