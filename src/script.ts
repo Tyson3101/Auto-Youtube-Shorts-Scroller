@@ -94,7 +94,7 @@ chrome.storage.onChanged.addListener((result) => {
 });
 
 chrome.storage.local.get(["applicationIsOn"], (result) => {
-  if (result.applicationIsOn === undefined) {
+  if (result.applicationIsOn == null) {
     changeToggleButton(true);
   } else changeToggleButton(result.applicationIsOn);
 });

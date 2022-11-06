@@ -94,7 +94,6 @@ function shortCutListener() {
   });
 
   document.addEventListener("keydown", (e) => {
-    e.preventDefault();
     if (!e.key) return;
     pressedKeys.push(e.key.toLowerCase());
     checkKeys();
