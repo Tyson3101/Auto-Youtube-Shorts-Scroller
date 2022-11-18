@@ -163,7 +163,9 @@
     <i id="error" style="color: red; display: block"></i>
     <div class="shortCuts">
       <div class="shortCut remove">
-        <p>Toggle Auto Scroller: <span id="shortCutDisplay">shift + s</span></p>
+        <p>
+          Toggle Auto Scroller: <span id="shortCutDisplayStart">shift + s</span>
+        </p>
       </div>
       <button id="shortCutBtn">Show Shortcuts</button>
     </div>
@@ -172,7 +174,7 @@
       <div data-settingIndex="0" class="settingsPage active">
         <label for="shortCutInput"
           ><p style="font-size: 1rem">
-            Shortcut
+            Toggle Shortcut
             <i style="font-size: 0.7em; display: block"
               >Customize the key(s) to toggle the extension on/off. (Seperate
               with
@@ -233,7 +235,59 @@
           </div>
         </div>
       </div>
-      <div data-settingIndex="2" class="settingsPage list">
+      <div data-settingIndex="2" class="settingsPage">
+        <label for="shortCutInput"
+          ><p style="font-size: 1rem">
+            Amount of Plays
+            <i style="font-size: 0.7em; display: block"
+              >Auto-Scrolls to the next short after a specific amount of plays
+              <br
+            /></i></p
+        ></label>
+        <input
+          type="number"
+          name="shortCutInput"
+          id="shortCutInput"
+          value="1"
+          style="width: 40%"
+        />
+      </div>
+      <div data-settingIndex="3" class="settingsPage">
+        <label for="shortCutInput"
+          ><p style="font-size: 1rem">
+            Like/Dislike Shortcut
+            <i style="font-size: 0.7em; display: block"
+              >Customize the key(s) to like/dislike a short. (Seperate with
+              <span
+                style="
+                  background-color: rgb(220, 209, 209);
+                  font-weight: bold;
+                  font-size: larger;
+                "
+                >+</span
+              >)</i
+            >
+          </p></label
+        >
+        <input
+          type="text"
+          name="shortCutInteractInput"
+          id="shortCutInteractInput"
+          value="shift + f"
+          style="width: 40%"
+        />
+        <p>
+          See
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
+            target="_blank"
+            >this link</a
+          >
+          to match the key(s) you want to use. <br />Double perform shortcut to
+          dislike
+        </p>
+      </div>
+      <div data-settingIndex="4" class="settingsPage list">
         <label for="filterAuthors"
           ><p style="font-size: 1rem">
             Block Video Creators
@@ -246,7 +300,7 @@
         <textarea id="filterAuthors" class="urlsList"></textarea>
       </div>
       <div id="backSettings"><a href="#">&#8592; Last Page</a></div>
-      <div id="pageNumber">1/3</div>
+      <div id="pageNumber">1/5</div>
       <div id="nextSettings"><a href="#">Next Page &#8594;</a></div>
     </div>
     <span style="display: block"

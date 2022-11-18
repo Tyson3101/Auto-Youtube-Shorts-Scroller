@@ -122,7 +122,9 @@ nextSettings.onclick = () => {
     if (nextIndex >= settingPage.length) return settingPage[0];
     return settingPage[nextIndex];
   })();
-  pageNumber.innerText = `${parseInt(next.dataset["settingindex"]) + 1}/3`;
+  pageNumber.innerText = `${parseInt(next.dataset["settingindex"]) + 1}/${
+    settingPage.length
+  }`;
   active.classList.remove("active");
   next.classList.add("active");
 };
@@ -136,11 +138,14 @@ backSettings.onclick = () => {
   );
   const last = (() => {
     const lastIndex = parseInt(active.dataset["settingindex"]) - 1;
+    console.log({ lastIndex });
     if (lastIndex < 0) {
-      pageNumber.innerText = `1/3`;
-      return settingPage[2];
+      pageNumber.innerText = `5/${settingPage.length}`;
+      return settingPage[settingPage.length - 1];
     } else {
-      pageNumber.innerText = `${parseInt(active.dataset["settingindex"])}/3`;
+      pageNumber.innerText = `${parseInt(active.dataset["settingindex"])}/${
+        settingPage.length
+      }`;
       return settingPage[lastIndex];
     }
   })();

@@ -134,7 +134,7 @@ function endVideoEvent() {
     return e.querySelector("video")?.tabIndex === -1;
   });
   const nextVideo = document.getElementById(
-    `${Number(currentVideoParent.id) + 1}`
+    `${Number(currentVideoParent?.id) + 1}`
   );
 
   nextVideo?.scrollIntoView({
@@ -167,17 +167,6 @@ function stopAutoScrolling() {
           video.readyState > 2
         )
     ) as HTMLVideoElement;
-    if (filterMaxLength != "none" || filterMinLength != "none") {
-      if (
-        currentvideo?.duration < parseInt(filterMinLength) ||
-        currentvideo?.duration > parseInt(filterMaxLength)
-      ) {
-        if (currentlyGoingToNextVideo) return;
-        currentvideo.volume = 0;
-        endVideoEvent();
-        currentlyGoingToNextVideo = true;
-      }
-    }
     const VIDEOS_LIST = [
       ...(document.querySelectorAll(
         VIDEOS_LIST_SELECTOR
@@ -186,6 +175,18 @@ function stopAutoScrolling() {
     const currentVideoParent = VIDEOS_LIST.find((e) => {
       return e.querySelector("video")?.tabIndex === -1;
     });
+    if (filterMaxLength != "none" || filterMinLength != "none") {
+      if (
+        currentvideo?.duration < parseInt(filterMinLength) ||
+        currentvideo?.duration > parseInt(filterMaxLength)
+      ) {
+        if (currentlyGoingToNextVideo) return;
+        if (!currentVideoParent?.classList?.contains("ytd-shorts")) return;
+        currentvideo.volume = 0;
+        endVideoEvent();
+        currentlyGoingToNextVideo = true;
+      }
+    }
     const authorOfVideo = currentVideoParent
       ?.querySelector(".ytd-channel-name")
       ?.querySelector("a")
@@ -195,7 +196,7 @@ function stopAutoScrolling() {
       !currentlyGoingToNextVideo &&
       blockedCreators.map((c) => c.toLowerCase()).includes(authorOfVideo)
     ) {
-      currentvideo.volume = 0;
+      if (!currentVideoParent?.classList?.contains("ytd-shorts")) return;
       endVideoEvent();
       currentlyGoingToNextVideo = true;
     }
