@@ -41,27 +41,6 @@
     .stop:hover {
       background-color: rgb(205, 119, 119);
     }
-
-    .shortCuts {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      margin-top: 0.2rem;
-    }
-
-    .shortCut {
-      border: 1px solid black;
-      background-color: rgb(165, 195, 204);
-      width: fit-content;
-      margin-bottom: 0.2rem;
-      position: absolute;
-      padding: 0 0.8rem;
-      top: 1rem;
-    }
-    .shortCut span {
-      padding: 0.2em;
-    }
     .remove {
       display: none;
     }
@@ -161,18 +140,13 @@
     ></span>
     <button class="toggleBtn">Stop</button>
     <i id="error" style="color: red; display: block"></i>
-    <div class="shortCuts">
-      <div class="shortCut remove">
-        <p>Toggle Auto Scroller: <span id="shortCutDisplay">shift + s</span></p>
-      </div>
-      <button id="shortCutBtn">Show Shortcuts</button>
-    </div>
+
     <div class="settings">
       <h2>Settings</h2>
       <div data-settingIndex="0" class="settingsPage active">
         <label for="shortCutInput"
           ><p style="font-size: 1rem">
-            Shortcut
+            Toggle Shortcut
             <i style="font-size: 0.7em; display: block"
               >Customize the key(s) to toggle the extension on/off. (Seperate
               with
@@ -205,7 +179,7 @@
         </p>
       </div>
       <div data-settingIndex="1" class="settingsPage">
-        <label for="shortCutInput"
+        <label for="filterShorts"
           ><p style="font-size: 1rem">
             Filter Shorts
             <i style="font-size: 0.7em; display: block"
@@ -233,7 +207,67 @@
           </div>
         </div>
       </div>
-      <div data-settingIndex="2" class="settingsPage list">
+      <div data-settingIndex="2" class="settingsPage">
+        <label for="amountOfPlays"
+          ><p style="font-size: 1rem">
+            Amount of Plays
+            <i style="font-size: 0.7em; display: block"
+              >Auto-Scrolls to the next short after a specific amount of plays
+              <br
+            /></i></p
+        ></label>
+        <input
+          type="number"
+          name="amountOfPlaysInput"
+          id="amountOfPlaysInput"
+          value="1"
+          min="1"
+          style="width: 40%"
+        />
+        <label for="scrollOnComments">Scroll when Comments are visible:</label>
+        <input
+          type="checkbox"
+          name="scrollOnComments"
+          id="scrollOnComments"
+          checked="true"
+        />
+      </div>
+      <div data-settingIndex="3" class="settingsPage">
+        <label for="shortCutInteractInput"
+          ><p style="font-size: 1rem">
+            Like/Dislike Shortcut
+            <i style="font-size: 0.7em; display: block"
+              >Customize the key(s) to like/dislike a short. (Seperate with
+              <span
+                style="
+                  background-color: rgb(220, 209, 209);
+                  font-weight: bold;
+                  font-size: larger;
+                "
+                >+</span
+              >)</i
+            >
+          </p></label
+        >
+        <input
+          type="text"
+          name="shortCutInteractInput"
+          id="shortCutInteractInput"
+          value="shift + f"
+          style="width: 40%"
+        />
+        <p>
+          See
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
+            target="_blank"
+            >this link</a
+          >
+          to match the key(s) you want to use. <br />Double perform shortcut to
+          dislike
+        </p>
+      </div>
+      <div data-settingIndex="4" class="settingsPage list">
         <label for="filterAuthors"
           ><p style="font-size: 1rem">
             Block Video Creators
@@ -246,7 +280,7 @@
         <textarea id="filterAuthors" class="urlsList"></textarea>
       </div>
       <div id="backSettings"><a href="#">&#8592; Last Page</a></div>
-      <div id="pageNumber">1/3</div>
+      <div id="pageNumber">1/5</div>
       <div id="nextSettings"><a href="#">Next Page &#8594;</a></div>
     </div>
     <span style="display: block"
