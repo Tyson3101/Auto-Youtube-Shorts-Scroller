@@ -41,27 +41,6 @@
     .stop:hover {
       background-color: rgb(205, 119, 119);
     }
-
-    .shortCuts {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      margin-top: 0.2rem;
-    }
-
-    .shortCut {
-      border: 1px solid black;
-      background-color: rgb(165, 195, 204);
-      width: fit-content;
-      margin-bottom: 0.2rem;
-      position: absolute;
-      padding: 0 0.8rem;
-      top: 1rem;
-    }
-    .shortCut span {
-      padding: 0.2em;
-    }
     .remove {
       display: none;
     }
@@ -161,14 +140,7 @@
     ></span>
     <button class="toggleBtn">Stop</button>
     <i id="error" style="color: red; display: block"></i>
-    <div class="shortCuts">
-      <div class="shortCut remove">
-        <p>
-          Toggle Auto Scroller: <span id="shortCutDisplayStart">shift + s</span>
-        </p>
-      </div>
-      <button id="shortCutBtn">Show Shortcuts</button>
-    </div>
+
     <div class="settings">
       <h2>Settings</h2>
       <div data-settingIndex="0" class="settingsPage active">
@@ -207,7 +179,7 @@
         </p>
       </div>
       <div data-settingIndex="1" class="settingsPage">
-        <label for="shortCutInput"
+        <label for="filterShorts"
           ><p style="font-size: 1rem">
             Filter Shorts
             <i style="font-size: 0.7em; display: block"
@@ -236,7 +208,7 @@
         </div>
       </div>
       <div data-settingIndex="2" class="settingsPage">
-        <label for="shortCutInput"
+        <label for="amountOfPlays"
           ><p style="font-size: 1rem">
             Amount of Plays
             <i style="font-size: 0.7em; display: block"
@@ -246,14 +218,22 @@
         ></label>
         <input
           type="number"
-          name="shortCutInput"
-          id="shortCutInput"
+          name="amountOfPlaysInput"
+          id="amountOfPlaysInput"
           value="1"
+          min="1"
           style="width: 40%"
+        />
+        <label for="scrollOnComments">Scroll when Comments are visible:</label>
+        <input
+          type="checkbox"
+          name="scrollOnComments"
+          id="scrollOnComments"
+          checked="true"
         />
       </div>
       <div data-settingIndex="3" class="settingsPage">
-        <label for="shortCutInput"
+        <label for="shortCutInteractInput"
           ><p style="font-size: 1rem">
             Like/Dislike Shortcut
             <i style="font-size: 0.7em; display: block"

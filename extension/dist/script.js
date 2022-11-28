@@ -4,28 +4,48 @@ const toggleBtn = document.querySelector(".toggleBtn");
 const validUrls = [`${YOUTUBE_LINK}/shorts`, `${YOUTUBE_LINK}/hashtag/shorts`];
 const filteredAuthors = document.querySelector("#filterAuthors");
 const shortCutInput = document.querySelector("#shortCutInput");
+const shortCutInteractInput = document.querySelector("#shortCutInteractInput");
 const filterByMaxLength = document.querySelector("#filterByMaxLength");
 const filterByMinLength = document.querySelector("#filterByMinLength");
-const shortCutDisplay = document.querySelector("#shortCutDisplay");
+const amountOfPlaysInput = document.querySelector("#amountOfPlaysInput");
+const scrollOnCommentsInput = document.querySelector("#scrollOnComments");
 const nextSettings = document.querySelector("#nextSettings");
 const backSettings = document.querySelector("#backSettings");
 const pageNumber = document.querySelector("#pageNumber");
-chrome.storage.local.get(["shortCutKeys"], async ({ shortCutKeys }) => {
+chrome.storage.local.get(["shortCutKeys", "shortCutInteractKeys"], async ({ shortCutKeys, shortCutInteractKeys }) => {
+    console.log({ shortCutKeys, shortCutInteractKeys });
     if (shortCutKeys == undefined) {
         await chrome.storage.local.set({ shortCutKeys: ["shift", "s"] });
-        return (shortCutInput.value = "shift+s");
+        shortCutInput.value = "shift+s";
     }
-    shortCutInput.value = shortCutKeys.join("+");
-    shortCutDisplay.innerText = shortCutKeys.join(" + ");
-    shortCutInput.addEventListener("change", (e) => {
-        const value = e.target.value.trim().split("+");
+    else {
+        console.log({ shortCutKeys });
+        shortCutInput.value = shortCutKeys.join("+");
+    }
+    shortCutInput.addEventListener("change", () => {
+        const value = shortCutInput.value.trim().split("+");
         if (!value.length)
             return;
         chrome.storage.local.set({
             shortCutKeys: value,
         });
         shortCutInput.value = value.join("+");
-        shortCutDisplay.innerText = value.join(" + ");
+    });
+    if (shortCutInteractKeys == undefined) {
+        await chrome.storage.local.set({ shortCutInteractKeys: ["shift", "f"] });
+        shortCutInteractInput.value = "shift+f";
+    }
+    else {
+        shortCutInteractInput.value = shortCutInteractKeys.join("+");
+    }
+    shortCutInteractInput.addEventListener("change", (e) => {
+        const value = e.target.value.trim().split("+");
+        if (!value.length)
+            return;
+        chrome.storage.local.set({
+            shortCutInteractKeys: value,
+        });
+        shortCutInteractInput.value = value.join("+");
     });
 });
 chrome.storage.local.get("filteredAuthors", (result) => {
@@ -70,11 +90,35 @@ filterByMinLength.addEventListener("change", (e) => {
         filterByMinLength: e.target.value,
     });
 });
+chrome.storage.local.get(["amountOfPlaysToSkip"], async (result) => {
+    let value = result["amountOfPlaysToSkip"];
+    if (value == undefined) {
+        await chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
+        amountOfPlaysInput.value = "1";
+    }
+    amountOfPlaysInput.value = value;
+});
+amountOfPlaysInput.addEventListener("change", (e) => {
+    chrome.storage.local.set({
+        amountOfPlaysToSkip: parseInt(e.target.value),
+    });
+});
+chrome.storage.local.get(["scrollOnComments"], async (result) => {
+    let value = result["scrollOnComments"];
+    if (value == undefined) {
+        await chrome.storage.local.set({ scrollOnComments: true });
+        scrollOnCommentsInput.checked = true;
+    }
+    scrollOnCommentsInput.checked = value;
+});
+scrollOnCommentsInput.addEventListener("change", (e) => {
+    chrome.storage.local.set({
+        scrollOnComments: e.target.checked,
+    });
+});
 chrome.storage.onChanged.addListener((result) => {
     if (result.applicationIsOn?.newValue != undefined)
         changeToggleButton(result.applicationIsOn.newValue);
-    if (result.shortCutKeys?.newValue != undefined)
-        shortCutDisplay.innerText = result.shortCutKeys.newValue.join(" + ");
 });
 chrome.storage.local.get(["applicationIsOn"], (result) => {
     if (result.applicationIsOn == null) {
@@ -91,8 +135,6 @@ document.onclick = (e) => {
             else
                 errMsg.innerText = "Only works for Youtube!";
         });
-    if (e.target.id === "shortCutBtn")
-        document.querySelector(".shortCut").classList.toggle("remove");
 };
 nextSettings.onclick = () => {
     const settingPage = document.querySelectorAll(".settingsPage");
