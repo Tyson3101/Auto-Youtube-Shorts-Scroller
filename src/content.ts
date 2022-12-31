@@ -123,7 +123,7 @@ async function scrollToNextShort() {
     inline: "center",
   });
   setTimeout(() => {
-    // Hardcoded timeout to make sure the video is scrolled before playing it
+    // Hardcoded timeout to make sure the video is scrolled before other scrolls are allowed
     scrollingIsDone = true;
   }, 700);
 }
