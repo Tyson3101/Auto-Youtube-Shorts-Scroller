@@ -1,3 +1,4 @@
+// VARIBLES
 const YOUTUBE_LINK = "youtube.com";
 const errMsg = document.querySelector("#error") as HTMLParagraphElement;
 const toggleBtn = document.querySelector(".toggleBtn") as HTMLButtonElement;
@@ -27,6 +28,7 @@ const nextSettings = document.querySelector("#nextSettings") as HTMLDivElement;
 const backSettings = document.querySelector("#backSettings") as HTMLDivElement;
 const pageNumber = document.querySelector("#pageNumber") as HTMLDivElement;
 
+// Get Settings and show them on the popup (and check for updates and reflect them)
 chrome.storage.local.get(
   ["shortCutKeys", "shortCutInteractKeys"],
   async ({ shortCutKeys, shortCutInteractKeys }) => {
@@ -150,15 +152,7 @@ chrome.storage.local.get(["applicationIsOn"], (result) => {
   } else changeToggleButton(result.applicationIsOn);
 });
 
-document.onclick = (e: Event) => {
-  if ((e.target as HTMLButtonElement).classList.contains("toggleBtn"))
-    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      if (validUrls.some((url) => tabs[0]?.url?.includes(url)))
-        chrome.tabs.sendMessage(tabs[0].id, { toggle: true });
-      else errMsg.innerText = "Only works for Youtube!";
-    });
-};
-
+// Settings Page and functions for back and forward buttons
 nextSettings.onclick = () => {
   const settingPage = document.querySelectorAll(
     ".settingsPage"
@@ -200,6 +194,16 @@ backSettings.onclick = () => {
   })();
   active.classList.remove("active");
   last.classList.add("active");
+};
+
+// Listens to toggle button click
+document.onclick = (e: Event) => {
+  if ((e.target as HTMLButtonElement).classList.contains("toggleBtn"))
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      if (validUrls.some((url) => tabs[0]?.url?.includes(url)))
+        chrome.tabs.sendMessage(tabs[0].id, { toggle: true });
+      else errMsg.innerText = "Only works for Youtube!";
+    });
 };
 
 function changeToggleButton(result: boolean) {
