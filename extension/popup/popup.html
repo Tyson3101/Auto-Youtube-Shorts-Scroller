@@ -4,12 +4,15 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
   />
   <style>
+    :root {
+      --bg-color: rgb(164, 173, 205);
+    }
     * {
       text-align: center;
     }
     body {
       min-width: 320px;
-      background-color: rgb(194, 221, 229);
+      background-color: var(--bg-color);
     }
 
     h1 {
@@ -79,19 +82,19 @@
       position: absolute;
       right: 3px;
       bottom: 3px;
-      background-color: rgb(194, 221, 229);
+      background-color: var(--bg-color);
     }
     #backSettings {
       position: absolute;
       left: 3px;
       bottom: 3px;
-      background-color: rgb(194, 221, 229);
+      background-color: var(--bg-color);
     }
     #pageNumber {
       position: absolute;
       bottom: 0;
       margin: auto;
-      background-color: rgb(194, 221, 229);
+      background-color: var(--bg-color);
     }
 
     .settingsPage {
@@ -133,7 +136,7 @@
       height: 12vh;
       resize: none;
       border: 1px solid black;
-      background-color: rgb(165, 195, 204);
+      background-color: white;
       padding: 0.2em;
     }
   </style>
@@ -183,6 +186,7 @@
           to match the key(s) you want to use.
         </p>
       </div>
+
       <div data-settingIndex="1" class="settingsPage">
         <label for="filterShorts"
           ><p style="font-size: 1rem">
@@ -212,13 +216,14 @@
           </div>
         </div>
       </div>
+
       <div data-settingIndex="2" class="settingsPage">
         <label for="amountOfPlays"
           ><p style="font-size: 1rem">
             Amount of Plays
             <i style="font-size: 0.7em; display: block"
               >Auto-Scrolls to the next short after a specific amount of plays
-              (May not work..., fix soon) <br
+              <br
             /></i></p
         ></label>
         <input
@@ -229,7 +234,7 @@
           min="1"
           style="width: 40%"
         />
-        <label for="scrollOnComments">Scroll when Comments are visible:</label>
+        <label for="scrollOnComments">Scroll when the comments are open:</label>
         <input
           type="checkbox"
           name="scrollOnComments"
@@ -237,6 +242,7 @@
           checked="true"
         />
       </div>
+
       <div data-settingIndex="3" class="settingsPage">
         <label for="shortCutInteractInput"
           ><p style="font-size: 1rem">
@@ -272,6 +278,7 @@
           dislike
         </p>
       </div>
+
       <div data-settingIndex="4" class="settingsPage list">
         <label for="filterAuthors"
           ><p style="font-size: 1rem">
@@ -288,6 +295,7 @@
       <div id="pageNumber">1/5</div>
       <div id="nextSettings"><a href="#">Next Page &#8594;</a></div>
     </div>
+
     <span style="display: block"
       ><p id="adYt">
         <br />Prefer TikTok?

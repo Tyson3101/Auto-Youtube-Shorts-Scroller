@@ -303,8 +303,8 @@ function shortCutListener() {
         DISLIKE_BUTTON_SELECTOR
       ) as HTMLButtonElement;
       if (
-        likeBtn?.ariaPressed === "true" ||
-        dislikeBtn?.ariaPressed === "true"
+        likeBtn?.getAttribute("aria-pressed") === "true" ||
+        dislikeBtn?.getAttribute("aria-pressed") === "true"
       ) {
         dislikeBtn.click();
       } else {

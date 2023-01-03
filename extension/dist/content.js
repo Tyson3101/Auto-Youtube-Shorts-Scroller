@@ -107,7 +107,7 @@ async function scrollToNextShort() {
         inline: "center",
     });
     setTimeout(() => {
-        // Hardcoded timeout to make sure the video is scrolled before playing it
+        // Hardcoded timeout to make sure the video is scrolled before other scrolls are allowed
         scrollingIsDone = true;
     }, 700);
 }
@@ -268,8 +268,8 @@ function shortCutListener() {
             // Shortcut for like/dislike
             const likeBtn = document.querySelector(LIKE_BUTTON_SELECTOR);
             const dislikeBtn = document.querySelector(DISLIKE_BUTTON_SELECTOR);
-            if (likeBtn?.ariaPressed === "true" ||
-                dislikeBtn?.ariaPressed === "true") {
+            if (likeBtn?.getAttribute("aria-pressed") === "true" ||
+                dislikeBtn?.getAttribute("aria-pressed") === "true") {
                 dislikeBtn.click();
             }
             else {
