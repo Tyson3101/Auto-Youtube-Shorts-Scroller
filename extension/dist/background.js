@@ -5,7 +5,7 @@ chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.set({ filterByMaxLength: "none" });
     chrome.storage.local.set({ filterByMinLength: "none" });
     chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
-    chrome.storage.local.set({ scrollOnComments: true });
+    chrome.storage.local.set({ scrollOnComments: false });
     chrome.storage.local.set({ shortCutKeys: ["shift", "s"] });
     chrome.storage.local.set({ shortCutInteractKeys: ["shift", "f"] });
     chrome.storage.local.set({

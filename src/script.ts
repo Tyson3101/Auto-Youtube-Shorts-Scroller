@@ -196,7 +196,7 @@ function getAllSettingsForPopup() {
   chrome.storage.local.get(["scrollOnComments"], async (result) => {
     let value = result["scrollOnComments"];
     if (value == undefined) {
-      await chrome.storage.local.set({ scrollOnComments: true });
+      await chrome.storage.local.set({ scrollOnComments: false });
       scrollOnCommentsInput.checked = true;
     }
     scrollOnCommentsInput.checked = value;
