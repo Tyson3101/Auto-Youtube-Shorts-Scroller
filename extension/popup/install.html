@@ -20,10 +20,27 @@
         font-size: 2rem;
       }
       p {
-        font-size: 1.5rem;
+        font-size: max(1.5vw, 1rem);
       }
       a {
         color: blue;
+      }
+      .author {
+        position: absolute;
+        bottom: 15px;
+        border: 0;
+        left: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateX(-50%);
+        text-decoration: none;
+        display: inline;
+        color: whitesmoke;
+      }
+      .youtube {
+        padding: 2rem;
+        display: inline-block;
       }
     </style>
   </head>
@@ -46,24 +63,36 @@
       and/or reinstalling the extension</span
     >
     <p>-</p>
-    <h2 style="font-size: 3em">
+    <h2 style="font-size: 3vw">
       Refresh your current shorts page if you have one open.
     </h2>
-    <a
-      aria-label="Github Page"
-      target="_blank"
-      style="
-        position: absolute;
-        bottom: 15px;
-        border: 0;
-        text-decoration: none;
-        display: inline;
-        color: inherit;
-      "
-      href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
-      class="github-corner"
-    >
-      <i style="font-size: 6rem" class="fa fa-github"></i
-    ></a>
+
+    <div class="author">
+      <h3>
+        <a
+          href="https://youtube.com/@Tyson3101"
+          style="text-decoration: none; color: whitesmoke"
+          >By Tyson3101</a
+        >
+        <hr />
+      </h3>
+      <a
+        aria-label="Github Page"
+        target="_blank"
+        href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
+        class="github-corner"
+      >
+        <i style="font-size: 6rem; color: white" class="fa fa-github"></i
+      ></a>
+      <script src="https://apis.google.com/js/platform.js"></script>
+      <div class="youtube">
+        <div
+          class="g-ytsubscribe"
+          data-channelid="UCDhbvtFFtYvv9kH-kcdVsWg"
+          data-layout="full"
+          data-count="default"
+        ></div>
+      </div>
+    </div>
   </body>
 </html>
