@@ -4,6 +4,9 @@ const sleep = (milliseconds) => {
 };
 // -------
 let applicationIsOn = true;
+let currentVideoIndex = null;
+let scrollingIsDone = true;
+let lastVideo = null;
 
 document.addEventListener("keydown", (e) => {
   if (!e.isTrusted) return;
@@ -13,60 +16,80 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-startAutoScrolling();
-showShortCutsOnStartUp();
-
 function startAutoScrolling() {
   if (!applicationIsOn) {
     applicationIsOn = true;
     if (window.location.href.includes("hashtag/shorts")) {
+      // If on hashtag page, click on a shorts video to start the auto scrolling (WHEN THIS FUNCTION CALLED)
       document
         .querySelector("#thumbnail [aria-label='Shorts']")
         .parentElement.parentElement.parentElement.click();
     }
   }
 }
-function endVideoEvent() {
-  if (!applicationIsOn)
-    return document.querySelector("video").removeEventListener("ended", this);
-  const VIDEOS_LIST = [...document.querySelectorAll(VIDEOS_LIST_SELECTOR)];
-
-  const currentVideoParent = VIDEOS_LIST.find((e) => {
-    return e.querySelector("video")?.tabIndex === -1;
-  });
-  const nextVideo = document.getElementById(
-    `${Number(currentVideoParent.id) + 1}`
-  );
-  nextVideo.scrollIntoView({
-    behavior: "smooth",
-    inline: "center",
-    block: "center",
-  });
-}
 function stopAutoScrolling() {
-  applicationIsOn = false;
-  for (let video of Array.from(document.querySelectorAll("video"))) {
-    video.setAttribute("loop", "");
+  if (applicationIsOn) {
+    applicationIsOn = false;
   }
+  const currentVideo = document.querySelector(
+    "#shorts-container video[tabindex='-1']"
+  );
+  // Lets the video loop again
+  if (currentVideo) currentVideo.setAttribute("loop", "");
+}
+
+function checkForNewShort() {
+  const currentVideo = document.querySelector(
+    "#shorts-container video[tabindex='-1']"
+  );
+  // Check to see if the video has loaded
+  if (isNaN(currentVideo?.duration) || currentVideo?.duration == null) return;
+  // Checks if the appliaction is on. If not, lets the video loop again
+  if (!applicationIsOn) return currentVideo.setAttribute("loop", "");
+  else currentVideo.removeAttribute("loop");
+  const newCurrentShortsIndex = Array.from(
+    document.querySelectorAll(VIDEOS_LIST_SELECTOR)
+  ).findIndex((v) => v.querySelector("video[tabindex='-1']"));
+  if (scrollingIsDone /*to prevent double scrolls*/) {
+    if (newCurrentShortsIndex !== currentVideoIndex) {
+      lastVideo?.removeEventListener("ended", videoFinished);
+      lastVideo = currentVideo;
+      currentVideoIndex = newCurrentShortsIndex;
+      amountOfPlays = 0;
+    }
+    if (!checkIfVaildVideo()) {
+      scrollToNextShort();
+      return;
+    }
+    currentVideo.addEventListener("ended", videoFinished);
+  }
+}
+function videoFinished() {
+  if (!applicationIsOn) return;
+  scrollToNextShort();
+}
+
+async function scrollToNextShort() {
+  amountOfPlays = 0;
+  scrollingIsDone = false;
+  const currentVideoParent = getParentVideo();
+  const nextVideoParent = document.getElementById(
+    `${Number(currentVideoParent?.id) + 1}`
+  );
+  if (!nextVideoParent) return;
+  nextVideoParent?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+    inline: "center",
+  });
+  setTimeout(() => {
+    // Hardcoded timeout to make sure the video is scrolled before other scrolls are allowed
+    scrollingIsDone = true;
+  }, 700);
 }
 
 (function loop() {
-  (function getCurrentVideo() {
-    if (!applicationIsOn) return;
-    let currentvideo = Array.from(document.querySelectorAll("video")).find(
-      (video) =>
-        !!(
-          video.currentTime > 0 &&
-          !video.paused &&
-          !video.ended &&
-          video.readyState > 2
-        )
-    );
-    try {
-      currentvideo.attributes.removeNamedItem("loop");
-      currentvideo.addEventListener("ended", endVideoEvent);
-    } catch {}
-  })();
+  checkForNewShort();
   sleep(100).then(loop);
 })();
 

@@ -65,49 +65,51 @@ backSettings.onclick = () => {
 };
 function getAllSettingsForPopup() {
     // Get Settings and show them on the popup (and check for updates and reflect them)
-    chrome.storage.local.get(["shortCutKeys", "shortCutInteractKeys"], async ({ shortCutKeys, shortCutInteractKeys }) => {
-        console.log({ shortCutKeys, shortCutInteractKeys });
-        if (shortCutKeys == undefined) {
-            await chrome.storage.local.set({ shortCutKeys: ["shift", "s"] });
+    chrome.storage.local.get(["AUTOYT_shortCutKeys", "AUTOYT_shortCutInteractKeys"], async ({ AUTOYT_shortCutKeys, AUTOYT_shortCutInteractKeys }) => {
+        console.log({ AUTOYT_shortCutKeys, AUTOYT_shortCutInteractKeys });
+        if (AUTOYT_shortCutKeys == undefined) {
+            await chrome.storage.local.set({
+                AUTOYT_shortCutKeys: ["shift", "s"],
+            });
             shortCutInput.value = "shift+s";
         }
         else {
-            console.log({ shortCutKeys });
-            shortCutInput.value = shortCutKeys.join("+");
+            console.log({ AUTOYT_shortCutKeys });
+            shortCutInput.value = AUTOYT_shortCutKeys.join("+");
         }
         shortCutInput.addEventListener("change", () => {
             const value = shortCutInput.value.trim().split("+");
             if (!value.length)
                 return;
             chrome.storage.local.set({
-                shortCutKeys: value,
+                AUTOYT_shortCutKeys: value,
             });
             shortCutInput.value = value.join("+");
         });
-        if (shortCutInteractKeys == undefined) {
+        if (AUTOYT_shortCutInteractKeys == undefined) {
             await chrome.storage.local.set({
-                shortCutInteractKeys: ["shift", "f"],
+                AUTOYT_shortCutInteractKeys: ["shift", "f"],
             });
             shortCutInteractInput.value = "shift+f";
         }
         else {
-            shortCutInteractInput.value = shortCutInteractKeys.join("+");
+            shortCutInteractInput.value = AUTOYT_shortCutInteractKeys.join("+");
         }
         shortCutInteractInput.addEventListener("change", (e) => {
             const value = e.target.value.trim().split("+");
             if (!value.length)
                 return;
             chrome.storage.local.set({
-                shortCutInteractKeys: value,
+                AUTOYT_shortCutInteractKeys: value,
             });
             shortCutInteractInput.value = value.join("+");
         });
     });
-    chrome.storage.local.get("filteredAuthors", (result) => {
-        let value = result["filteredAuthors"];
+    chrome.storage.local.get("AUTOYT_filteredAuthors", (result) => {
+        let value = result["AUTOYT_filteredAuthors"];
         if (value == undefined) {
             chrome.storage.local.set({
-                filteredAuthors: ["Tyson3101"],
+                AUTOYT_filteredAuthors: ["Tyson3101"],
             });
             value = ["Tyson3101"];
         }
@@ -116,70 +118,70 @@ function getAllSettingsForPopup() {
     filteredAuthors.addEventListener("input", () => {
         const value = filteredAuthors.value.split(",").filter((v) => v);
         chrome.storage.local.set({
-            filteredAuthors: value,
+            AUTOYT_filteredAuthors: value,
         });
     });
-    chrome.storage.local.get(["filterByMaxLength"], async (result) => {
-        let value = result["filterByMaxLength"];
+    chrome.storage.local.get(["AUTOYT_filterByMaxLength"], async (result) => {
+        let value = result["AUTOYT_filterByMaxLength"];
         if (value == undefined) {
-            await chrome.storage.local.set({ filterByMaxLength: "none" });
+            await chrome.storage.local.set({ AUTOYT_filterByMaxLength: "none" });
             return (filterByMaxLength.value = "none");
         }
         filterByMaxLength.value = value;
     });
-    chrome.storage.local.get(["filterByMinLength"], async (result) => {
-        let value = result["filterByMinLength"];
+    chrome.storage.local.get(["AUTOYT_filterByMinLength"], async (result) => {
+        let value = result["AUTOYT_filterByMinLength"];
         if (value == undefined) {
-            await chrome.storage.local.set({ filterByMinLength: "none" });
+            await chrome.storage.local.set({ AUTOYT_filterByMinLength: "none" });
             return (filterByMinLength.value = "none");
         }
         filterByMinLength.value = value;
     });
     filterByMaxLength.addEventListener("change", (e) => {
         chrome.storage.local.set({
-            filterByMaxLength: e.target.value,
+            AUTOYT_filterByMaxLength: e.target.value,
         });
     });
     filterByMinLength.addEventListener("change", (e) => {
         chrome.storage.local.set({
-            filterByMinLength: e.target.value,
+            AUTOYT_filterByMinLength: e.target.value,
         });
     });
-    chrome.storage.local.get(["amountOfPlaysToSkip"], async (result) => {
-        let value = result["amountOfPlaysToSkip"];
+    chrome.storage.local.get(["AUTOYT_amountOfPlaysToSkip"], async (result) => {
+        let value = result["AUTOYT_amountOfPlaysToSkip"];
         if (value == undefined) {
-            await chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
+            await chrome.storage.local.set({ AUTOYT_amountOfPlaysToSkip: 1 });
             amountOfPlaysInput.value = "1";
         }
         amountOfPlaysInput.value = value;
     });
     amountOfPlaysInput.addEventListener("change", (e) => {
         chrome.storage.local.set({
-            amountOfPlaysToSkip: parseInt(e.target.value),
+            AUTOYT_amountOfPlaysToSkip: parseInt(e.target.value),
         });
     });
-    chrome.storage.local.get(["scrollOnComments"], async (result) => {
-        let value = result["scrollOnComments"];
+    chrome.storage.local.get(["AUTOYT_scrollOnComments"], async (result) => {
+        let value = result["AUTOYT_scrollOnComments"];
         if (value == undefined) {
-            await chrome.storage.local.set({ scrollOnComments: false });
+            await chrome.storage.local.set({ AUTOYT_crollOnComments: false });
             scrollOnCommentsInput.checked = true;
         }
         scrollOnCommentsInput.checked = value;
     });
     scrollOnCommentsInput.addEventListener("change", (e) => {
         chrome.storage.local.set({
-            scrollOnComments: e.target.checked,
+            AUTOYT_scrollOnComments: e.target.checked,
         });
     });
     chrome.storage.onChanged.addListener((result) => {
-        if (result.applicationIsOn?.newValue != undefined)
-            changeToggleButton(result.applicationIsOn.newValue);
+        if (result["AUTOYT_applicationIsOn"]?.newValue != undefined)
+            changeToggleButton(result["AUTOYT_applicationIsOn"].newValue);
     });
-    chrome.storage.local.get(["applicationIsOn"], (result) => {
-        if (result.applicationIsOn == null) {
+    chrome.storage.local.get(["AUTOYT_applicationIsOn"], (result) => {
+        if (result["AUTOYT_applicationIsOn"] == null) {
             changeToggleButton(true);
         }
         else
-            changeToggleButton(result.applicationIsOn);
+            changeToggleButton(result["AUTOYT_applicationIsOn"]);
     });
 }
