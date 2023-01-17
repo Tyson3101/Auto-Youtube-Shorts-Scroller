@@ -57,10 +57,9 @@ function checkForNewShort() {
       currentVideoIndex = newCurrentShortsIndex;
       amountOfPlays = 0;
     }
-    if (!checkIfVaildVideo()) {
-      scrollToNextShort();
-      return;
-    }
+
+    scrollToNextShort();
+
     currentVideo.addEventListener("ended", videoFinished);
   }
 }

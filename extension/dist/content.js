@@ -295,10 +295,15 @@ function shortCutListener() {
 chrome.runtime.onMessage.addListener(({ toggle }) => {
     if (toggle) {
         chrome.storage.local.get(["AUTOYT_applicationIsOn"], (result) => {
-            if (!result.applicationIsOn)
-                startAutoScrolling();
-            if (result.applicationIsOn)
-                stopAutoScrolling();
+            try {
+                if (!result["AUTOYT_applicationIsOn"])
+                    startAutoScrolling();
+                if (result["AUTOYT_applicationIsOn"])
+                    stopAutoScrolling();
+            }
+            catch (e) {
+                console.log(e);
+            }
         });
     }
     return true;
