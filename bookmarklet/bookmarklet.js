@@ -16,6 +16,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+showShortCutsOnStartUp();
+startAutoScrolling();
+
 function startAutoScrolling() {
   if (!applicationIsOn) {
     applicationIsOn = true;

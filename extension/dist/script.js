@@ -18,10 +18,15 @@ getAllSettingsForPopup();
 document.onclick = (e) => {
     if (e.target.classList.contains("toggleBtn"))
         chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-            if (validUrls.some((url) => tabs[0]?.url?.includes(url)))
-                chrome.tabs.sendMessage(tabs[0].id, { toggle: true }).catch(() => {
-                    errMsg.innerText = "Please refresh the page and try again!";
-                });
+            if (validUrls.some((url) => tabs[0]?.url?.includes(url))) {
+                try {
+                    chrome.tabs.sendMessage(tabs[0].id, { toggle: true }, (response) => {
+                        if (!response?.success)
+                            errMsg.innerText = "Please refresh the page and try again!";
+                    });
+                }
+                catch { }
+            }
             else
                 errMsg.innerText = "Only works for Youtube!";
         });

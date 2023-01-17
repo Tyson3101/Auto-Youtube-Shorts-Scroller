@@ -292,18 +292,14 @@ function shortCutListener() {
     });
 }
 // Listens for toggle application from the popup
-chrome.runtime.onMessage.addListener(({ toggle }) => {
+chrome.runtime.onMessage.addListener(({ toggle }, _, sendResponse) => {
     if (toggle) {
-        chrome.storage.local.get(["AUTOYT_applicationIsOn"], (result) => {
-            try {
-                if (!result["AUTOYT_applicationIsOn"])
-                    startAutoScrolling();
-                if (result["AUTOYT_applicationIsOn"])
-                    stopAutoScrolling();
-            }
-            catch (e) {
-                console.log(e);
-            }
+        chrome.storage.local.get(["AUTOYT_applicationIsOn"], async (result) => {
+            if (!result["AUTOYT_applicationIsOn"])
+                startAutoScrolling();
+            if (result["AUTOYT_applicationIsOn"])
+                stopAutoScrolling();
+            sendResponse({ success: true });
         });
     }
     return true;

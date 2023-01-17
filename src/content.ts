@@ -333,16 +333,15 @@ function shortCutListener() {
 }
 
 // Listens for toggle application from the popup
-chrome.runtime.onMessage.addListener(({ toggle }: { toggle: boolean }) => {
-  if (toggle) {
-    chrome.storage.local.get(["AUTOYT_applicationIsOn"], (result) => {
-      try {
+chrome.runtime.onMessage.addListener(
+  ({ toggle }: { toggle: boolean }, _, sendResponse) => {
+    if (toggle) {
+      chrome.storage.local.get(["AUTOYT_applicationIsOn"], async (result) => {
         if (!result["AUTOYT_applicationIsOn"]) startAutoScrolling();
         if (result["AUTOYT_applicationIsOn"]) stopAutoScrolling();
-      } catch (e) {
-        console.log(e);
-      }
-    });
+        sendResponse({ success: true });
+      });
+    }
+    return true;
   }
-  return true;
-});
+);
