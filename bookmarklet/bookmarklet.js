@@ -1,4 +1,8 @@
 const VIDEOS_LIST_SELECTOR = ".reel-video-in-sequence";
+const LIKE_BUTTON_SELECTOR =
+  "ytd-reel-video-renderer[is-active] #like-button > yt-button-shape > label > button";
+const DISLIKE_BUTTON_SELECTOR =
+  "ytd-reel-video-renderer[is-active] #dislike-button > yt-button-shape > label > button";
 const sleep = (milliseconds) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
@@ -8,13 +12,8 @@ let currentVideoIndex = null;
 let scrollingIsDone = true;
 let lastVideo = null;
 
-document.addEventListener("keydown", (e) => {
-  if (!e.isTrusted) return;
-  if (e.key.toLowerCase() === "s" && e.shiftKey) {
-    e.preventDefault();
-    applicationIsOn ? stopAutoScrolling() : startAutoScrolling();
-  }
-});
+const shortCutToggleKeys = ["shift", "s"];
+const shortCutInteractKeys = ["shift", "f"];
 
 showShortCutsOnStartUp();
 startAutoScrolling();
@@ -90,10 +89,78 @@ async function scrollToNextShort() {
   }, 700);
 }
 
+function getParentVideo() {
+  const VIDEOS_LIST = [...document.querySelectorAll(VIDEOS_LIST_SELECTOR)];
+  const currentVideoParent = VIDEOS_LIST.find((e) => {
+    return e.querySelector("video")?.tabIndex === -1;
+  });
+  return currentVideoParent;
+}
+
 (function loop() {
   checkForNewShort();
   sleep(100).then(loop);
 })();
+
+function shortCutListener() {
+  let pressedKeys = [];
+  // Web Dev Simplifed Debounce
+  function debounce(cb, delay) {
+    let timeout;
+
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        cb(...args);
+      }, delay);
+    };
+  }
+
+  const checkKeys = (keysToCheck, waitDebounce = true, delay = 700) => {
+    return new Promise((resolve) => {
+      function debounceCB() {
+        if (pressedKeys.length == keysToCheck.length) {
+          let match = true;
+          for (let i = 0; i < pressedKeys.length; i++) {
+            if (pressedKeys[i] != keysToCheck[i]) {
+              match = false;
+              break;
+            }
+          }
+          resolve(match);
+        } else resolve(false);
+      }
+      if (waitDebounce) debounce(debounceCB, delay)();
+      else debounceCB();
+    });
+  };
+
+  document.addEventListener("keydown", async (e) => {
+    if (!e.key) return;
+    pressedKeys.push(e.key.toLowerCase());
+    // Shortcut for toggle application on/off
+    if (await checkKeys(shortCutToggleKeys)) {
+      if (applicationIsOn) {
+        stopAutoScrolling();
+      } else {
+        startAutoScrolling();
+      }
+    } else if (await checkKeys(shortCutInteractKeys, false)) {
+      // Shortcut for like/dislike
+      const likeBtn = document.querySelector(LIKE_BUTTON_SELECTOR);
+      const dislikeBtn = document.querySelector(DISLIKE_BUTTON_SELECTOR);
+      if (
+        likeBtn?.getAttribute("aria-pressed") === "true" ||
+        dislikeBtn?.getAttribute("aria-pressed") === "true"
+      ) {
+        dislikeBtn.click();
+      } else {
+        likeBtn.click();
+      }
+    }
+    pressedKeys = [];
+  });
+}
 
 function showShortCutsOnStartUp() {
   const rawHtmlString = `<div style="margin: 1vw; position: absolute; border: 2px soild black;width: 500px;height: fit-content;background-color: rgb(238, 167, 167);box-shadow: 10px 10px 5px lightblue; z-index: 9999;" class="autoTikTok-shortcuts-popup">
@@ -102,6 +169,7 @@ function showShortCutsOnStartUp() {
       <h3><i>${applicationIsOn ? "Scroller Status: On" : "Status: Off"}</i></h3>
       <div style='margin-left: 3vw' class="autoTikTok-commands">
         <h2>Toggle Scroller: <code style="background-color: rgba(20,20,20, 0.2);" class="autoTikTok-command">shift + s</code></h2>
+        <h2>Toggle Like/Dislike: <code style="background-color: rgba(20,20,20, 0.2);" class="autoTikTok-command">shift + f</code></h2>
       </div>
 
     </div>`;
