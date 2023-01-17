@@ -12,3 +12,7 @@ chrome.runtime.onInstalled.addListener(() => {
     AUTOYT_filteredAuthors: ["Tyson3101"],
   });
 });
+
+chrome.runtime.onUpdateAvailable.addListener(() => {
+  chrome.runtime.reload();
+});
