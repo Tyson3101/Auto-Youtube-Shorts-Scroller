@@ -3,20 +3,27 @@ const LIKE_BUTTON_SELECTOR =
   "ytd-reel-video-renderer[is-active] #like-button > yt-button-shape > label > button";
 const DISLIKE_BUTTON_SELECTOR =
   "ytd-reel-video-renderer[is-active] #dislike-button > yt-button-shape > label > button";
+const COMMENTS_SELECTOR =
+  "body > ytd-app > ytd-popup-container > tp-yt-paper-dialog > ytd-engagement-panel-section-list-renderer > div";
 const sleep = (milliseconds) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 // -------
 let applicationIsOn = true;
+let scrollOnComments = false;
+
 let currentVideoIndex = null;
 let scrollingIsDone = true;
 let lastVideo = null;
 
 const shortCutToggleKeys = ["shift", "s"];
 const shortCutInteractKeys = ["shift", "f"];
+const shortCutScrollOnCommentsKeys = ["shift", "d"];
 
+shortCutListener();
 showShortCutsOnStartUp();
 startAutoScrolling();
+console.log("Starting...");
 
 function startAutoScrolling() {
   if (!applicationIsOn) {
@@ -51,27 +58,42 @@ function checkForNewShort() {
   else currentVideo.removeAttribute("loop");
   const newCurrentShortsIndex = Array.from(
     document.querySelectorAll(VIDEOS_LIST_SELECTOR)
-  ).findIndex((v) => v.querySelector("video[tabindex='-1']"));
+  ).findIndex((e) => e.hasAttribute("is-active"));
   if (scrollingIsDone /*to prevent double scrolls*/) {
     if (newCurrentShortsIndex !== currentVideoIndex) {
       lastVideo?.removeEventListener("ended", videoFinished);
       lastVideo = currentVideo;
       currentVideoIndex = newCurrentShortsIndex;
-      amountOfPlays = 0;
     }
-
-    scrollToNextShort();
-
     currentVideo.addEventListener("ended", videoFinished);
   }
 }
 function videoFinished() {
   if (!applicationIsOn) return;
-  scrollToNextShort();
+  const comments = document.querySelector(COMMENTS_SELECTOR);
+  if (comments && comments.getBoundingClientRect().x > 0) {
+    if (!scrollOnComments) {
+      let intervalComments = setInterval(() => {
+        if (!comments.getBoundingClientRect().x) {
+          scrollToNextShort();
+          clearInterval(intervalComments);
+        }
+      }, 100);
+      return;
+    } else {
+      // If the comments are open and the user wants to scroll on comments, close the comments
+      const closeCommentsButton = document.querySelector(
+        "#visibility-button > ytd-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div > div.yt-spec-touch-feedback-shape__fill"
+      );
+      if (closeCommentsButton) closeCommentsButton.click();
+      scrollToNextShort();
+    }
+  } else {
+    scrollToNextShort();
+  }
 }
 
 async function scrollToNextShort() {
-  amountOfPlays = 0;
   scrollingIsDone = false;
   const currentVideoParent = getParentVideo();
   const nextVideoParent = document.getElementById(
@@ -92,15 +114,15 @@ async function scrollToNextShort() {
 function getParentVideo() {
   const VIDEOS_LIST = [...document.querySelectorAll(VIDEOS_LIST_SELECTOR)];
   const currentVideoParent = VIDEOS_LIST.find((e) => {
-    return e.querySelector("video")?.tabIndex === -1;
+    return (
+      e.hasAttribute("is-active") &&
+      e.querySelector("#shorts-container video[tabindex='-1']")
+    );
   });
   return currentVideoParent;
 }
 
-(function loop() {
-  checkForNewShort();
-  sleep(100).then(loop);
-})();
+setInterval(checkForNewShort, 100);
 
 function shortCutListener() {
   let pressedKeys = [];
@@ -157,7 +179,14 @@ function shortCutListener() {
       } else {
         likeBtn.click();
       }
+    } else if (await checkKeys(shortCutScrollOnCommentsKeys, false)) {
+      if (scrollOnComments) {
+        scrollOnComments = false;
+      } else {
+        scrollOnComments = true;
+      }
     }
+
     pressedKeys = [];
   });
 }
@@ -166,9 +195,17 @@ function showShortCutsOnStartUp() {
   const rawHtmlString = `<div style="margin: 1vw; position: absolute; border: 2px soild black;width: 500px;height: fit-content;background-color: rgb(238, 167, 167);box-shadow: 10px 10px 5px lightblue; z-index: 9999;" class="autoTikTok-shortcuts-popup">
       <h1>Auto Youtube Shorts Scroller Shortcuts&nbsp;</h1>
       <p style="font-size: small"><i>Won't work properly if Auto YT Short Scroller Chrome Extension is installed</i></p>
-      <h3><i>${applicationIsOn ? "Scroller Status: On" : "Status: Off"}</i></h3>
+      <h3><i>${
+        applicationIsOn ? "Scroller Status: On" : "Scroller Status: Off"
+      }</i></h3>
+      <h3><i>${
+        scrollOnComments
+          ? "Scroll on Comments Status: On"
+          : "Scroll on Comments Status Status: Off"
+      }</i></h3>
       <div style='margin-left: 3vw' class="autoTikTok-commands">
         <h2>Toggle Scroller: <code style="background-color: rgba(20,20,20, 0.2);" class="autoTikTok-command">shift + s</code></h2>
+        <h2>Toggle Scroll on Comments: <code style="background-color: rgba(20,20,20, 0.2);" class="autoTikTok-command">shift + d</code></h2>
         <h2>Toggle Like/Dislike: <code style="background-color: rgba(20,20,20, 0.2);" class="autoTikTok-command">shift + f</code></h2>
       </div>
 

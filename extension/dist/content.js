@@ -23,7 +23,7 @@ function startAutoScrolling() {
     if (!applicationIsOn) {
         applicationIsOn = true;
         // Save state to chrome storage so it will be on next time on page load
-        chrome.storage.local.set({ AUTOYT_applicationIsOn: true });
+        chrome.storage.local.set({ applicationIsOn: true });
         if (window.location.href.includes("hashtag/shorts")) {
             // If on hashtag page, click on a shorts video to start the auto scrolling (WHEN THIS FUNCTION CALLED)
             document
@@ -36,7 +36,7 @@ function stopAutoScrolling() {
     if (applicationIsOn) {
         applicationIsOn = false;
         // Save state to chrome storage so it will be off next time on page load
-        chrome.storage.local.set({ AUTOYT_applicationIsOn: false });
+        chrome.storage.local.set({ applicationIsOn: false });
     }
     const currentVideo = document.querySelector("#shorts-container video[tabindex='-1']");
     // Lets the video loop again
@@ -53,7 +53,7 @@ function checkForNewShort() {
         return currentVideo.setAttribute("loop", "");
     else
         currentVideo.removeAttribute("loop");
-    const newCurrentShortsIndex = Array.from(document.querySelectorAll(VIDEOS_LIST_SELECTOR)).findIndex((v) => v.querySelector("video[tabindex='-1']"));
+    const newCurrentShortsIndex = Array.from(document.querySelectorAll(VIDEOS_LIST_SELECTOR)).findIndex((e) => e.hasAttribute("is-active"));
     if (scrollingIsDone /*to prevent double scrolls*/) {
         if (newCurrentShortsIndex !== currentVideoIndex) {
             lastVideo?.removeEventListener("ended", videoFinished);
@@ -102,9 +102,14 @@ function videoFinished() {
     }
 }
 async function scrollToNextShort() {
+    const currentVideoParent = getParentVideo();
+    if (!currentVideoParent)
+        return;
+    const currentVideo = currentVideoParent.querySelector("video");
+    if (!applicationIsOn)
+        return currentVideo?.setAttribute("loop", "");
     amountOfPlays = 0;
     scrollingIsDone = false;
-    const currentVideoParent = getParentVideo();
     const nextVideoParent = document.getElementById(`${Number(currentVideoParent?.id) + 1}`);
     if (nextVideoParent) {
         nextVideoParent.scrollIntoView({
@@ -117,6 +122,8 @@ async function scrollToNextShort() {
         const nextButton = document.querySelector(NEXT_VIDEO_BUTTON_SELECTOR);
         if (nextButton)
             nextButton.click();
+        else
+            currentVideo?.setAttribute("loop", "");
     }
     setTimeout(() => {
         // Hardcoded timeout to make sure the video is scrolled before other scrolls are allowed
@@ -128,6 +135,10 @@ function checkIfVaildVideo() {
     const currentVideo = currentVideoParent?.querySelector("video");
     if (!currentVideo)
         return false;
+    if (!applicationIsOn) {
+        currentVideo.setAttribute("loop", "");
+        return false;
+    }
     // Check if the video is from a blocked creator and if it is, skip it (FROM SETTINGS)
     const authorOfVideo = currentVideoParent
         ?.querySelector(".ytd-channel-name")
@@ -155,7 +166,8 @@ function getParentVideo() {
         ...document.querySelectorAll(VIDEOS_LIST_SELECTOR),
     ];
     const currentVideoParent = VIDEOS_LIST.find((e) => {
-        return e.querySelector("video")?.tabIndex === -1;
+        return (e.hasAttribute("is-active") &&
+            e.querySelector("#shorts-container video[tabindex='-1']"));
     });
     return currentVideoParent;
 }
@@ -163,66 +175,66 @@ function getParentVideo() {
 // Checks if the application is on and if it is, starts the application
 // Creates a Interval to check for new shorts every 100ms
 (function initiate() {
-    chrome.storage.local.get(["AUTOYT_applicationIsOn"], (result) => {
-        if (result["AUTOYT_applicationIsOn"] == null) {
+    chrome.storage.local.get(["applicationIsOn"], (result) => {
+        if (result["applicationIsOn"] == null) {
             return startAutoScrolling();
         }
-        if (result["AUTOYT_applicationIsOn"])
+        if (result["applicationIsOn"])
             startAutoScrolling();
     });
     setInterval(checkForNewShort, 100);
     (function getAllSettings() {
         chrome.storage.local.get([
-            "AUTOYT_shortCutKeys",
-            "AUTOYT_shortCutInteractKeys",
-            "AUTOYT_amountOfPlaysToSkip",
-            "AUTOYT_filterByMinLength",
-            "AUTOYT_filterByMaxLength",
-            "AUTOYT_filteredAuthors",
-            "AUTOYT_scrollOnComments",
+            "shortCutKeys",
+            "shortCutInteractKeys",
+            "amountOfPlaysToSkip",
+            "filterByMinLength",
+            "filterByMaxLength",
+            "filteredAuthors",
+            "scrollOnComments",
         ], (result) => {
-            if (result["AUTOYT_shortCutKeys"])
-                shortCutToggleKeys = [...result["AUTOYT_shortCutKeys"]];
-            if (result["AUTOYT_shortCutInteractKeys"])
-                shortCutInteractKeys = [...result["AUTOYT_shortCutInteractKeys"]];
-            if (result["AUTOYT_amountOfPlaysToSkip"])
-                amountOfPlaysToSkip = result["AUTOYT_amountOfPlaysToSkip"];
-            if (result["AUTOYT_scrollOnComments"])
-                scrollOnCommentsCheck = result["AUTOYT_scrollOnComments"];
-            if (result["AUTOYT_filterByMinLength"])
-                filterMinLength = result["AUTOYT_filterByMinLength"];
-            if (result["AUTOYT_filterByMaxLength"])
-                filterMaxLength = result["AUTOYT_filterByMaxLength"];
-            if (result["AUTOYT_filteredAuthors"])
-                blockedCreators = [...result["AUTOYT_filteredAuthors"]];
+            if (result["shortCutKeys"])
+                shortCutToggleKeys = [...result["shortCutKeys"]];
+            if (result["shortCutInteractKeys"])
+                shortCutInteractKeys = [...result["shortCutInteractKeys"]];
+            if (result["amountOfPlaysToSkip"])
+                amountOfPlaysToSkip = result["amountOfPlaysToSkip"];
+            if (result["scrollOnComments"])
+                scrollOnCommentsCheck = result["scrollOnComments"];
+            if (result["filterByMinLength"])
+                filterMinLength = result["filterByMinLength"];
+            if (result["filterByMaxLength"])
+                filterMaxLength = result["filterByMaxLength"];
+            if (result["filteredAuthors"])
+                blockedCreators = [...result["filteredAuthors"]];
             shortCutListener();
         });
         chrome.storage.onChanged.addListener((result) => {
-            let newShortCutKeys = result["AUTOYT_shortCutKeys"]?.newValue;
+            let newShortCutKeys = result["shortCutKeys"]?.newValue;
             if (newShortCutKeys != undefined) {
                 shortCutToggleKeys = [...newShortCutKeys];
             }
-            let newShortCutInteractKeys = result["AUTOYT_shortCutInteractKeys"]?.newValue;
+            let newShortCutInteractKeys = result["shortCutInteractKeys"]?.newValue;
             if (newShortCutInteractKeys != undefined) {
                 shortCutInteractKeys = [...newShortCutInteractKeys];
             }
-            let newAmountOfPlaysToSkip = result["AUTOYT_amountOfPlaysToSkip"]?.newValue;
+            let newAmountOfPlaysToSkip = result["amountOfPlaysToSkip"]?.newValue;
             if (newAmountOfPlaysToSkip) {
                 amountOfPlaysToSkip = newAmountOfPlaysToSkip;
             }
-            let newScrollOnComments = result["AUTOYT_scrollOnComments"]?.newValue;
+            let newScrollOnComments = result["scrollOnComments"]?.newValue;
             if (newScrollOnComments !== undefined) {
                 scrollOnCommentsCheck = newScrollOnComments;
             }
-            let newFilterMinLength = result["AUTOYT_filterByMinLength"]?.newValue;
+            let newFilterMinLength = result["filterByMinLength"]?.newValue;
             if (newFilterMinLength != undefined) {
                 filterMinLength = newFilterMinLength;
             }
-            let newFilterMaxLength = result["AUTOYT_filterByMaxLength"]?.newValue;
+            let newFilterMaxLength = result["filterByMaxLength"]?.newValue;
             if (newFilterMaxLength != undefined) {
                 filterMaxLength = newFilterMaxLength;
             }
-            let newBlockedCreators = result["AUTOYT_filteredAuthors"]?.newValue;
+            let newBlockedCreators = result["filteredAuthors"]?.newValue;
             if (newBlockedCreators != undefined) {
                 blockedCreators = [...newBlockedCreators];
             }
@@ -294,10 +306,10 @@ function shortCutListener() {
 // Listens for toggle application from the popup
 chrome.runtime.onMessage.addListener(({ toggle }, _, sendResponse) => {
     if (toggle) {
-        chrome.storage.local.get(["AUTOYT_applicationIsOn"], async (result) => {
-            if (!result["AUTOYT_applicationIsOn"])
+        chrome.storage.local.get(["applicationIsOn"], async (result) => {
+            if (!result["applicationIsOn"])
                 startAutoScrolling();
-            if (result["AUTOYT_applicationIsOn"])
+            if (result["applicationIsOn"])
                 stopAutoScrolling();
             sendResponse({ success: true });
         });
