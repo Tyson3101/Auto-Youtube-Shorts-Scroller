@@ -1,7 +1,5 @@
 // CONSTANT SELECTORS VARIBLES
 const VIDEOS_LIST_SELECTOR = ".reel-video-in-sequence";
-const NEXT_VIDEO_BUTTON_SELECTOR =
-  "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const LIKE_BUTTON_SELECTOR =
   "ytd-reel-video-renderer[is-active] #like-button > yt-button-shape > label > button";
 const DISLIKE_BUTTON_SELECTOR =
@@ -20,10 +18,9 @@ let filterMaxLength = "none";
 let blockedCreators = [];
 
 // STATE VARIABLES
-let currentVideoIndex: number = null;
+let currentShortsID: string = null;
 let applicationIsOn = false;
 let scrollingIsDone = true;
-let lastVideo: HTMLVideoElement = null;
 
 // -------
 
@@ -58,21 +55,19 @@ function checkForNewShort() {
   const currentVideo = document.querySelector(
     "#shorts-container video[tabindex='-1']"
   ) as HTMLVideoElement;
+  const newCurrentShortsID = window.location.href.split("shorts/")[1];
+
   // Check to see if the video has loaded
   if (isNaN(currentVideo?.duration) || currentVideo?.duration == null) return;
+  // Check to see if the page is a short video
+  if (!newCurrentShortsID) return;
   // Checks if the appliaction is on. If not, lets the video loop again
   if (!applicationIsOn) return currentVideo.setAttribute("loop", "");
   else currentVideo.removeAttribute("loop");
 
-  const newCurrentShortsIndex = Array.from(
-    document.querySelectorAll(VIDEOS_LIST_SELECTOR)
-  ).findIndex((e) => e.hasAttribute("is-active"));
-
   if (scrollingIsDone /*to prevent double scrolls*/) {
-    if (newCurrentShortsIndex !== currentVideoIndex) {
-      lastVideo?.removeEventListener("ended", videoFinished);
-      lastVideo = currentVideo;
-      currentVideoIndex = newCurrentShortsIndex;
+    if (newCurrentShortsID !== currentShortsID) {
+      currentShortsID = newCurrentShortsID;
       amountOfPlays = 0;
     }
     if (!checkIfVaildVideo()) {
@@ -84,63 +79,49 @@ function checkForNewShort() {
 }
 
 function videoFinished() {
-  const currentVideo = document.querySelector(
-    "#shorts-container video[tabindex='-1']"
-  ) as HTMLVideoElement;
-  if (!applicationIsOn) return currentVideo.setAttribute("loop", "");
+  if (!applicationIsOn) return;
   amountOfPlays++;
 
   if (amountOfPlays >= amountOfPlaysToSkip) {
     // If the video is finished and is equal to the amount of plays needed to skip,
     // check if the comments are open. If they are, wait for them to close and then scroll to the next short
     const comments = document.querySelector(COMMENTS_SELECTOR);
-    if (comments && comments.getBoundingClientRect().x > 0) {
-      if (!scrollOnCommentsCheck) {
-        let intervalComments = setInterval(() => {
-          if (!comments.getBoundingClientRect().x) {
-            scrollToNextShort();
-            clearInterval(intervalComments);
-          }
-        }, 100);
-        return;
-      } else {
-        // If the comments are open and the user wants to scroll on comments, close the comments
-        const closeCommentsButton = document.querySelector(
-          "#visibility-button > ytd-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div > div.yt-spec-touch-feedback-shape__fill"
-        ) as HTMLButtonElement;
-        if (closeCommentsButton) closeCommentsButton.click();
-      }
+    if (
+      comments &&
+      !scrollOnCommentsCheck &&
+      comments.getBoundingClientRect().x > 0
+    ) {
+      let intervalComments = setInterval(() => {
+        if (!comments.getBoundingClientRect().x) {
+          scrollToNextShort();
+          clearInterval(intervalComments);
+        }
+      }, 100);
+      return;
     }
     scrollToNextShort();
   } else {
     // If the video hasn't been played enough times, play it again
-    currentVideo?.play();
+    const currentVideo = document.querySelector(
+      "#shorts-container video[tabindex='-1']"
+    ) as HTMLVideoElement;
+    currentVideo.play();
   }
 }
 
 async function scrollToNextShort() {
-  const currentVideoParent = getParentVideo();
-  if (!currentVideoParent) return;
-  const currentVideo = currentVideoParent.querySelector("video");
-  if (!applicationIsOn) return currentVideo?.setAttribute("loop", "");
   amountOfPlays = 0;
   scrollingIsDone = false;
+  const currentVideoParent = getParentVideo();
   const nextVideoParent = document.getElementById(
     `${Number(currentVideoParent?.id) + 1}`
   );
-  if (nextVideoParent) {
-    nextVideoParent.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "center",
-    });
-  } else {
-    const nextButton = document.querySelector(
-      NEXT_VIDEO_BUTTON_SELECTOR
-    ) as HTMLAnchorElement;
-    if (nextButton) nextButton.click();
-    else currentVideo?.setAttribute("loop", "");
-  }
+  if (!nextVideoParent) return;
+  nextVideoParent?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+    inline: "center",
+  });
   setTimeout(() => {
     // Hardcoded timeout to make sure the video is scrolled before other scrolls are allowed
     scrollingIsDone = true;
@@ -151,15 +132,11 @@ function checkIfVaildVideo() {
   const currentVideoParent = getParentVideo();
   const currentVideo = currentVideoParent?.querySelector("video");
   if (!currentVideo) return false;
-  if (!applicationIsOn) {
-    currentVideo.setAttribute("loop", "");
-    return false;
-  }
   // Check if the video is from a blocked creator and if it is, skip it (FROM SETTINGS)
   const authorOfVideo = currentVideoParent
     ?.querySelector(".ytd-channel-name")
     ?.querySelector("a")
-    .innerText?.toLowerCase()
+    ?.innerText?.toLowerCase()
     .replace("@", "");
   if (
     authorOfVideo &&
@@ -190,10 +167,7 @@ function getParentVideo() {
     ) as NodeListOf<HTMLDivElement>),
   ];
   const currentVideoParent = VIDEOS_LIST.find((e) => {
-    return (
-      e.hasAttribute("is-active") &&
-      e.querySelector("#shorts-container video[tabindex='-1']")
-    );
+    return e.hasAttribute("is-active");
   });
   return currentVideoParent;
 }
@@ -203,10 +177,10 @@ function getParentVideo() {
 // Creates a Interval to check for new shorts every 100ms
 (function initiate() {
   chrome.storage.local.get(["applicationIsOn"], (result) => {
-    if (result["applicationIsOn"] == null) {
+    if (result.applicationIsOn == null) {
       return startAutoScrolling();
     }
-    if (result["applicationIsOn"]) startAutoScrolling();
+    if (result.applicationIsOn) startAutoScrolling();
   });
 
   setInterval(checkForNewShort, 100);
@@ -223,20 +197,20 @@ function getParentVideo() {
         "scrollOnComments",
       ],
       (result) => {
-        if (result["shortCutKeys"])
+        if (result.shortCutKeys)
           shortCutToggleKeys = [...result["shortCutKeys"]];
-        if (result["shortCutInteractKeys"])
+        if (result.shortCutInteractKeys)
           shortCutInteractKeys = [...result["shortCutInteractKeys"]];
-        if (result["amountOfPlaysToSkip"])
+        if (result.amountOfPlaysToSkip)
           amountOfPlaysToSkip = result["amountOfPlaysToSkip"];
-        if (result["scrollOnComments"])
+        if (result.scrollOnComments)
           scrollOnCommentsCheck = result["scrollOnComments"];
-        if (result["filterByMinLength"])
-          filterMinLength = result["filterByMinLength"];
-        if (result["filterByMaxLength"])
-          filterMaxLength = result["filterByMaxLength"];
-        if (result["filteredAuthors"])
-          blockedCreators = [...result["filteredAuthors"]];
+        if (result.filterByMinLength)
+          filterMinLength = result.filterByMinLength;
+        if (result.filterByMaxLength)
+          filterMaxLength = result.filterByMaxLength;
+        if (result.filteredAuthors)
+          blockedCreators = [...result.filteredAuthors];
         shortCutListener();
       }
     );
@@ -251,11 +225,11 @@ function getParentVideo() {
       }
       let newAmountOfPlaysToSkip = result["amountOfPlaysToSkip"]?.newValue;
       if (newAmountOfPlaysToSkip) {
-        amountOfPlaysToSkip = newAmountOfPlaysToSkip;
+        amountOfPlaysToSkip = result.amountOfPlaysToSkip.newValue;
       }
       let newScrollOnComments = result["scrollOnComments"]?.newValue;
       if (newScrollOnComments !== undefined) {
-        scrollOnCommentsCheck = newScrollOnComments;
+        scrollOnCommentsCheck = result.scrollOnComments.newValue;
       }
       let newFilterMinLength = result["filterByMinLength"]?.newValue;
       if (newFilterMinLength != undefined) {
@@ -329,8 +303,8 @@ function shortCutListener() {
         DISLIKE_BUTTON_SELECTOR
       ) as HTMLButtonElement;
       if (
-        likeBtn?.getAttribute("aria-pressed") === "true" ||
-        dislikeBtn?.getAttribute("aria-pressed") === "true"
+        likeBtn?.ariaPressed === "true" ||
+        dislikeBtn?.ariaPressed === "true"
       ) {
         dislikeBtn.click();
       } else {
@@ -342,15 +316,12 @@ function shortCutListener() {
 }
 
 // Listens for toggle application from the popup
-chrome.runtime.onMessage.addListener(
-  ({ toggle }: { toggle: boolean }, _, sendResponse) => {
-    if (toggle) {
-      chrome.storage.local.get(["applicationIsOn"], async (result) => {
-        if (!result["applicationIsOn"]) startAutoScrolling();
-        if (result["applicationIsOn"]) stopAutoScrolling();
-        sendResponse({ success: true });
-      });
-    }
-    return true;
+chrome.runtime.onMessage.addListener(({ toggle }: { toggle: boolean }) => {
+  if (toggle) {
+    chrome.storage.local.get(["applicationIsOn"], (result) => {
+      if (!result.applicationIsOn) startAutoScrolling();
+      if (result.applicationIsOn) stopAutoScrolling();
+    });
   }
-);
+  return true;
+});
