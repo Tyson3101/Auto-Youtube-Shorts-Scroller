@@ -159,7 +159,7 @@ function checkIfVaildVideo() {
   const authorOfVideo = currentVideoParent
     ?.querySelector(".ytd-channel-name")
     ?.querySelector("a")
-    .innerText?.toLowerCase()
+    ?.innerText?.toLowerCase()
     .replace("@", "");
   if (
     authorOfVideo &&
