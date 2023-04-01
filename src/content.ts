@@ -156,10 +156,10 @@ function checkIfVaildVideo() {
     return false;
   }
   // Check if the video is from a blocked creator and if it is, skip it (FROM SETTINGS)
-  const authorOfVideo = currentVideoParent
-    ?.querySelector("#text")
-    ?.querySelector("a")
-    ?.innerText?.toLowerCase()
+  const authorOfVideo = (
+    currentVideoParent?.querySelector("#text a") as HTMLAnchorElement
+  )?.innerText
+    ?.toLowerCase()
     .replace("@", "");
   if (
     authorOfVideo &&
