@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Auto Youtube Shorts Scroller",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
@@ -10,17 +10,17 @@
   ],
   "permissions": ["tabs", "storage"],
   "icons": {
-    "16": "./img/ytshortsIcon16.png",
-    "48": "./img/ytshortsIcon48.png",
-    "128": "./img/ytshortsIcon128.png"
+    "16": "./img/autoYTScrollerIcon16.png",
+    "48": "./img/autoYTScrollerIcon48.png",
+    "128": "./img/autoYTScrollerIcon128.png"
   },
   "background": {
     "service_worker": "./dist/background.js"
   },
   "action": {
     "default_popup": "./popup/popup.html",
-    "default_icon": "./img/ytshortsIcon128.png",
+    "default_icon": "./img/autoYTScrollerIcon128.png",
     "default_title": "Start scrolling!"
   },
-  "description": "Auto Youtube Shorts Scroller is a helpful tool that automatically scrolls to the next YT Short when one ends."
+  "description": "Automatically scrolls to the next Youtube Short when one ends!"
 }

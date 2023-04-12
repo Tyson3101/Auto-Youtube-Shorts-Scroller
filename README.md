@@ -2,7 +2,7 @@
 
 ## A Chrome Extension/Bookmarklet that adds an auto-scroll feature on Youtube so you can watch Shorts without the need to touch your mouse.
 
-<img src="./extension/img/ytshortsIcon128.png"/>
+<img src="./extension/img/autoYTScrollerIcon128.png"/>
 
 #### Whenever a YT Short ends, the extension will automatically scroll to the next one for you. Great for doing homework and watching Shorts at the same time without the need to switch tabs! Just be sure to not tell your teachers.
 
@@ -22,7 +22,7 @@
 - Click "Load unpacked extension",
 - Select the `extension` folder from this repo.
 
-<img src="./img/ScreenshotGoogleExtensionYoutube.png" width="500" height="400" />
+<img src="./images/ScreenshotGoogleExtensionYoutube.png" width="500" height="400" />
 
 ## Bookmarklet
 
@@ -30,7 +30,7 @@
 
 Link: [https://tyson3101.github.io/Auto-Youtube-Shorts-Scroller/bookmarklet/bookmarklet.html](https://tyson3101.github.io/Auto-Youtube-Shorts-Scroller/bookmarklet/bookmarklet.html)
 
-<img src="./img/GoogleExtensionGif.gif" width="486" height="363" />
+<img src="./images/GoogleExtensionGif.gif" width="486" height="363" />
 
 ##### If you have any suggestions or experience problems, post an issue on the GitHub page: [https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller/issues](https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller/issues)
 

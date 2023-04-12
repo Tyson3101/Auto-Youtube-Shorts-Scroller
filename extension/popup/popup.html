@@ -64,9 +64,20 @@
       left: 50%;
       transform: translateX(-50%);
       width: 90%;
-      height: 9.5rem;
+      height: 10rem;
     }
-    .settings h2 {
+    .settings.remove {
+      display: none;
+    }
+    .settings > .settings.small {
+      height: 10rem;
+    }
+    .settings.small {
+      height: 4.8rem;
+      width: 80vw;
+    }
+    .settings h2,
+    .settings h3 {
       text-decoration: underline;
     }
     .settings * {
@@ -78,29 +89,31 @@
     .settings select {
       margin-bottom: 0.2rem;
     }
-    #nextSettings {
+    .settings input[type="number"] {
+      width: 15vw;
+    }
+    .next {
       position: absolute;
       right: 3px;
       bottom: 3px;
-      background-color: var(--bg-color);
     }
-    #backSettings {
+    .back {
       position: absolute;
       left: 3px;
       bottom: 3px;
-      background-color: var(--bg-color);
     }
-    #pageNumber {
+    .pageNumber {
       position: absolute;
       bottom: 0;
       margin: auto;
-      background-color: var(--bg-color);
     }
-
-    .settingsPage {
+    .settingsPage,
+    .filterPage {
       display: none;
     }
-
+    .filterPage.active {
+      display: block;
+    }
     .settingsPage.active {
       display: flex;
       justify-content: center;
@@ -130,6 +143,9 @@
       display: block;
       min-width: 40vw;
     }
+    .filterOptions:not(.active) * {
+      display: none;
+    }
     textarea.urlsList {
       width: 90%;
       text-align: left;
@@ -138,6 +154,20 @@
       border: 1px solid black;
       background-color: white;
       padding: 0.2em;
+    }
+    .pageList {
+      display: block;
+      margin-top: 5px;
+      margin-bottom: 0;
+    }
+    .pageList * {
+      display: inline-block;
+      margin-right: 11px;
+      text-decoration: none;
+    }
+    .pageList .active {
+      text-decoration: underline;
+      font-weight: 500;
     }
   </style>
   <body>
@@ -148,10 +178,9 @@
     ></span>
     <button class="toggleBtn">Stop</button>
     <i id="error" style="color: red; display: block"></i>
-
     <div class="settings">
       <h2>Settings</h2>
-      <div data-settingIndex="0" class="settingsPage active">
+      <div data-pageIndex="0" class="settingsPage active">
         <label for="shortCutInput"
           ><p style="font-size: 1rem">
             Toggle Shortcut
@@ -174,7 +203,7 @@
           name="shortCutInput"
           id="shortCutInput"
           value="shift + s"
-          style="width: 40%"
+          style="width: 40%; margin: 5px 0"
         />
         <p>
           See
@@ -187,37 +216,134 @@
         </p>
       </div>
 
-      <div data-settingIndex="1" class="settingsPage">
-        <label for="filterShorts"
-          ><p style="font-size: 1rem">
+      <div data-pageIndex="1" class="settingsPage">
+        <label for="filterShorts">
+          <p style="font-size: 1rem; margin-top: 2.5px">
             Filter Shorts
-            <i style="font-size: 0.7em; display: block"
-              >Auto skips videos by length <br
-            /></i></p
-        ></label>
-        <div class="filterOptions">
-          <div>
-            <label for="filterByMinLength">Minimum length: </label>
-            <select name="filterByMinLength" id="filterByMinLength">
-              <option value="none">None</option>
-              <option value="15">15 Seconds</option>
-              <option value="30">30 Seconds</option>
-              <option value="45">45 Seconds</option>
-            </select>
-          </div>
-          <div>
-            <label for="filterByMaxLength">Maximum length: </label>
-            <select name="filterByMaxLength" id="filterByMaxLength">
-              <option value="none">None</option>
-              <option value="15">15 Seconds</option>
-              <option value="30">30 Seconds</option>
-              <option value="45">45 Seconds</option>
-            </select>
+            <i style="font-size: 0.7em; display: block; margin-bottom: 2.5px"
+              >Auto skips videos by length/likes/views/comments</i
+            >
+          </p>
+        </label>
+        <div class="filterShorts">
+          <div class="settings small">
+            <div data-pageIndex="0" class="filterPage filterOptions active">
+              <h3>Short Length</h3>
+              <div>
+                <label for="filterByMinLength">Minimum length: </label>
+                <select name="filterByMinLength" id="filterByMinLength">
+                  <option value="none">None</option>
+                  <option value="15">15 Seconds</option>
+                  <option value="30">30 Seconds</option>
+                  <option value="45">45 Seconds</option>
+                </select>
+              </div>
+              <div>
+                <label for="filterByMaxLength">Maximum length: </label>
+                <select name="filterByMaxLength" id="filterByMaxLength">
+                  <option value="none">None</option>
+                  <option value="15">15 Seconds</option>
+                  <option value="30">30 Seconds</option>
+                  <option value="45">45 Seconds</option>
+                </select>
+              </div>
+            </div>
+            <div data-pageIndex="1" class="filterPage filterOptions">
+              <h3>Views</h3>
+              <div>
+                <label for="filterByMinViews">Minimum views: </label>
+                <input
+                  style="display: inline"
+                  type="number"
+                  name="filterByMinViews"
+                  id="filterByMinViews"
+                  placeholder="No Filter"
+                  step="1000"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label for="filterByMaxViews">Maximum views: </label>
+                <input
+                  style="display: inline"
+                  type="number"
+                  name="filterByMaxViews"
+                  id="filterByMaxViews"
+                  placeholder="No Filter"
+                  step="1000"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            <div data-pageIndex="2" class="filterPage filterOptions">
+              <h3>Likes</h3>
+              <div>
+                <label for="filterByMinLikes">Minimum likes: </label>
+                <input
+                  style="display: inline"
+                  type="number"
+                  name="filterByMinLikes"
+                  id="filterByMinLikes"
+                  placeholder="No Filter"
+                  step="100"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label for="filterByMaxLikes">Maximum likes: </label>
+                <input
+                  style="display: inline"
+                  type="number"
+                  name="filterByMaxLikes"
+                  id="filterByMaxLikes"
+                  placeholder="No Filter"
+                  step="100"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            <div data-pageIndex="3" class="filterPage filterOptions">
+              <h3>Comments</h3>
+              <div>
+                <label for="filterByMinComments">Minimum comments: </label>
+                <input
+                  style="display: inline"
+                  type="number"
+                  name="filterByMinComments"
+                  id="filterByMinComments"
+                  placeholder="No Filter"
+                  step="50"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label for="filterByMaxComments">Maximum comments: </label>
+                <input
+                  style="display: inline"
+                  type="number"
+                  name="filterByMaxComments"
+                  id="filterByMaxComments"
+                  placeholder="No Filter"
+                  step="50"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            <div id="backFilter" class="back">
+              <a href="#">&#8592; Last Page</a>
+            </div>
+            <div id="filterPageNumber" class="pageNumber">1/4</div>
+            <div id="nextFilter" class="next">
+              <a href="#">Next Page &#8594;</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div data-settingIndex="2" class="settingsPage">
+      <div data-pageIndex="2" class="settingsPage">
         <label for="amountOfPlays"
           ><p style="font-size: 1rem">
             Amount of Plays
@@ -243,7 +369,7 @@
         />
       </div>
 
-      <div data-settingIndex="3" class="settingsPage">
+      <div data-pageIndex="3" class="settingsPage">
         <label for="shortCutInteractInput"
           ><p style="font-size: 1rem">
             Like/Dislike Shortcut
@@ -279,7 +405,7 @@
         </p>
       </div>
 
-      <div data-settingIndex="4" class="settingsPage list">
+      <div data-pageIndex="4" class="settingsPage list">
         <label for="filterAuthors"
           ><p style="font-size: 1rem">
             Block Video Creators
@@ -291,11 +417,22 @@
         >
         <textarea id="filterAuthors" class="urlsList"></textarea>
       </div>
-      <div id="backSettings"><a href="#">&#8592; Last Page</a></div>
-      <div id="pageNumber">1/5</div>
-      <div id="nextSettings"><a href="#">Next Page &#8594;</a></div>
-    </div>
 
+      <div id="backSettings" class="back">
+        <a href="#">&#8592; Last Page</a>
+      </div>
+      <div id="settingsPageNumber" class="pageNumber">1/5</div>
+      <div id="nextSettings" class="next">
+        <a href="#">Next Page &#8594;</a>
+      </div>
+    </div>
+    <div class="pageList">
+      <a href="#" data-pageIndex="0" class="active">Toggle Shortcut</a>
+      <a href="#" data-pageIndex="1">Filter Shorts</a>
+      <a href="#" data-pageIndex="2">Amount of plays</a>
+      <a href="#" data-pageIndex="3">Like/Dislike Shortcut</a>
+      <a href="#" data-pageIndex="4">Block Creators</a>
+    </div>
     <span style="display: block"
       ><p id="adYt">
         <br />Prefer TikTok?
@@ -313,46 +450,48 @@
         >Chrome Web Store!</a
       >
     </h4>
-    <a
-      aria-label="Github Page"
-      target="_blank"
-      style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        border: 0;
-        transform: scale(0.6);
-        text-decoration: none;
-        display: inline;
-        color: inherit;
-      "
-      href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
-      class="github-corner"
-    >
-      <i style="font-size: 3rem" class="fa fa-github"></i
-    ></a>
-    <a
-      aria-label="Github Page"
-      target="_blank"
-      style="
-        position: absolute;
-        top: 0;
-        right: 0;
-        border: 0;
-        transform: scale(0.6);
-        text-decoration: none;
-        display: inline;
-        color: inherit;
-      "
-      href="/popup/help.html"
-      class="help-corner"
-    >
-      <i
-        style="font-size: 3rem"
-        class="fa fa-question-circle"
-        aria-hidden="true"
-      ></i
-    ></a>
+    <div>
+      <a
+        aria-label="Github Page"
+        target="_blank"
+        style="
+          position: absolute;
+          top: 0;
+          left: 0;
+          border: 0;
+          transform: scale(0.6);
+          text-decoration: none;
+          display: inline;
+          color: inherit;
+        "
+        href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
+        class="github-corner"
+      >
+        <i style="font-size: 3rem" class="fa fa-github"></i
+      ></a>
+      <a
+        aria-label="Github Page"
+        target="_blank"
+        style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          border: 0;
+          transform: scale(0.6);
+          text-decoration: none;
+          display: inline;
+          color: inherit;
+        "
+        href="/popup/help.html"
+        class="help-corner"
+      >
+        <i
+          style="font-size: 3rem"
+          class="fa fa-question-circle"
+          aria-hidden="true"
+        ></i
+      ></a>
+    </div>
     <script src="../dist/script.js"></script>
   </body>
 </html>
