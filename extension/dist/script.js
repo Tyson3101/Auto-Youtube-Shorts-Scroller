@@ -38,13 +38,13 @@ document.onclick = (e) => {
             }
             else {
                 // get applicationIsOn from chrome storage
-                chrome.storage.sync.get(["applicationIsOn"], (result) => {
+                chrome.storage.local.get(["applicationIsOn"], (result) => {
                     if (!result.applicationIsOn) {
-                        chrome.storage.sync.set({ applicationIsOn: true });
+                        chrome.storage.local.set({ applicationIsOn: true });
                         changeToggleButton(true);
                     }
                     else {
-                        chrome.storage.sync.set({ applicationIsOn: false });
+                        chrome.storage.local.set({ applicationIsOn: false });
                         changeToggleButton(false);
                     }
                 });
@@ -347,7 +347,7 @@ function getAllSettingsForPopup() {
         if (result["applicationIsOn"]?.newValue != undefined)
             changeToggleButton(result["applicationIsOn"].newValue);
     });
-    chrome.storage.sync.get(["applicationIsOn"], (result) => {
+    chrome.storage.local.get(["applicationIsOn"], (result) => {
         if (result["applicationIsOn"] == null) {
             changeToggleButton(true);
         }

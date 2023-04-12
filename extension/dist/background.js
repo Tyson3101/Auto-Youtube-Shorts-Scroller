@@ -24,13 +24,24 @@ chrome.runtime.onInstalled.addListener((details) => {
             chrome.storage.sync.get(allStorageKeys, (resultSync) => {
                 let syncData = {};
                 for (const key of allStorageKeys) {
-                    if (resultSync[key] === undefined && resultLocal[key] !== undefined) {
-                        syncData[key] = resultLocal[key];
+                    if (key !== "applicationIsOn") {
+                        if (resultSync[key] === undefined &&
+                            resultLocal[key] !== undefined) {
+                            syncData[key] = resultLocal[key];
+                        }
                     }
                 }
                 chrome.storage.sync.set(syncData, () => {
-                    // Clear local storage data
-                    chrome.storage.local.clear();
+                    // Clear local storage data + keep applicationIsOn
+                    chrome.storage.local.get(["applicationIsOn"], (result) => {
+                        chrome.storage.local.clear();
+                        if (result.applicationIsOn == undefined) {
+                            result.applicationIsOn = true;
+                        }
+                        chrome.storage.local.set({
+                            applicationIsOn: result.applicationIsOn,
+                        });
+                    });
                 });
             });
         });
@@ -42,9 +53,6 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
     // Declare default vlaues
     chrome.storage.sync.get(allStorageKeys, (resultSync) => {
-        if (resultSync.applicationIsOn == undefined) {
-            chrome.storage.sync.set({ applicationIsOn: true });
-        }
         if (resultSync.filterByMaxLength == undefined) {
             chrome.storage.sync.set({ filterByMaxLength: "none" });
         }

@@ -45,7 +45,7 @@ function startAutoScrolling() {
   if (!applicationIsOn) {
     applicationIsOn = true;
     // Save state to chrome storage so it will be on next time on page load
-    chrome.storage.sync.set({ applicationIsOn: true });
+    chrome.storage.local.set({ applicationIsOn: true });
     if (window.location.href.includes("hashtag/shorts")) {
       // If on hashtag page, click on a shorts video to start the auto scrolling (WHEN THIS FUNCTION CALLED)
       document
@@ -59,7 +59,7 @@ function stopAutoScrolling() {
   if (applicationIsOn) {
     applicationIsOn = false;
     // Save state to chrome storage so it will be off next time on page load
-    chrome.storage.sync.set({ applicationIsOn: false });
+    chrome.storage.local.set({ applicationIsOn: false });
   }
   const currentVideo = document.querySelector(
     "#shorts-container video[tabindex='-1']"
@@ -275,7 +275,7 @@ function getParentVideo() {
 // Checks if the application is on and if it is, starts the application
 // Creates a Interval to check for new shorts every 100ms
 (function initiate() {
-  chrome.storage.sync.get(["applicationIsOn"], (result) => {
+  chrome.storage.local.get(["applicationIsOn"], (result) => {
     if (result["applicationIsOn"] == null) {
       return startAutoScrolling();
     }
@@ -460,7 +460,7 @@ function shortCutListener() {
 chrome.runtime.onMessage.addListener(
   ({ toggle }: { toggle: boolean }, _, sendResponse) => {
     if (toggle) {
-      chrome.storage.sync.get(["applicationIsOn"], async (result) => {
+      chrome.storage.local.get(["applicationIsOn"], async (result) => {
         if (!result["applicationIsOn"]) startAutoScrolling();
         if (result["applicationIsOn"]) stopAutoScrolling();
         sendResponse({ success: true });
