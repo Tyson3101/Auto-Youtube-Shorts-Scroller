@@ -4,13 +4,15 @@
 
 <img src="./extension/img/autoYTScrollerIcon128.png"/>
 
-#### Whenever a YT Short ends, the extension will automatically scroll to the next one for you. Great for doing homework and watching Shorts at the same time without the need to switch tabs! Just be sure to not tell your teachers.
+#### Whenever a YT Short ends, the extension will automatically scroll to the next one for you. Great for doing homework and watching Shorts at the same time without the need to switch tabs!
 
-- Extension: [Click here](./README.md#extension)
+- Chrome Extension: [Click here](./README.md#chrome-extension)
+
+- Firefox Add-On: [Click here](./README.md#firefox-add-on)
 
 - Bookmarklet: [Click here](./README.md#bookmarklet)
 
-## Extension
+## Chrome Extension
 
 **Option 1** – Install it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/elggcfikfbaijgcofcapgeahjaclpfnf)
 
@@ -23,6 +25,11 @@
 - Select the `extension` folder from this repo.
 
 <img src="./images/ScreenshotGoogleExtensionYoutube.png" width="500" height="400" />
+
+## Firefox Add-On
+
+For Firefox, you can find a fork of this extension by [SoRadGaming](https://github.com/SoRadGaming). <br/>
+The download for the ported add-on can be found [on their repository.](https://github.com/SoRadGaming/Auto-Youtube-Shorts-Scroller)
 
 ## Bookmarklet
 
