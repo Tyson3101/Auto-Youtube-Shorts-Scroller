@@ -236,7 +236,7 @@ function getAllSettingsForPopup() {
     let value = result["filterByMinLength"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMinLength: "none" });
-      return (filterByMinLength.value = "none");
+      return (filterByMinLength.value = "");
     }
     filterByMinLength.value = value;
   });
@@ -244,49 +244,49 @@ function getAllSettingsForPopup() {
     let value = result["filterByMinViews"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMinViews: "none" });
-      return (filterByMinViews.value = "none");
+      return (filterByMinViews.value = "");
     }
-    filterByMinViews.value = value;
+    filterByMinViews.value = value === "none" ? "" : value;
   });
   chrome.storage.sync.get(["filterByMaxViews"], async (result) => {
     let value = result["filterByMaxViews"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMaxViews: "none" });
-      return (filterByMaxViews.value = "none");
+      return (filterByMaxViews.value = "");
     }
-    filterByMaxViews.value = value;
+    filterByMaxViews.value = value === "none" ? "" : value;
   });
   chrome.storage.sync.get(["filterByMinLikes"], async (result) => {
     let value = result["filterByMinLikes"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMinLikes: "none" });
-      return (filterByMinLikes.value = "none");
+      return (filterByMinLikes.value = "");
     }
-    filterByMinLikes.value = value;
+    filterByMinLikes.value = value === "none" ? "" : value;
   });
   chrome.storage.sync.get(["filterByMaxLikes"], async (result) => {
     let value = result["filterByMaxLikes"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMaxLikes: "none" });
-      return (filterByMaxLikes.value = "none");
+      return (filterByMaxLikes.value = "");
     }
-    filterByMaxLikes.value = value;
+    filterByMaxLikes.value = value === "none" ? "" : value;
   });
   chrome.storage.sync.get(["filterByMinComments"], async (result) => {
     let value = result["filterByMinComments"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMinComments: "none" });
-      return (filterByMinComments.value = "none");
+      return (filterByMinComments.value = "");
     }
-    filterByMinComments.value = value;
+    filterByMinComments.value = value === "none" ? "" : value;
   });
   chrome.storage.sync.get(["filterByMaxComments"], async (result) => {
     let value = result["filterByMaxComments"];
     if (value == undefined) {
       await chrome.storage.sync.set({ filterByMaxComments: "none" });
-      return (filterByMaxComments.value = "none");
+      return (filterByMaxComments.value = "");
     }
-    filterByMaxComments.value = value;
+    filterByMaxComments.value = value === "none" ? "" : value;
   });
 
   filterByMinLength.addEventListener("change", (e) => {
@@ -302,8 +302,9 @@ function getAllSettingsForPopup() {
   });
 
   filterByMinViews.addEventListener("change", (e) => {
-    let value: number | "none" = parseInt((e.target as HTMLInputElement).value);
-    if (value <= 0 || isNaN(value)) {
+    let value = (e.target as HTMLInputElement).value;
+    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
+    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
       value = "none";
       filterByMinViews.value = "";
     }
@@ -313,8 +314,9 @@ function getAllSettingsForPopup() {
   });
 
   filterByMaxViews.addEventListener("change", (e) => {
-    let value: number | "none" = parseInt((e.target as HTMLInputElement).value);
-    if (value <= 0 || isNaN(value)) {
+    let value = (e.target as HTMLInputElement).value;
+    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
+    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
       value = "none";
       filterByMaxViews.value = "";
     }
@@ -324,8 +326,9 @@ function getAllSettingsForPopup() {
   });
 
   filterByMinLikes.addEventListener("change", (e) => {
-    let value: number | "none" = parseInt((e.target as HTMLInputElement).value);
-    if (value <= 0 || isNaN(value)) {
+    let value = (e.target as HTMLInputElement).value;
+    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
+    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
       value = "none";
       filterByMinLikes.value = "";
     }
@@ -335,8 +338,9 @@ function getAllSettingsForPopup() {
   });
 
   filterByMaxLikes.addEventListener("change", (e) => {
-    let value: number | "none" = parseInt((e.target as HTMLInputElement).value);
-    if (value <= 0 || isNaN(value)) {
+    let value = (e.target as HTMLInputElement).value;
+    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
+    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
       value = "none";
       filterByMaxLikes.value = "";
     }
@@ -346,8 +350,9 @@ function getAllSettingsForPopup() {
   });
 
   filterByMinComments.addEventListener("change", (e) => {
-    let value: number | "none" = parseInt((e.target as HTMLInputElement).value);
-    if (value <= 0 || isNaN(value)) {
+    let value = (e.target as HTMLInputElement).value;
+    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
+    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
       value = "none";
       filterByMinComments.value = "";
     }
@@ -357,8 +362,9 @@ function getAllSettingsForPopup() {
   });
 
   filterByMaxComments.addEventListener("change", (e) => {
-    let value: number | "none" = parseInt((e.target as HTMLInputElement).value);
-    if (value <= 0 || isNaN(value)) {
+    let value = (e.target as HTMLInputElement).value;
+    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
+    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
       value = "none";
       filterByMaxComments.value = "";
     }

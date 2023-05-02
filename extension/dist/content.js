@@ -3,8 +3,7 @@ const VIDEOS_LIST_SELECTOR = ".reel-video-in-sequence";
 const NEXT_VIDEO_BUTTON_SELECTOR = "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const LIKE_BUTTON_SELECTOR = "ytd-reel-video-renderer[is-active] #like-button > yt-button-shape > label > button";
 const DISLIKE_BUTTON_SELECTOR = "ytd-reel-video-renderer[is-active] #dislike-button > yt-button-shape > label > button";
-const COMMENTS_SELECTOR = "body > ytd-app > ytd-popup-container > tp-yt-paper-dialog > ytd-engagement-panel-section-list-renderer > div";
-const COMMENTS_CLOSE_BUTTON_SELECTOR = "#visibility-button > ytd-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div > div.yt-spec-touch-feedback-shape__fill";
+const COMMENTS_SELECTOR = "ytd-reel-video-renderer[is-active] ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
 const LIKES_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #factoids > ytd-factoid-renderer:nth-child(1) > div > yt-formatted-string.factoid-value.style-scope.ytd-factoid-renderer";
 const VIEW_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #factoids > ytd-factoid-renderer:nth-child(2) > div > yt-formatted-string.factoid-value.style-scope.ytd-factoid-renderer";
 const COMMENTS_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #comments-button > ytd-button-renderer > yt-button-shape > label > div > span";
@@ -85,26 +84,23 @@ function videoFinished() {
     amountOfPlays++;
     if (amountOfPlays >= amountOfPlaysToSkip) {
         // If the video is finished and is equal to the amount of plays needed to skip,
-        // check if the comments are open. If they are, wait for them to close and then scroll to the next short
+        // check if the comments are open.
         const comments = document.querySelector(COMMENTS_SELECTOR);
-        if (comments && comments.getBoundingClientRect().x > 0) {
-            if (!scrollOnCommentsCheck) {
-                let intervalComments = setInterval(() => {
-                    if (!comments.getBoundingClientRect().x) {
-                        scrollToNextShort();
-                        clearInterval(intervalComments);
-                    }
-                }, 100);
-                return;
+        if (scrollOnCommentsCheck || !comments)
+            return scrollToNextShort(); // Scroll due to scrollOnComments being true or comments not being found
+        else if (comments.getAttribute("visibility") ===
+            "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN" ||
+            comments.clientWidth <= 0)
+            return scrollToNextShort(); // Scroll due to comments not being open
+        // If the comments are open, wait for them to close
+        let intervalComments = setInterval(() => {
+            if (comments.getAttribute("visibility") ===
+                "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN" ||
+                comments.clientWidth <= 0) {
+                scrollToNextShort();
+                clearInterval(intervalComments);
             }
-            else {
-                // If the comments are open and the user wants to scroll on comments, close the comments
-                const closeCommentsButton = document.querySelector(COMMENTS_CLOSE_BUTTON_SELECTOR);
-                if (closeCommentsButton)
-                    closeCommentsButton.click();
-            }
-        }
-        scrollToNextShort();
+        }, 100);
     }
     else {
         // If the video hasn't been played enough times, play it again
@@ -166,8 +162,10 @@ function checkIfVaildVideo() {
         const viewCountInnerText = document.querySelector(VIEW_COUNT_SELECTOR)?.innerText;
         if (viewCountInnerText) {
             const viewCount = parseInt(viewCountInnerText.replaceAll(",", ""));
-            if (viewCount < parseInt(filterMinViews) ||
-                viewCount > parseInt(filterMaxViews)) {
+            if (viewCount <
+                parseInt(filterMinViews.replaceAll("_", "").replaceAll(",", "")) ||
+                viewCount >
+                    parseInt(filterMaxViews.replaceAll("_", "").replaceAll(",", ""))) {
                 return false;
             }
         }
@@ -185,12 +183,13 @@ function checkIfVaildVideo() {
             else if (likeCountInnerText.endsWith("b")) {
                 likeCount *= 1000000000;
             }
-            else if (likeCountInnerText.includes("n/a") &&
-                filterMinLikes != "none") {
+            else if (isNaN(likeCount) && filterMinLikes != "none") {
                 return false;
             }
-            if (likeCount < parseInt(filterMinLikes) ||
-                likeCount > parseInt(filterMaxLikes)) {
+            if (likeCount <
+                parseInt(filterMinLikes.replaceAll("_", "").replaceAll(",", "")) ||
+                likeCount >
+                    parseInt(filterMaxLikes.replaceAll("_", "").replaceAll(",", ""))) {
                 return false;
             }
         }
@@ -208,8 +207,13 @@ function checkIfVaildVideo() {
             else if (commentsCountInnerText.endsWith("b")) {
                 commentsCount *= 1000000000;
             }
-            if (commentsCount < parseInt(filterMinComments) ||
-                commentsCount > parseInt(filterMaxComments)) {
+            else if (isNaN(commentsCount) && filterMinComments != "none") {
+                return false;
+            }
+            if (commentsCount <
+                parseInt(filterMinComments.replaceAll("_", "").replaceAll(",", "")) ||
+                commentsCount >
+                    parseInt(filterMaxComments.replaceAll("_", "").replaceAll(",", ""))) {
                 return false;
             }
         }
