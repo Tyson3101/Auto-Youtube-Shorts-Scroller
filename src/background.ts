@@ -46,6 +46,7 @@ chrome.runtime.onInstalled.addListener((details) => {
             });
           });
         });
+        // Get all filters, then turn it into a string
       });
     });
   }
@@ -64,24 +65,14 @@ chrome.runtime.onInstalled.addListener((details) => {
     if (resultSync.filterByMinLength == undefined) {
       chrome.storage.sync.set({ filterByMinLength: "none" });
     }
-    if (resultSync.filterByMinViews == undefined) {
-      chrome.storage.sync.set({ filterByMinViews: "none" });
-    }
-    if (resultSync.filterByMaxViews == undefined) {
-      chrome.storage.sync.set({ filterByMaxViews: "none" });
-    }
-    if (resultSync.filterByMinLikes == undefined) {
-      chrome.storage.sync.set({ filterByMinLikes: "none" });
-    }
-    if (resultSync.filterByMaxLikes == undefined) {
-      chrome.storage.sync.set({ filterByMaxLikes: "none" });
-    }
-    if (resultSync.filterByMinComments == undefined) {
-      chrome.storage.sync.set({ filterByMinComments: "none" });
-    }
-    if (resultSync.filterByMaxComments == undefined) {
-      chrome.storage.sync.set({ filterByMaxComments: "none" });
-    }
+    chrome.storage.sync.set({
+      filterByMinViews: resultSync.filterByMinViews?.toString() || "none",
+      filterByMaxViews: resultSync.filterByMaxViews?.toString() || "none",
+      filterByMinLikes: resultSync.filterByMinLikes?.toString() || "none",
+      filterByMaxLikes: resultSync.filterByMaxLikes?.toString() || "none",
+      filterByMinComments: resultSync.filterByMinComments?.toString() || "none",
+      filterByMaxComments: resultSync.filterByMaxComments?.toString() || "none",
+    });
     if (resultSync.amountOfPlaysToSkip == undefined) {
       chrome.storage.sync.set({ amountOfPlaysToSkip: 1 });
     }
