@@ -2,6 +2,7 @@
 const errMsg = document.querySelector("#error");
 const toggleBtn = document.querySelector(".toggleBtn");
 const filteredAuthors = document.querySelector("#filterAuthors");
+const filteredTags = document.querySelector("#filterTags");
 const shortCutInput = document.querySelector("#shortCutInput");
 const shortCutInteractInput = document.querySelector("#shortCutInteractInput");
 const filterByMaxLength = document.querySelector("#filterByMaxLength");
@@ -12,6 +13,7 @@ const filterByMinLikes = document.querySelector("#filterByMinLikes");
 const filterByMaxLikes = document.querySelector("#filterByMaxLikes");
 const filterByMinComments = document.querySelector("#filterByMinComments");
 const filterByMaxComments = document.querySelector("#filterByMaxComments");
+const scrollDirectionInput = document.querySelector("#scrollDirectionInput");
 const amountOfPlaysInput = document.querySelector("#amountOfPlaysInput");
 const scrollOnCommentsInput = document.querySelector("#scrollOnComments");
 const nextSettings = document.querySelector("#nextSettings");
@@ -116,7 +118,7 @@ function getAllSettingsForPopup() {
     chrome.storage.sync.get(["shortCutKeys", "shortCutInteractKeys"], async ({ shortCutKeys, shortCutInteractKeys }) => {
         if (shortCutKeys == undefined) {
             await chrome.storage.sync.set({
-                shortCutKeys: ["shift", "s"],
+                shortCutKeys: ["shift", "d"],
             });
             shortCutInput.value = "shift+s";
         }
@@ -165,6 +167,22 @@ function getAllSettingsForPopup() {
         const value = filteredAuthors.value.split(",").filter((v) => v);
         chrome.storage.sync.set({
             filteredAuthors: value,
+        });
+    });
+    chrome.storage.sync.get("filteredTags", (result) => {
+        let value = result["filteredTags"];
+        if (value == undefined) {
+            chrome.storage.sync.set({
+                filteredTags: ["#nsfw", "#leagueoflegends"],
+            });
+            value = ["#nsfw", "#leagueoflegends"];
+        }
+        filteredTags.value = value.join(",");
+    });
+    filteredTags.addEventListener("input", () => {
+        const value = filteredTags.value.split(",").filter((v) => v);
+        chrome.storage.sync.set({
+            filteredTags: value,
         });
     });
     chrome.storage.sync.get(["filterByMinLength"], async (result) => {
@@ -321,6 +339,19 @@ function getAllSettingsForPopup() {
         }
         chrome.storage.sync.set({
             filterByMaxComments: value,
+        });
+    });
+    chrome.storage.sync.get(["scrollDirection"], async (result) => {
+        let value = result["scrollDirection"];
+        if (value == undefined) {
+            await chrome.storage.sync.set({ scrollDirection: "down" });
+            scrollDirectionInput.value = "down";
+        }
+        scrollDirectionInput.value = value;
+    });
+    scrollDirectionInput.addEventListener("change", (e) => {
+        chrome.storage.sync.set({
+            scrollDirection: e.target.value,
         });
     });
     chrome.storage.sync.get(["amountOfPlaysToSkip"], async (result) => {

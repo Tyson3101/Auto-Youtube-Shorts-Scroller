@@ -4,6 +4,7 @@ const toggleBtn = document.querySelector(".toggleBtn") as HTMLButtonElement;
 const filteredAuthors = document.querySelector(
   "#filterAuthors"
 ) as HTMLInputElement;
+const filteredTags = document.querySelector("#filterTags") as HTMLInputElement;
 const shortCutInput = document.querySelector(
   "#shortCutInput"
 ) as HTMLInputElement;
@@ -34,6 +35,9 @@ const filterByMinComments = document.querySelector(
 const filterByMaxComments = document.querySelector(
   "#filterByMaxComments"
 ) as HTMLInputElement;
+const scrollDirectionInput = document.querySelector(
+  "#scrollDirectionInput"
+) as HTMLSelectElement;
 const amountOfPlaysInput = document.querySelector(
   "#amountOfPlaysInput"
 ) as HTMLInputElement;
@@ -156,7 +160,7 @@ function getAllSettingsForPopup() {
     async ({ shortCutKeys, shortCutInteractKeys }) => {
       if (shortCutKeys == undefined) {
         await chrome.storage.sync.set({
-          shortCutKeys: ["shift", "s"],
+          shortCutKeys: ["shift", "d"],
         });
         shortCutInput.value = "shift+s";
       } else {
@@ -204,6 +208,24 @@ function getAllSettingsForPopup() {
     const value = filteredAuthors.value.split(",").filter((v) => v);
     chrome.storage.sync.set({
       filteredAuthors: value,
+    });
+  });
+
+  chrome.storage.sync.get("filteredTags", (result) => {
+    let value = result["filteredTags"];
+    if (value == undefined) {
+      chrome.storage.sync.set({
+        filteredTags: ["#nsfw", "#leagueoflegends"],
+      });
+      value = ["#nsfw", "#leagueoflegends"];
+    }
+    filteredTags.value = value.join(",");
+  });
+
+  filteredTags.addEventListener("input", () => {
+    const value = filteredTags.value.split(",").filter((v) => v);
+    chrome.storage.sync.set({
+      filteredTags: value,
     });
   });
 
@@ -370,6 +392,21 @@ function getAllSettingsForPopup() {
     }
     chrome.storage.sync.set({
       filterByMaxComments: value,
+    });
+  });
+
+  chrome.storage.sync.get(["scrollDirection"], async (result) => {
+    let value = result["scrollDirection"];
+    if (value == undefined) {
+      await chrome.storage.sync.set({ scrollDirection: "down" });
+      scrollDirectionInput.value = "down";
+    }
+    scrollDirectionInput.value = value;
+  });
+
+  scrollDirectionInput.addEventListener("change", (e) => {
+    chrome.storage.sync.set({
+      scrollDirection: (e.target as HTMLSelectElement).value,
     });
   });
 

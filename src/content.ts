@@ -19,6 +19,7 @@ const COMMENTS_COUNT_SELECTOR =
 let shortCutToggleKeys = [];
 let shortCutInteractKeys = [];
 let scrollOnCommentsCheck = false;
+let scrollDirection = 1;
 let amountOfPlays = 0;
 let amountOfPlaysToSkip = 1;
 let filterMinLength = "none";
@@ -30,6 +31,7 @@ let filterMaxLikes = "none";
 let filterMinComments = "none";
 let filterMaxComments = "none";
 let blockedCreators = [];
+let blockedTags = [];
 
 // STATE VARIABLES
 let currentVideoIndex: number = null;
@@ -140,7 +142,7 @@ async function scrollToNextShort() {
   amountOfPlays = 0;
   scrollingIsDone = false;
   const nextVideoParent = document.getElementById(
-    `${Number(currentVideoParent?.id) + 1}`
+    `${Number(currentVideoParent?.id) + scrollDirection}`
   );
   if (nextVideoParent) {
     nextVideoParent.scrollIntoView({
@@ -171,11 +173,24 @@ function checkIfVaildVideo() {
   )?.innerText
     ?.toLowerCase()
     .replace("@", "");
+  const tagsOfVideo = (
+    [
+      ...currentVideoParent?.querySelectorAll("h2.title a"),
+    ] as HTMLAnchorElement[]
+  ).map((src) => src?.innerText?.toLowerCase()?.replaceAll("#", ""));
+
   if (
     authorOfVideo &&
     blockedCreators
-      .map((c) => c.toLowerCase().replace("@", ""))
+      .map((c) => c?.toLowerCase()?.replace("@", ""))
       .includes(authorOfVideo)
+  ) {
+    return false;
+  } else if (
+    tagsOfVideo &&
+    tagsOfVideo
+      .map((tag) => tag?.replaceAll("#", "")?.toLowerCase())
+      .some((tag) => blockedTags.includes(tag))
   ) {
     return false;
   }
@@ -294,6 +309,7 @@ function getParentVideo() {
       [
         "shortCutKeys",
         "shortCutInteractKeys",
+        "scrollDirection",
         "amountOfPlaysToSkip",
         "filterByMinLength",
         "filterByMaxLength",
@@ -304,6 +320,7 @@ function getParentVideo() {
         "filterByMinComments",
         "filterByMaxComments",
         "filteredAuthors",
+        "filteredTags",
         "scrollOnComments",
       ],
       (result) => {
@@ -311,6 +328,10 @@ function getParentVideo() {
           shortCutToggleKeys = [...result["shortCutKeys"]];
         if (result["shortCutInteractKeys"])
           shortCutInteractKeys = [...result["shortCutInteractKeys"]];
+        if (result["scrollDirection"]) {
+          if (result["scrollDirection"] === "up") scrollDirection = -1;
+          else scrollDirection = 1;
+        }
         if (result["amountOfPlaysToSkip"])
           amountOfPlaysToSkip = result["amountOfPlaysToSkip"];
         if (result["scrollOnComments"])
@@ -333,6 +354,8 @@ function getParentVideo() {
           filterMaxComments = result["filterByMaxComments"];
         if (result["filteredAuthors"])
           blockedCreators = [...result["filteredAuthors"]];
+        if (result["filteredTags"]) blockedTags = [...result["filteredTags"]];
+
         shortCutListener();
       }
     );
@@ -344,6 +367,11 @@ function getParentVideo() {
       let newShortCutInteractKeys = result["shortCutInteractKeys"]?.newValue;
       if (newShortCutInteractKeys != undefined) {
         shortCutInteractKeys = [...newShortCutInteractKeys];
+      }
+      let newScrollDirection = result["scrollDirection"]?.newValue;
+      if (newScrollDirection != undefined) {
+        if (newScrollDirection === "up") scrollDirection = -1;
+        else scrollDirection = 1;
       }
       let newAmountOfPlaysToSkip = result["amountOfPlaysToSkip"]?.newValue;
       if (newAmountOfPlaysToSkip) {
@@ -388,6 +416,10 @@ function getParentVideo() {
       let newBlockedCreators = result["filteredAuthors"]?.newValue;
       if (newBlockedCreators != undefined) {
         blockedCreators = [...newBlockedCreators];
+      }
+      let newBlockedTags = result["filteredTags"]?.newValue;
+      if (newBlockedTags != undefined) {
+        blockedTags = [...result["filteredTags"]?.newValue];
       }
     });
   })();

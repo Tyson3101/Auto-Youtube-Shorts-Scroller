@@ -64,7 +64,7 @@
       left: 50%;
       transform: translateX(-50%);
       width: 90%;
-      height: 10rem;
+      height: 11rem;
     }
     .settings.remove {
       display: none;
@@ -171,6 +171,13 @@
     .pageList .active {
       text-decoration: underline;
       font-weight: 500;
+    }
+    .scrollSettings > div {
+      margin-top: 0.3rem;
+    }
+    .scroll {
+      overflow-y: scroll;
+      padding: 0.3rem 0.5em 1.5em 0.5em;
     }
   </style>
   <body>
@@ -352,32 +359,44 @@
         </div>
       </div>
 
-      <div data-pageIndex="2" class="settingsPage">
-        <label for="amountOfPlays"
-          ><p style="font-size: 1rem">
-            Amount of Plays
-            <i style="font-size: 0.7em; display: block"
-              >Auto-Scrolls to the next short after a specific amount of plays
-              <br
-            /></i></p
-        ></label>
-        <input
-          type="number"
-          name="amountOfPlaysInput"
-          id="amountOfPlaysInput"
-          value="1"
-          min="1"
-          style="width: 40%"
-        />
-        <label for="scrollOnComments">Scroll when the comments are open:</label>
-        <input
-          type="checkbox"
-          name="scrollOnComments"
-          id="scrollOnComments"
-          checked="true"
-        />
+      <div data-pageIndex="2" class="settingsPage scrollSettings">
+        <div>
+          <label for="scrollDirection"
+            ><p style="font-size: 1rem">
+              Direction of Scroll
+              <i style="font-size: 0.7em; display: block"
+                >Scrolls to the next short in the direction you choose <br
+              /></i></p
+          ></label>
+          <select name="scrollDirection" id="scrollDirectionInput">
+            <option value="down">Down</option>
+            <option value="up">Up</option>
+          </select>
+        </div>
+        <div>
+          <label for="amountOfPlays"> Amount of Plays Before Scrolling </label>
+          <input
+            type="number"
+            name="amountOfPlaysInput"
+            id="amountOfPlaysInput"
+            value="1"
+            min="1"
+            style="width: 40%"
+          />
+        </div>
+        <div>
+          <label for="scrollOnComments"
+            >Scroll when the comments are open:</label
+          >
+          <br />
+          <input
+            type="checkbox"
+            name="scrollOnComments"
+            id="scrollOnComments"
+            checked="true"
+          />
+        </div>
       </div>
-
       <div data-pageIndex="3" class="settingsPage">
         <label for="shortCutInteractInput"
           ><p style="font-size: 1rem">
@@ -414,7 +433,7 @@
         </p>
       </div>
 
-      <div data-pageIndex="4" class="settingsPage list">
+      <div data-pageIndex="4" class="settingsPage list scroll">
         <label for="filterAuthors"
           ><p style="font-size: 1rem">
             Block Video Creators
@@ -425,6 +444,15 @@
           </p></label
         >
         <textarea id="filterAuthors" class="urlsList"></textarea>
+        <label for="filterTags" style="margin-top: 0.5rem; display: block"
+          ><p style="font-size: 1rem">
+            Block Video Tags
+            <i style="font-size: 0.7em; display: block"
+              >Auto skips video with inputted tags (seperate by a comma)</i
+            >
+          </p></label
+        >
+        <textarea id="filterTags" class="urlsList"></textarea>
       </div>
 
       <div id="backSettings" class="back">
@@ -438,9 +466,9 @@
     <div class="pageList">
       <a href="#" data-pageIndex="0" class="active">Toggle Shortcut</a>
       <a href="#" data-pageIndex="1">Filter Shorts</a>
-      <a href="#" data-pageIndex="2">Amount of plays</a>
+      <a href="#" data-pageIndex="2">Scroll Settings</a>
       <a href="#" data-pageIndex="3">Like/Dislike Shortcut</a>
-      <a href="#" data-pageIndex="4">Block Creators</a>
+      <a href="#" data-pageIndex="4">Block Creators/Tags</a>
     </div>
     <span style="display: block"
       ><p id="adYt">

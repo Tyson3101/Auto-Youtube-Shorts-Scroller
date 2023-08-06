@@ -8,11 +8,13 @@ const allStorageKeys = [
   "filterByMaxLikes",
   "filterByMinComments",
   "filterByMaxComments",
+  "scrollDirection",
   "amountOfPlaysToSkip",
   "scrollOnComments",
   "shortCutKeys",
   "shortCutInteractKeys",
   "filteredAuthors",
+  "filteredTags",
 ];
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -73,6 +75,9 @@ chrome.runtime.onInstalled.addListener((details) => {
       filterByMinComments: resultSync.filterByMinComments?.toString() || "none",
       filterByMaxComments: resultSync.filterByMaxComments?.toString() || "none",
     });
+    if (resultSync.scrollDirection == undefined) {
+      chrome.storage.sync.set({ scrollDirection: "down" });
+    }
     if (resultSync.amountOfPlaysToSkip == undefined) {
       chrome.storage.sync.set({ amountOfPlaysToSkip: 1 });
     }
@@ -80,7 +85,7 @@ chrome.runtime.onInstalled.addListener((details) => {
       chrome.storage.sync.set({ scrollOnComments: false });
     }
     if (resultSync.shortCutKeys == undefined) {
-      chrome.storage.sync.set({ shortCutKeys: ["shift", "s"] });
+      chrome.storage.sync.set({ shortCutKeys: ["shift", "d"] });
     }
     if (resultSync.shortCutInteractKeys == undefined) {
       chrome.storage.sync.set({ shortCutInteractKeys: ["shift", "f"] });
@@ -88,6 +93,11 @@ chrome.runtime.onInstalled.addListener((details) => {
     if (resultSync.filteredAuthors == undefined) {
       chrome.storage.sync.set({
         filteredAuthors: ["Tyson3101"],
+      });
+    }
+    if (resultSync.filteredTags == undefined) {
+      chrome.storage.sync.set({
+        filteredTags: ["#nsfw", "#leagueoflegends"],
       });
     }
   });
