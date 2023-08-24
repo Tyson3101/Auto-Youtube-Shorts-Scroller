@@ -43,4 +43,6 @@ Link: [https://tyson3101.github.io/Auto-Youtube-Shorts-Scroller/bookmarklet/book
 
 ##### If you have any suggestions or experience problems, post an issue on the GitHub page: [https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller/issues](https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller/issues)
 
-###### By Tyson3101
+![image](https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller/assets/67045138/f8ae8a62-775c-46a1-bc46-49d02fb34aff)
+
+###### Created by Tyson3101
