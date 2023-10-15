@@ -1,7 +1,5 @@
 # [Auto-Youtube-Shorts-Scroller](https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller)
 
-# I NO LONGER OWN THIS EXTENSION ): 
-
 ## A Chrome Extension/Bookmarklet that adds an auto-scroll feature on Youtube so you can watch Shorts without the need to touch your mouse.
 
 <img src="./extension/img/autoYTScrollerIcon128.png"/>
