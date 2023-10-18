@@ -43,6 +43,6 @@ Link: [https://tyson3101.github.io/Auto-Youtube-Shorts-Scroller/bookmarklet/book
 
 
 ![image](https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller/assets/67045138/f8ae8a62-775c-46a1-bc46-49d02fb34aff)
-Screenshot of Original Extension 
+Screenshot of Original Extension | [Chrome Stats](https://chrome-stats.com/d/elggcfikfbaijgcofcapgeahjaclpfnf)
 
 ###### Created by Tyson3101
