@@ -432,7 +432,6 @@
           dislike
         </p>
       </div>
-
       <div data-pageIndex="4" class="settingsPage list scroll">
         <label for="filterAuthors"
           ><p style="font-size: 1rem">
@@ -444,8 +443,14 @@
           </p></label
         >
         <textarea id="filterAuthors" class="urlsList"></textarea>
-        <label for="filterTags" style="margin-top: 0.5rem; display: block"
-          ><p style="font-size: 1rem">
+
+        <label for="filterTags" style="margin-top: 0.5rem; display: block">
+          <div>
+            <a href="#" data-goToPageIndex="5" class="configureTags"
+              >Configure Whitelist for Blocked Tags</a
+            >
+          </div>
+          <p style="font-size: 1rem">
             Block Video Tags
             <i style="font-size: 0.7em; display: block"
               >Auto skips video with inputted tags (seperate by a comma)</i
@@ -453,6 +458,23 @@
           </p></label
         >
         <textarea id="filterTags" class="urlsList"></textarea>
+      </div>
+      <div data-pageIndex="5" class="settingsPage">
+        <label for="whitelistTags" style="margin-top: 0.5rem; display: block">
+          <div>
+            <a href="#" data-goToPageIndex="4" class="configureTags"
+              >Configure Blacklisted Tags</a
+            >
+          </div>
+          <p style="font-size: 1rem">
+            Whitelist Video Creators
+            <i style="font-size: 0.7em; display: block"
+              >Ignores blocked filters from inputted creators (seperate by a
+              comma)</i
+            >
+          </p></label
+        >
+        <textarea id="whitelistedAuthors" class="urlsList"></textarea>
       </div>
 
       <div id="backSettings" class="back">
@@ -472,11 +494,11 @@
     </div>
     <span style="display: block"
       ><p id="adYt">
-        <br />Prefer TikTok?
+        <br />Prefer Insta Reels?
         <a
-          href="https://chrome.google.com/webstore/detail/auto-tiktok-scroller/ngnmmnppfloibngkifccjiljhnjoleaa"
+          href="https://chromewebstore.google.com/detail/auto-reels-scroller/bpgleagdakihfeingnhnknblcfgbfcdo"
           target="_blank"
-          >Download the TikTok version!</a
+          >Download the Instagram version!</a
         ><br /></p
     ></span>
     <h4 id="adChrome">

@@ -2,6 +2,7 @@
 const errMsg = document.querySelector("#error");
 const toggleBtn = document.querySelector(".toggleBtn");
 const filteredAuthors = document.querySelector("#filterAuthors");
+const whitelistedAuthors = document.querySelector("#whitelistedAuthors");
 const filteredTags = document.querySelector("#filterTags");
 const shortCutInput = document.querySelector("#shortCutInput");
 const shortCutInteractInput = document.querySelector("#shortCutInteractInput");
@@ -75,6 +76,14 @@ function pageNavigation(pageType) {
                 changePage("settings", 0, parseInt(e.target.dataset["pageindex"]));
             }
         };
+        document
+            .querySelectorAll(".configureTags")
+            .forEach((ele) => {
+            ele.addEventListener("click", () => {
+                console.log(ele.dataset["gotopageindex"]);
+                changePage("settings", 0, parseInt(ele.dataset["gotopageindex"]));
+            });
+        });
     }
 }
 function changePage(page, direction, index) {
@@ -109,8 +118,8 @@ function changePage(page, direction, index) {
     if (page == "settings") {
         let oldActive = pageList.querySelector(".active");
         let newActive = pageList.querySelector(`[data-pageindex="${newPage.dataset["pageindex"]}"]`);
-        oldActive.classList.remove("active");
-        newActive.classList.add("active");
+        oldActive?.classList.remove("active");
+        newActive?.classList.add("active");
     }
 }
 function getAllSettingsForPopup() {
@@ -126,7 +135,7 @@ function getAllSettingsForPopup() {
             shortCutInput.value = shortCutKeys.join("+");
         }
         shortCutInput.addEventListener("change", () => {
-            const value = shortCutInput.value.trim().split("+");
+            const value = shortCutInput.value.trim().split(/\s*\+\s*/);
             if (!value.length)
                 return;
             chrome.storage.sync.set({
@@ -144,7 +153,9 @@ function getAllSettingsForPopup() {
             shortCutInteractInput.value = shortCutInteractKeys.join("+");
         }
         shortCutInteractInput.addEventListener("change", (e) => {
-            const value = e.target.value.trim().split("+");
+            const value = e.target.value
+                .trim()
+                .split(/\s*\+\s*/);
             if (!value.length)
                 return;
             chrome.storage.sync.set({
@@ -164,9 +175,31 @@ function getAllSettingsForPopup() {
         filteredAuthors.value = value.join(",");
     });
     filteredAuthors.addEventListener("input", () => {
-        const value = filteredAuthors.value.split(",").filter((v) => v);
+        const value = filteredAuthors.value
+            .trim()
+            .split(/\s*,\s*/)
+            .filter((v) => v);
         chrome.storage.sync.set({
             filteredAuthors: value,
+        });
+    });
+    chrome.storage.sync.get("whitelistedAuthors", (result) => {
+        let value = result["whitelistedAuthors"];
+        if (value == undefined) {
+            chrome.storage.sync.set({
+                whitelistedAuthors: ["Tyson3101"],
+            });
+            value = ["Tyson3101"];
+        }
+        whitelistedAuthors.value = value.join(",");
+    });
+    whitelistedAuthors.addEventListener("input", () => {
+        const value = whitelistedAuthors.value
+            .trim()
+            .split(/\s*,\s*/)
+            .filter((v) => v);
+        chrome.storage.sync.set({
+            whitelistedAuthors: value,
         });
     });
     chrome.storage.sync.get("filteredTags", (result) => {
@@ -180,7 +213,10 @@ function getAllSettingsForPopup() {
         filteredTags.value = value.join(",");
     });
     filteredTags.addEventListener("input", () => {
-        const value = filteredTags.value.split(",").filter((v) => v);
+        const value = filteredTags.value
+            .trim()
+            .split(/\s*,\s*/)
+            .filter((v) => v);
         chrome.storage.sync.set({
             filteredTags: value,
         });

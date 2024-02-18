@@ -23,6 +23,7 @@ let filterMaxLikes = "none";
 let filterMinComments = "none";
 let filterMaxComments = "none";
 let blockedCreators = [];
+let whitelistedCreators = [];
 let blockedTags = [];
 // STATE VARIABLES
 let currentVideoIndex = null;
@@ -76,10 +77,13 @@ function checkForNewShort() {
             scrollToNextShort();
             return;
         }
+    }
+    if (currentVideo) {
         currentVideo.addEventListener("ended", videoFinished);
     }
 }
 function videoFinished() {
+    console.log("video finished");
     const currentVideo = document.querySelector("#shorts-container video[tabindex='-1']");
     if (!applicationIsOn)
         return currentVideo.setAttribute("loop", "");
@@ -159,7 +163,13 @@ function checkIfVaildVideo() {
     else if (tagsOfVideo &&
         tagsOfVideo
             .map((tag) => tag?.replaceAll("#", "")?.toLowerCase())
-            .some((tag) => blockedTags.includes(tag))) {
+            .some((tag) => blockedTags
+            .map((tag) => tag?.toLowerCase())
+            .map((tag) => tag?.replace("#", ""))
+            .includes(tag)) &&
+        !whitelistedCreators
+            .map((c) => c?.toLowerCase()?.replace("@", ""))
+            .includes(authorOfVideo)) {
         return false;
     }
     // Check if the video is within the length filter (FROM SETTINGS)
@@ -256,7 +266,23 @@ function getParentVideo() {
         if (result["applicationIsOn"])
             startAutoScrolling();
     });
+    checkForNewShort();
+    checkApplicationState();
     setInterval(checkForNewShort, 100);
+    setInterval(() => {
+        checkApplicationState();
+    }, 2000);
+    function checkApplicationState() {
+        chrome.storage.local.get(["applicationIsOn"], (result) => {
+            if (applicationIsOn && result["applicationIsOn"] == false) {
+                if (!result["applicationIsOn"])
+                    stopAutoScrolling();
+            }
+            else if (result["applicationIsOn"] == true) {
+                startAutoScrolling();
+            }
+        });
+    }
     (function getAllSettings() {
         chrome.storage.sync.get([
             "shortCutKeys",
@@ -309,6 +335,8 @@ function getParentVideo() {
                 blockedCreators = [...result["filteredAuthors"]];
             if (result["filteredTags"])
                 blockedTags = [...result["filteredTags"]];
+            if (result["whitelistedAuthors"])
+                whitelistedCreators = [...result["whitelistedAuthors"]];
             shortCutListener();
         });
         chrome.storage.onChanged.addListener((result) => {
@@ -374,6 +402,10 @@ function getParentVideo() {
             let newBlockedTags = result["filteredTags"]?.newValue;
             if (newBlockedTags != undefined) {
                 blockedTags = [...result["filteredTags"]?.newValue];
+            }
+            let newWhiteListedCreators = result["whitelistedAuthors"]?.newValue;
+            if (newWhiteListedCreators != undefined) {
+                whitelistedCreators = [...newWhiteListedCreators];
             }
         });
     })();
