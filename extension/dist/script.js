@@ -124,12 +124,12 @@ function changePage(page, direction, index) {
 }
 function getAllSettingsForPopup() {
     // Get Settings and show them on the popup (and check for updates and reflect them)
-    chrome.storage.sync.get(["shortCutKeys", "shortCutInteractKeys"], async ({ shortCutKeys, shortCutInteractKeys }) => {
+    chrome.storage.local.get(["shortCutKeys", "shortCutInteractKeys"], async ({ shortCutKeys, shortCutInteractKeys }) => {
         if (shortCutKeys == undefined) {
-            await chrome.storage.sync.set({
+            await chrome.storage.local.set({
                 shortCutKeys: ["shift", "d"],
             });
-            shortCutInput.value = "shift+s";
+            shortCutInput.value = "shift+d";
         }
         else {
             shortCutInput.value = shortCutKeys.join("+");
@@ -138,16 +138,16 @@ function getAllSettingsForPopup() {
             const value = shortCutInput.value.trim().split(/\s*\+\s*/);
             if (!value.length)
                 return;
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 shortCutKeys: value,
             });
             shortCutInput.value = value.join("+");
         });
         if (shortCutInteractKeys == undefined) {
-            await chrome.storage.sync.set({
-                shortCutInteractKeys: ["shift", "f"],
+            await chrome.storage.local.set({
+                shortCutInteractKeys: ["shift", "g"],
             });
-            shortCutInteractInput.value = "shift+f";
+            shortCutInteractInput.value = "shift+g";
         }
         else {
             shortCutInteractInput.value = shortCutInteractKeys.join("+");
@@ -158,16 +158,16 @@ function getAllSettingsForPopup() {
                 .split(/\s*\+\s*/);
             if (!value.length)
                 return;
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 shortCutInteractKeys: value,
             });
             shortCutInteractInput.value = value.join("+");
         });
     });
-    chrome.storage.sync.get("filteredAuthors", (result) => {
+    chrome.storage.local.get("filteredAuthors", (result) => {
         let value = result["filteredAuthors"];
         if (value == undefined) {
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 filteredAuthors: ["Tyson3101"],
             });
             value = ["Tyson3101"];
@@ -179,14 +179,14 @@ function getAllSettingsForPopup() {
             .trim()
             .split(/\s*,\s*/)
             .filter((v) => v);
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filteredAuthors: value,
         });
     });
-    chrome.storage.sync.get("whitelistedAuthors", (result) => {
+    chrome.storage.local.get("whitelistedAuthors", (result) => {
         let value = result["whitelistedAuthors"];
         if (value == undefined) {
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 whitelistedAuthors: ["Tyson3101"],
             });
             value = ["Tyson3101"];
@@ -198,14 +198,14 @@ function getAllSettingsForPopup() {
             .trim()
             .split(/\s*,\s*/)
             .filter((v) => v);
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             whitelistedAuthors: value,
         });
     });
-    chrome.storage.sync.get("filteredTags", (result) => {
+    chrome.storage.local.get("filteredTags", (result) => {
         let value = result["filteredTags"];
         if (value == undefined) {
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 filteredTags: ["#nsfw", "#leagueoflegends"],
             });
             value = ["#nsfw", "#leagueoflegends"];
@@ -217,97 +217,97 @@ function getAllSettingsForPopup() {
             .trim()
             .split(/\s*,\s*/)
             .filter((v) => v);
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filteredTags: value,
         });
     });
-    chrome.storage.sync.get(["filterByMinLength"], async (result) => {
+    chrome.storage.local.get(["filterByMinLength"], async (result) => {
         let value = result["filterByMinLength"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMinLength: "none" });
+            await chrome.storage.local.set({ filterByMinLength: "none" });
             return (filterByMinLength.value = "none");
         }
         filterByMinLength.value = value;
     });
-    chrome.storage.sync.get(["filterByMaxLength"], async (result) => {
+    chrome.storage.local.get(["filterByMaxLength"], async (result) => {
         let value = result["filterByMaxLength"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMaxLength: "none" });
+            await chrome.storage.local.set({ filterByMaxLength: "none" });
             return (filterByMaxLength.value = "none");
         }
         filterByMaxLength.value = value;
     });
-    chrome.storage.sync.get(["filterByMaxLength"], async (result) => {
+    chrome.storage.local.get(["filterByMaxLength"], async (result) => {
         let value = result["filterByMaxLength"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMaxLength: "none" });
+            await chrome.storage.local.set({ filterByMaxLength: "none" });
             return (filterByMaxLength.value = "none");
         }
         filterByMaxLength.value = value;
     });
-    chrome.storage.sync.get(["filterByMinLength"], async (result) => {
+    chrome.storage.local.get(["filterByMinLength"], async (result) => {
         let value = result["filterByMinLength"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMinLength: "none" });
+            await chrome.storage.local.set({ filterByMinLength: "none" });
             return (filterByMinLength.value = "");
         }
         filterByMinLength.value = value;
     });
-    chrome.storage.sync.get(["filterByMinViews"], async (result) => {
+    chrome.storage.local.get(["filterByMinViews"], async (result) => {
         let value = result["filterByMinViews"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMinViews: "none" });
+            await chrome.storage.local.set({ filterByMinViews: "none" });
             return (filterByMinViews.value = "");
         }
         filterByMinViews.value = value === "none" ? "" : value;
     });
-    chrome.storage.sync.get(["filterByMaxViews"], async (result) => {
+    chrome.storage.local.get(["filterByMaxViews"], async (result) => {
         let value = result["filterByMaxViews"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMaxViews: "none" });
+            await chrome.storage.local.set({ filterByMaxViews: "none" });
             return (filterByMaxViews.value = "");
         }
         filterByMaxViews.value = value === "none" ? "" : value;
     });
-    chrome.storage.sync.get(["filterByMinLikes"], async (result) => {
+    chrome.storage.local.get(["filterByMinLikes"], async (result) => {
         let value = result["filterByMinLikes"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMinLikes: "none" });
+            await chrome.storage.local.set({ filterByMinLikes: "none" });
             return (filterByMinLikes.value = "");
         }
         filterByMinLikes.value = value === "none" ? "" : value;
     });
-    chrome.storage.sync.get(["filterByMaxLikes"], async (result) => {
+    chrome.storage.local.get(["filterByMaxLikes"], async (result) => {
         let value = result["filterByMaxLikes"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMaxLikes: "none" });
+            await chrome.storage.local.set({ filterByMaxLikes: "none" });
             return (filterByMaxLikes.value = "");
         }
         filterByMaxLikes.value = value === "none" ? "" : value;
     });
-    chrome.storage.sync.get(["filterByMinComments"], async (result) => {
+    chrome.storage.local.get(["filterByMinComments"], async (result) => {
         let value = result["filterByMinComments"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMinComments: "none" });
+            await chrome.storage.local.set({ filterByMinComments: "none" });
             return (filterByMinComments.value = "");
         }
         filterByMinComments.value = value === "none" ? "" : value;
     });
-    chrome.storage.sync.get(["filterByMaxComments"], async (result) => {
+    chrome.storage.local.get(["filterByMaxComments"], async (result) => {
         let value = result["filterByMaxComments"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ filterByMaxComments: "none" });
+            await chrome.storage.local.set({ filterByMaxComments: "none" });
             return (filterByMaxComments.value = "");
         }
         filterByMaxComments.value = value === "none" ? "" : value;
     });
     filterByMinLength.addEventListener("change", (e) => {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMinLength: e.target.value,
         });
     });
     filterByMaxLength.addEventListener("change", (e) => {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMaxLength: e.target.value,
         });
     });
@@ -318,7 +318,7 @@ function getAllSettingsForPopup() {
             value = "none";
             filterByMinViews.value = "";
         }
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMinViews: value,
         });
     });
@@ -329,7 +329,7 @@ function getAllSettingsForPopup() {
             value = "none";
             filterByMaxViews.value = "";
         }
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMaxViews: value,
         });
     });
@@ -340,7 +340,7 @@ function getAllSettingsForPopup() {
             value = "none";
             filterByMinLikes.value = "";
         }
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMinLikes: value,
         });
     });
@@ -351,7 +351,7 @@ function getAllSettingsForPopup() {
             value = "none";
             filterByMaxLikes.value = "";
         }
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMaxLikes: value,
         });
     });
@@ -362,7 +362,7 @@ function getAllSettingsForPopup() {
             value = "none";
             filterByMinComments.value = "";
         }
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMinComments: value,
         });
     });
@@ -373,46 +373,46 @@ function getAllSettingsForPopup() {
             value = "none";
             filterByMaxComments.value = "";
         }
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             filterByMaxComments: value,
         });
     });
-    chrome.storage.sync.get(["scrollDirection"], async (result) => {
+    chrome.storage.local.get(["scrollDirection"], async (result) => {
         let value = result["scrollDirection"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ scrollDirection: "down" });
+            await chrome.storage.local.set({ scrollDirection: "down" });
             scrollDirectionInput.value = "down";
         }
         scrollDirectionInput.value = value;
     });
     scrollDirectionInput.addEventListener("change", (e) => {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             scrollDirection: e.target.value,
         });
     });
-    chrome.storage.sync.get(["amountOfPlaysToSkip"], async (result) => {
+    chrome.storage.local.get(["amountOfPlaysToSkip"], async (result) => {
         let value = result["amountOfPlaysToSkip"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ amountOfPlaysToSkip: 1 });
+            await chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
             amountOfPlaysInput.value = "1";
         }
         amountOfPlaysInput.value = value;
     });
     amountOfPlaysInput.addEventListener("change", (e) => {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             amountOfPlaysToSkip: parseInt(e.target.value),
         });
     });
-    chrome.storage.sync.get(["scrollOnComments"], async (result) => {
+    chrome.storage.local.get(["scrollOnComments"], async (result) => {
         let value = result["scrollOnComments"];
         if (value == undefined) {
-            await chrome.storage.sync.set({ crollOnComments: false });
+            await chrome.storage.local.set({ crollOnComments: false });
             scrollOnCommentsInput.checked = true;
         }
         scrollOnCommentsInput.checked = value;
     });
     scrollOnCommentsInput.addEventListener("change", (e) => {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             scrollOnComments: e.target.checked,
         });
     });

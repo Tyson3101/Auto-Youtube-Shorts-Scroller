@@ -4,8 +4,8 @@ const NEXT_VIDEO_BUTTON_SELECTOR = "#navigation-button-down > ytd-button-rendere
 const LIKE_BUTTON_SELECTOR = "ytd-reel-video-renderer[is-active] #like-button > yt-button-shape > label > button";
 const DISLIKE_BUTTON_SELECTOR = "ytd-reel-video-renderer[is-active] #dislike-button > yt-button-shape > label > button";
 const COMMENTS_SELECTOR = "ytd-reel-video-renderer[is-active] ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
-const LIKES_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #factoids > ytd-factoid-renderer:nth-child(1) > div > yt-formatted-string.factoid-value.style-scope.ytd-factoid-renderer";
-const VIEW_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #factoids > ytd-factoid-renderer:nth-child(2) > div > yt-formatted-string.factoid-value.style-scope.ytd-factoid-renderer";
+const LIKES_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #factoids > factoid-renderer:nth-child(1) > div > span.YtwFactoidRendererValue > span";
+const VIEW_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #factoids > view-count-factoid-renderer > factoid-renderer > div > span.YtwFactoidRendererValue > span";
 const COMMENTS_COUNT_SELECTOR = "ytd-reel-video-renderer[is-active] #comments-button > ytd-button-renderer > yt-button-shape > label > div > span";
 // APP VARIABLES
 let shortCutToggleKeys = [];
@@ -68,7 +68,7 @@ function checkForNewShort() {
     const newCurrentShortsIndex = Array.from(document.querySelectorAll(VIDEOS_LIST_SELECTOR)).findIndex((e) => e.hasAttribute("is-active"));
     if (scrollingIsDone /*to prevent double scrolls*/) {
         if (newCurrentShortsIndex !== currentVideoIndex) {
-            lastVideo?.removeEventListener("ended", videoFinished);
+            //lastVideo?.removeEventListener("ended", videoFinished);
             lastVideo = currentVideo;
             currentVideoIndex = newCurrentShortsIndex;
             amountOfPlays = 0;
@@ -271,7 +271,7 @@ function getParentVideo() {
     setInterval(checkForNewShort, 100);
     setInterval(() => {
         checkApplicationState();
-    }, 2000);
+    }, 10000);
     function checkApplicationState() {
         chrome.storage.local.get(["applicationIsOn"], (result) => {
             if (applicationIsOn && result["applicationIsOn"] == false) {
@@ -284,7 +284,7 @@ function getParentVideo() {
         });
     }
     (function getAllSettings() {
-        chrome.storage.sync.get([
+        chrome.storage.local.get([
             "shortCutKeys",
             "shortCutInteractKeys",
             "scrollDirection",
@@ -301,6 +301,7 @@ function getParentVideo() {
             "filteredTags",
             "scrollOnComments",
         ], (result) => {
+            console.log({ result });
             if (result["shortCutKeys"])
                 shortCutToggleKeys = [...result["shortCutKeys"]];
             if (result["shortCutInteractKeys"])

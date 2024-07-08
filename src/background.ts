@@ -31,14 +31,14 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
   });
 
-  chrome.storage.sync.get(allStorageKeys, (resultSync) => {
+  chrome.storage.local.get(allStorageKeys, (resultSync) => {
     if (resultSync.filterByMaxLength == undefined) {
-      chrome.storage.sync.set({ filterByMaxLength: "none" });
+      chrome.storage.local.set({ filterByMaxLength: "none" });
     }
     if (resultSync.filterByMinLength == undefined) {
-      chrome.storage.sync.set({ filterByMinLength: "none" });
+      chrome.storage.local.set({ filterByMinLength: "none" });
     }
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       filterByMinViews: resultSync.filterByMinViews?.toString() || "none",
       filterByMaxViews: resultSync.filterByMaxViews?.toString() || "none",
       filterByMinLikes: resultSync.filterByMinLikes?.toString() || "none",
@@ -47,32 +47,32 @@ chrome.runtime.onInstalled.addListener((details) => {
       filterByMaxComments: resultSync.filterByMaxComments?.toString() || "none",
     });
     if (resultSync.scrollDirection == undefined) {
-      chrome.storage.sync.set({ scrollDirection: "down" });
+      chrome.storage.local.set({ scrollDirection: "down" });
     }
     if (resultSync.amountOfPlaysToSkip == undefined) {
-      chrome.storage.sync.set({ amountOfPlaysToSkip: 1 });
+      chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
     }
     if (resultSync.scrollOnComments == undefined) {
-      chrome.storage.sync.set({ scrollOnComments: false });
+      chrome.storage.local.set({ scrollOnComments: false });
     }
     if (resultSync.shortCutKeys == undefined) {
-      chrome.storage.sync.set({ shortCutKeys: ["shift", "d"] });
+      chrome.storage.local.set({ shortCutKeys: ["shift", "d"] });
     }
     if (resultSync.shortCutInteractKeys == undefined) {
-      chrome.storage.sync.set({ shortCutInteractKeys: ["shift", "f"] });
+      chrome.storage.local.set({ shortCutInteractKeys: ["shift", "g"] });
     }
     if (resultSync.filteredAuthors == undefined) {
-      chrome.storage.sync.set({
+      chrome.storage.local.set({
         filteredAuthors: ["Tyson3101"],
       });
     }
     if (resultSync.filteredTags == undefined) {
-      chrome.storage.sync.set({
+      chrome.storage.local.set({
         filteredTags: ["#nsfw", "#leagueoflegends"],
       });
     }
     if (resultSync.whitelistedAuthors == undefined) {
-      chrome.storage.sync.set({
+      chrome.storage.local.set({
         whitelistedAuthors: ["Tyson3101"],
       });
     }

@@ -9,9 +9,9 @@ const DISLIKE_BUTTON_SELECTOR =
 const COMMENTS_SELECTOR =
   "ytd-reel-video-renderer[is-active] ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
 const LIKES_COUNT_SELECTOR =
-  "ytd-reel-video-renderer[is-active] #factoids > ytd-factoid-renderer:nth-child(1) > div > yt-formatted-string.factoid-value.style-scope.ytd-factoid-renderer";
+  "ytd-reel-video-renderer[is-active] #factoids > factoid-renderer:nth-child(1) > div > span.YtwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR =
-  "ytd-reel-video-renderer[is-active] #factoids > ytd-factoid-renderer:nth-child(2) > div > yt-formatted-string.factoid-value.style-scope.ytd-factoid-renderer";
+  "ytd-reel-video-renderer[is-active] #factoids > view-count-factoid-renderer > factoid-renderer > div > span.YtwFactoidRendererValue > span";
 const COMMENTS_COUNT_SELECTOR =
   "ytd-reel-video-renderer[is-active] #comments-button > ytd-button-renderer > yt-button-shape > label > div > span";
 
@@ -73,8 +73,10 @@ function checkForNewShort() {
   const currentVideo = document.querySelector(
     "#shorts-container video[tabindex='-1']"
   ) as HTMLVideoElement;
+
   // Check to see if the video has loaded
   if (isNaN(currentVideo?.duration) || currentVideo?.duration == null) return;
+
   // Checks if the appliaction is on. If not, lets the video loop again
   if (!applicationIsOn) return currentVideo.setAttribute("loop", "");
   else currentVideo.removeAttribute("loop");
@@ -85,7 +87,7 @@ function checkForNewShort() {
 
   if (scrollingIsDone /*to prevent double scrolls*/) {
     if (newCurrentShortsIndex !== currentVideoIndex) {
-      lastVideo?.removeEventListener("ended", videoFinished);
+      //lastVideo?.removeEventListener("ended", videoFinished);
       lastVideo = currentVideo;
       currentVideoIndex = newCurrentShortsIndex;
       amountOfPlays = 0;
@@ -95,6 +97,7 @@ function checkForNewShort() {
       return;
     }
   }
+
   if (currentVideo) {
     currentVideo.addEventListener("ended", videoFinished);
   }
@@ -221,6 +224,7 @@ function checkIfVaildVideo() {
     )?.innerText;
     if (viewCountInnerText) {
       const viewCount = parseInt(viewCountInnerText.replaceAll(",", ""));
+
       if (
         viewCount <
           parseInt(filterMinViews.replaceAll("_", "").replaceAll(",", "")) ||
@@ -318,7 +322,7 @@ function getParentVideo() {
   setInterval(checkForNewShort, 100);
   setInterval(() => {
     checkApplicationState();
-  }, 2000);
+  }, 10000);
 
   function checkApplicationState() {
     chrome.storage.local.get(["applicationIsOn"], (result) => {
@@ -331,7 +335,7 @@ function getParentVideo() {
   }
 
   (function getAllSettings() {
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       [
         "shortCutKeys",
         "shortCutInteractKeys",
@@ -350,6 +354,7 @@ function getParentVideo() {
         "scrollOnComments",
       ],
       (result) => {
+        console.log({ result });
         if (result["shortCutKeys"])
           shortCutToggleKeys = [...result["shortCutKeys"]];
         if (result["shortCutInteractKeys"])
