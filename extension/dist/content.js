@@ -126,8 +126,7 @@ async function scrollToNextShort() {
     if (nextVideoParent) {
         nextVideoParent.scrollIntoView({
             behavior: "smooth",
-            block: "center",
-            inline: "center",
+            block: "end",
         });
     }
     else {
