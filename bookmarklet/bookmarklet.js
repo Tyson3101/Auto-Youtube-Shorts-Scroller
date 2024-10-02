@@ -102,7 +102,7 @@ async function scrollToNextShort() {
   if (!nextVideoParent) return;
   nextVideoParent?.scrollIntoView({
     behavior: "smooth",
-    block: "center",
+    block: "end",
     inline: "center",
   });
   setTimeout(() => {
