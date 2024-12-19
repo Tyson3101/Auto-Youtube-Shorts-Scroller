@@ -7,7 +7,7 @@ const LIKE_BUTTON_SELECTOR =
 const DISLIKE_BUTTON_SELECTOR =
   "ytd-reel-video-renderer[is-active] #dislike-button > yt-button-shape > label > button";
 const COMMENTS_SELECTOR =
-  "ytd-reel-video-renderer[is-active] ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
+  "#anchored-panel > ytd-engagement-panel-section-list-renderer:nth-child(1)";
 const LIKES_COUNT_SELECTOR =
   "ytd-reel-video-renderer[is-active] #factoids > factoid-renderer:nth-child(1) > div > span.YtwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR =
@@ -33,6 +33,8 @@ let filterMaxComments = "none";
 let blockedCreators = [];
 let whitelistedCreators = [];
 let blockedTags = [];
+let scrollOnNoTags = false;
+let additionalScrollDelay = 0;
 
 // STATE VARIABLES
 let currentVideoIndex: number = null;
@@ -115,14 +117,39 @@ function videoFinished() {
     // If the video is finished and is equal to the amount of plays needed to skip,
     // check if the comments are open.
     const comments = document.querySelector(COMMENTS_SELECTOR);
-    if (scrollOnCommentsCheck || !comments)
-      return scrollToNextShort(); // Scroll due to scrollOnComments being true or comments not being found
-    else if (
+    const commentsActive = comments?.clientWidth > 0;
+    if (scrollOnCommentsCheck || !commentsActive) {
+      // take into account additional scroll delay
+      return setTimeout(() => {
+        if (
+          currentVideo.duration !=
+          (
+            document.querySelector(
+              "#shorts-container video[tabindex='-1']"
+            ) as HTMLVideoElement
+          ).duration
+        )
+          return; // if the video is not the same as the one that finished, don't scroll
+        scrollToNextShort();
+      }, additionalScrollDelay);
+    } else if (
       comments.getAttribute("visibility") ===
         "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN" ||
       comments.clientWidth <= 0
-    )
-      return scrollToNextShort(); // Scroll due to comments not being open
+    ) {
+      return setTimeout(() => {
+        if (
+          currentVideo.duration !=
+          (
+            document.querySelector(
+              "#shorts-container video[tabindex='-1']"
+            ) as HTMLVideoElement
+          ).duration
+        )
+          return; // if the video is not the same as the one that finished, don't scroll
+        scrollToNextShort();
+      }, additionalScrollDelay);
+    }
 
     // If the comments are open, wait for them to close
     let intervalComments = setInterval(() => {
@@ -173,17 +200,50 @@ function checkIfVaildVideo() {
     currentVideo.setAttribute("loop", "");
     return false;
   }
+
+  // Check If Advertisement
+
+  if (
+    (
+      currentVideoParent?.querySelector(
+        "ad-badge-view-model > badge-shape > div"
+      ) as HTMLDivElement
+    )?.innerText &&
+    (
+      currentVideoParent?.querySelector(
+        "ad-badge-view-model > badge-shape > div"
+      ) as HTMLDivElement
+    )?.innerText?.toLowerCase() === "sponsored"
+  ) {
+    return false;
+  }
+
   // Check if the video is from a blocked creator and if it is, skip it (FROM SETTINGS)
   const authorOfVideo = (
-    currentVideoParent?.querySelector("#text a") as HTMLAnchorElement
+    currentVideoParent?.querySelector(
+      "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a"
+    ) as HTMLAnchorElement
   )?.innerText
     ?.toLowerCase()
     .replace("@", "");
-  const tagsOfVideo = (
+  let tagsOfVideo = (
     [
-      ...currentVideoParent?.querySelectorAll("h2.title a"),
+      ...currentVideoParent?.querySelectorAll(
+        "#metapanel > yt-reel-metapanel-view-model > div:nth-child(3) > yt-shorts-video-title-view-model > h2 > span > span > a"
+      ),
     ] as HTMLAnchorElement[]
   ).map((src) => src?.innerText?.toLowerCase()?.replaceAll("#", ""));
+
+  if (
+    !(
+      currentVideoParent?.querySelector(
+        "#metapanel > yt-reel-metapanel-view-model > div:nth-child(3) > yt-shorts-video-title-view-model > h2 > span"
+      ) as HTMLSpanElement
+    )?.innerText
+  ) {
+    tagsOfVideo = ["tagsLoading..."];
+  }
+
   if (
     authorOfVideo &&
     blockedCreators
@@ -201,6 +261,14 @@ function checkIfVaildVideo() {
           .map((tag) => tag?.replace("#", ""))
           .includes(tag)
       ) &&
+    !whitelistedCreators
+      .map((c) => c?.toLowerCase()?.replace("@", ""))
+      .includes(authorOfVideo)
+  ) {
+    return false;
+  } else if (
+    scrollOnNoTags &&
+    tagsOfVideo.length === 0 &&
     !whitelistedCreators
       .map((c) => c?.toLowerCase()?.replace("@", ""))
       .includes(authorOfVideo)
@@ -351,6 +419,8 @@ function getParentVideo() {
         "filteredAuthors",
         "filteredTags",
         "scrollOnComments",
+        "scrollOnNoTags",
+        "whitelistedAuthors",
       ],
       (result) => {
         console.log({ result });
@@ -387,6 +457,9 @@ function getParentVideo() {
         if (result["filteredTags"]) blockedTags = [...result["filteredTags"]];
         if (result["whitelistedAuthors"])
           whitelistedCreators = [...result["whitelistedAuthors"]];
+        if (result["scrollOnNoTags"]) scrollOnNoTags = result["scrollOnNoTags"];
+        if (result["additionalScrollDelay"])
+          additionalScrollDelay = result["additionalScrollDelay"];
 
         shortCutListener();
       }
@@ -456,6 +529,14 @@ function getParentVideo() {
       let newWhiteListedCreators = result["whitelistedAuthors"]?.newValue;
       if (newWhiteListedCreators != undefined) {
         whitelistedCreators = [...newWhiteListedCreators];
+      }
+      let newScrollOnNoTags = result["scrollOnNoTags"]?.newValue;
+      if (newScrollOnNoTags !== undefined) {
+        scrollOnNoTags = newScrollOnNoTags;
+      }
+      let newAdditionalScrollDelay = result["additionalScrollDelay"]?.newValue;
+      if (newAdditionalScrollDelay !== undefined) {
+        additionalScrollDelay = newAdditionalScrollDelay;
       }
     });
   })();

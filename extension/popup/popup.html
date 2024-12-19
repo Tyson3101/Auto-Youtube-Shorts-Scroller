@@ -359,7 +359,7 @@
         </div>
       </div>
 
-      <div data-pageIndex="2" class="settingsPage scrollSettings">
+      <div data-pageIndex="2" class="settingsPage scrollSettings scroll list">
         <div>
           <label for="scrollDirection"
             ><p style="font-size: 1rem">
@@ -394,6 +394,19 @@
             name="scrollOnComments"
             id="scrollOnComments"
             checked="true"
+          />
+        </div>
+        <div>
+          <label for="additionalScrollDelay"
+            >Additional Scroll Delay (ms):</label
+          >
+          <input
+            type="number"
+            name="additionalScrollDelay"
+            id="additionalScrollDelay"
+            value="0"
+            min="0"
+            style="width: 40%"
           />
         </div>
       </div>
@@ -458,6 +471,16 @@
           </p></label
         >
         <textarea id="filterTags" class="urlsList"></textarea>
+        <br />
+        <div>
+          <label for="scrollOnNoTags">Scroll when video has no tags:</label>
+          <input
+            type="checkbox"
+            name="scrollOnNoTags"
+            id="scrollOnNoTags"
+            checked="false"
+          />
+        </div>
       </div>
       <div data-pageIndex="5" class="settingsPage">
         <label for="whitelistTags" style="margin-top: 0.5rem; display: block">

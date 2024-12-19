@@ -47,6 +47,12 @@ const amountOfPlaysInput = document.querySelector(
 const scrollOnCommentsInput = document.querySelector(
   "#scrollOnComments"
 ) as HTMLInputElement;
+const scrollOnNoTagsInput = document.querySelector(
+  "#scrollOnNoTags"
+) as HTMLInputElement;
+const additionalScrollDelayInput = document.querySelector(
+  "#additionalScrollDelay"
+) as HTMLInputElement;
 const nextSettings = document.querySelector("#nextSettings") as HTMLDivElement;
 const backSettings = document.querySelector("#backSettings") as HTMLDivElement;
 const nextFilter = document.querySelector("#nextFilter") as HTMLDivElement;
@@ -465,10 +471,26 @@ function getAllSettingsForPopup() {
       amountOfPlaysToSkip: parseInt((e.target as HTMLSelectElement).value),
     });
   });
+
+  chrome.storage.local.get(["additionalScrollDelay"], async (result) => {
+    let value = result["additionalScrollDelay"];
+    if (value == undefined) {
+      await chrome.storage.local.set({ additionalScrollDelay: 0 });
+      additionalScrollDelayInput.value = "0";
+    }
+    additionalScrollDelayInput.value = value;
+  });
+
+  additionalScrollDelayInput.addEventListener("change", (e) => {
+    chrome.storage.local.set({
+      additionalScrollDelay: parseInt((e.target as HTMLSelectElement).value),
+    });
+  });
+
   chrome.storage.local.get(["scrollOnComments"], async (result) => {
     let value = result["scrollOnComments"];
     if (value == undefined) {
-      await chrome.storage.local.set({ crollOnComments: false });
+      await chrome.storage.local.set({ scrollOnComments: false });
       scrollOnCommentsInput.checked = true;
     }
     scrollOnCommentsInput.checked = value;
@@ -477,6 +499,21 @@ function getAllSettingsForPopup() {
   scrollOnCommentsInput.addEventListener("change", (e) => {
     chrome.storage.local.set({
       scrollOnComments: (e.target as HTMLInputElement).checked,
+    });
+  });
+
+  chrome.storage.local.get(["scrollOnNoTags"], async (result) => {
+    let value = result["scrollOnNoTags"];
+    if (value == undefined) {
+      await chrome.storage.local.set({ scrollOnNoTags: false });
+      scrollOnNoTagsInput.checked = true;
+    }
+    scrollOnNoTagsInput.checked = value;
+  });
+
+  scrollOnNoTagsInput.addEventListener("change", (e) => {
+    chrome.storage.local.set({
+      scrollOnNoTags: (e.target as HTMLInputElement).checked,
     });
   });
 
