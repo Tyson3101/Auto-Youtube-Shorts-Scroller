@@ -16,6 +16,7 @@ const allStorageKeys = [
     "filteredAuthors",
     "filteredTags",
     "whitelistedAuthors",
+    "scrollOnNoTags",
 ];
 chrome.runtime.onInstalled.addListener((details) => {
     // Show install page on install
@@ -72,6 +73,9 @@ chrome.runtime.onInstalled.addListener((details) => {
             chrome.storage.local.set({
                 whitelistedAuthors: ["Tyson3101"],
             });
+        }
+        if (resultSync.scrollOnNoTags == undefined) {
+            chrome.storage.local.set({ scrollOnNoTags: false });
         }
     });
 });

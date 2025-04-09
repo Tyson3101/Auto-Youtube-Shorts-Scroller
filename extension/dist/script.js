@@ -32,14 +32,8 @@ pageNavigation("filter");
 document.onclick = (e) => {
     if (e.target.classList.contains("toggleBtn"))
         chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-            if (tabs[0]?.url?.toLowerCase().includes("youtube.com")) {
-                try {
-                    chrome.tabs.sendMessage(tabs[0].id, { toggle: true }, (response) => {
-                        if (!response?.success)
-                            errMsg.innerText = "Please refresh the page and try again!";
-                    });
-                }
-                catch { }
+            if (!tabs[0]?.url?.toLowerCase().includes("youtube.com")) {
+                errMsg.innerText = "Only can be toggled on Youtube!";
             }
             else {
                 // get applicationIsOn from chrome storage
@@ -79,10 +73,9 @@ function pageNavigation(pageType) {
             }
         };
         document
-            .querySelectorAll(".configureTags")
+            .querySelectorAll(".configureCreators")
             .forEach((ele) => {
             ele.addEventListener("click", () => {
-                console.log(ele.dataset["gotopageindex"]);
                 changePage("settings", 0, parseInt(ele.dataset["gotopageindex"]));
             });
         });
