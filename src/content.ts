@@ -17,6 +17,7 @@ const AUTHOUR_NAME_SELECTOR =
   "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
 const AUTHOUR_NAME_SELECTOR_2 =
   "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
+
 const NEXT_BUTTON_SELECTOR =
   "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const PREVIOUS_BUTTON_SELECTOR =
@@ -45,17 +46,16 @@ let blockedTags = [];
 let scrollOnNoTags = false;
 let additionalScrollDelay = 0;
 
-const MAX_RETRIES = 15;
-const RETRY_DELAY_MS = 300;
-
 // ------------------------------
 // STATE VARIABLES
 // ------------------------------
 let currentShortId = null;
 let currentVideoElement = null;
 let applicationIsOn = false;
-let lastVideo = null;
 let scrollTimeout: any;
+
+const MAX_RETRIES = 15;
+const RETRY_DELAY_MS = 500;
 
 // ------------------------------
 // MAIN FUNCTIONS
@@ -66,7 +66,6 @@ function startAutoScrolling() {
     amountOfPlays = 0;
     currentShortId = null;
     currentVideoElement = null;
-    lastVideo = null;
   }
   checkForNewShort();
 }
@@ -87,12 +86,20 @@ async function checkForNewShort() {
 
   // Checks if the current short is the same as the last one
   if (currentShort?.id != currentShortId) {
+    // Prevent scrolling from previous short ending
     if (scrollTimeout) clearTimeout(scrollTimeout);
 
+    // Remove event listener from the previous video element
+    const previousShort = currentVideoElement;
+    if (previousShort) {
+      previousShort.removeEventListener("ended", shortEnded);
+    }
+
+    // Set the new current short id and video element
     currentShortId = parseInt(currentShort.id);
     currentVideoElement = currentShort.querySelector("video");
 
-    // Check if the current short has a video element
+    // Looping check if the current short has a video element
     if (currentVideoElement == null) {
       let l = 0;
       while (currentVideoElement == null) {
@@ -101,6 +108,9 @@ async function checkForNewShort() {
           // If the video element is not found, scroll to the next short
           let prevShortId = currentShortId;
           currentShortId = null;
+          console.log(
+            "[Auto Youtube Shorts Scroller] Video element not found, scrolling to next short..."
+          );
           return scrollToNextShort(prevShortId);
         }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
@@ -111,24 +121,36 @@ async function checkForNewShort() {
     // Check if the current short is an ad
     if (currentShort.querySelector("ytd-ad-slot-renderer")) {
       console.log("[Auto Youtube Shorts Scroller] Ad detected, skipping...");
-      return scrollToNextShort(currentShortId, true);
+      return scrollToNextShort(currentShortId, false);
     }
 
+    // Log the current short id
     console.log(
       "[Auto Youtube Shorts Scroller] Current ID of Short: ",
       currentShortId
     );
 
-    if (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) == null) {
+    // Add event listener to the current video element
+    currentVideoElement.addEventListener("ended", shortEnded);
+
+    // Check if the current short has metadata
+    const isMetaDataHydrated = (selector: string) => {
+      return currentShort.querySelector(selector) != null;
+    };
+
+    if (!isMetaDataHydrated(AUTHOUR_NAME_SELECTOR)) {
       let l = 0;
       // If the creator name is not found, wait for it to load (A long with other data)
-      while (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) == null) {
-        if (currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2)) break;
-        if (l > 15) {
+      while (!isMetaDataHydrated(AUTHOUR_NAME_SELECTOR)) {
+        if (isMetaDataHydrated(AUTHOUR_NAME_SELECTOR_2)) break;
+        if (l > MAX_RETRIES) {
           // If after time not found, scroll to next short
           let prevShortId = currentShortId;
           currentShortId = null;
-          return scrollToNextShort(prevShortId);
+          console.log(
+            "[Auto Youtube Shorts Scroller] Metadata not hydrated, scrolling to next short..."
+          );
+          return scrollToNextShort(prevShortId, false);
         }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
         l++;
@@ -137,16 +159,17 @@ async function checkForNewShort() {
 
     // Check if short meets the filter settings
     const isValidShort = await checkShortValidity(currentShort);
-    // Otherwise scroll to the next short
-    if (!isValidShort) return scrollToNextShort(currentShortId, true);
 
-    // Set shortEnded function to ended event
-    if (currentVideoElement)
-      currentVideoElement.addEventListener("ended", shortEnded);
+    if (!isValidShort) {
+      console.log(
+        "[Auto Youtube Shorts Scroller] Short doesn't meet the filter settings, scrolling to next short..."
+      );
+      return scrollToNextShort(currentShortId, true);
+    }
   }
 
   // Force removal of the loop attribute if it exists
-  if (currentVideoElement?.hasAttribute("loop")) {
+  if (currentVideoElement?.hasAttribute("loop") && applicationIsOn) {
     currentVideoElement.removeAttribute("loop");
   }
 }
@@ -154,13 +177,15 @@ async function checkForNewShort() {
 function shortEnded(e: Event) {
   e.preventDefault();
   if (!applicationIsOn) return stopAutoScrolling();
+  console.log(
+    "[Auto Youtube Shorts Scroller] Short ended, scrolling to next short..."
+  );
   amountOfPlays++;
 
   // Checks amount of plays to skip the short
   if (amountOfPlays >= amountOfPlaysToSkip) {
     // If its same or exceeded the amount of plays, scroll to the next short
     amountOfPlays = 0;
-    currentVideoElement.removeEventListener("ended", shortEnded);
     scrollToNextShort(currentShortId);
   } else {
     // Otherwise, play the video again
@@ -170,23 +195,25 @@ function shortEnded(e: Event) {
 
 async function scrollToNextShort(
   prevShortId: number = null,
-  noAdditionalDelay = false
+  useDelayAndCheckComments = true
 ) {
   if (!applicationIsOn) return stopAutoScrolling();
 
   const comments = document.querySelector(COMMENTS_SELECTOR);
+  const isCommentsOpen = () => {
+    const visibilityOfComments = comments?.attributes["VISIBILITY"]?.value;
+    return visibilityOfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED";
+  };
 
   // Check if comments is open, and settings are set to scroll on comments
-  if (!scrollOnCommentsCheck && comments) {
-    if (
-      comments.attributes["VISIBILITY"]?.value ===
-      "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"
-    ) {
+  if (comments && useDelayAndCheckComments) {
+    if (isCommentsOpen() && !scrollOnCommentsCheck) {
+      useDelayAndCheckComments = false; // If the comments are open, don't wait for the additional scroll delay when scrolling
       // If the comments are open, wait till they are closed (if the setting is set to scroll on comments)
       while (
-        !scrollOnCommentsCheck &&
-        comments.attributes["VISIBILITY"]?.value ===
-          "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"
+        isCommentsOpen() && // Waits till the comments are closed
+        !scrollOnCommentsCheck && // Stops if the setting is changed
+        prevShortId == currentShortId // Stops if the short changes
       ) {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
@@ -194,18 +221,19 @@ async function scrollToNextShort(
   }
 
   if (scrollTimeout) clearTimeout(scrollTimeout);
-  if (additionalScrollDelay > 0 && !noAdditionalDelay)
+  if (additionalScrollDelay > 0 && useDelayAndCheckComments)
     // If the additional scroll delay is set, wait for it, and allow loop while delaying
     currentVideoElement.play();
   scrollTimeout = setTimeout(
     async () => {
-      if (prevShortId != null && currentShortId != prevShortId) return;
+      if (prevShortId != null && currentShortId != prevShortId) return; // If the short changed, don't scroll
 
       const nextShortContainer = await waitForNextShort();
-      if (nextShortContainer == null) return window.location.reload();
+      if (nextShortContainer == null) return window.location.reload(); // If no next short is found, reload the page (Last resort)
 
       // If next short container is found, remove the current video element end event listener
-      currentVideoElement.removeEventListener("ended", shortEnded);
+      if (currentVideoElement)
+        currentVideoElement.removeEventListener("ended", shortEnded);
 
       // Scroll to the next short container
       nextShortContainer.scrollIntoView({
@@ -215,9 +243,9 @@ async function scrollToNextShort(
       });
       // Then check the new short
       checkForNewShort();
-      // Sets the additional scroll delay from settings
     },
-    !noAdditionalDelay ? additionalScrollDelay : 0
+    // Sets the additional scroll delay from settings
+    useDelayAndCheckComments ? additionalScrollDelay : 0
   );
 }
 
@@ -248,6 +276,9 @@ async function waitForNextShort(retries = 5, delay = 500) {
     window.scrollBy(0, -100);
     await new Promise((r) => setTimeout(r, delay));
   }
+  console.log(
+    "[Auto Youtube Shorts Scroller] The next short has not loaded in, reloading page..."
+  );
   return null;
 }
 
@@ -271,11 +302,18 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
   console.log("[Auto Youtube Shorts Scroller]", {
     filters: [
       { videoLength, filterMinLength, filterMaxLength },
-      { viewCount, filterMinViews, filterMaxViews },
-      { likeCount, filterMinLikes, filterMaxLikes },
-      { commentCount, filterMinComments, filterMaxComments },
-      { tags, blockedTags },
-      { creatorName, blockedCreators, whitelistedCreators },
+      { viewCount: viewCount?.innerText, filterMinViews, filterMaxViews },
+      { likeCount: likeCount?.innerText, filterMinLikes, filterMaxLikes },
+      {
+        commentCount: commentCount?.innerText,
+        filterMinComments,
+        filterMaxComments,
+      },
+      { tags: [...tags].map((tag) => tag.innerText) },
+      { creatorName: creatorName?.innerText },
+      { blockedTags },
+      { blockedCreators },
+      { whitelistedCreators },
     ],
   });
 
@@ -378,17 +416,6 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
   return true;
 }
 
-async function shortVideoElementLoaded(currentShort: HTMLDivElement) {
-  let l = 0;
-  // If the video element is not found, wait for it to load
-  while (currentVideoElement == null) {
-    currentVideoElement = currentShort.querySelector("video");
-    if (l > 15) return scrollToNextShort(currentShortId);
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    l++;
-  }
-}
-
 // ------------------------------
 // INITIATION AND SETTINGS FETCH
 // ------------------------------
@@ -401,7 +428,7 @@ async function shortVideoElementLoaded(currentShort: HTMLDivElement) {
   checkForNewShort();
   checkApplicationState();
 
-  setInterval(checkForNewShort, 400);
+  setInterval(checkForNewShort, RETRY_DELAY_MS);
 
   function checkApplicationState() {
     chrome.storage.local.get(["applicationIsOn"], (result) => {
@@ -631,6 +658,7 @@ function shortCutListener() {
       const dislikeBtn = document.querySelector(
         DISLIKE_BUTTON_SELECTOR
       ) as HTMLButtonElement;
+
       if (
         likeBtn?.getAttribute("aria-pressed") === "true" ||
         dislikeBtn?.getAttribute("aria-pressed") === "true"
