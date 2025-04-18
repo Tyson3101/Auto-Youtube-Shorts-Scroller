@@ -1,580 +1,249 @@
-<html>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-  />
-  <style>
-    :root {
-      --bg-color: rgb(164, 173, 205);
-    }
-    * {
-      text-align: center;
-    }
-    body {
-      min-width: 320px;
-      background-color: var(--bg-color);
-    }
-
-    h1 {
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    #adYt {
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    #adChrome,
-    #adYt {
-      margin-top: 0;
-      padding-top: 0;
-    }
-    button {
-      cursor: pointer;
-    }
-    .toggleBtn {
-      border: 1px solid black;
-      height: 3.1rem;
-      width: 10rem;
-      font-size: 1.5rem;
-    }
-    .start {
-      background-color: rgb(157, 231, 157);
-    }
-    .stop {
-      background-color: rgb(243, 139, 139);
-    }
-    .start:hover {
-      background-color: rgb(135, 196, 135);
-    }
-    .stop:hover {
-      background-color: rgb(205, 119, 119);
-    }
-    .remove {
-      display: none;
-    }
-    .settings {
-      margin-top: 0.5rem;
-      padding: 0 0.5em 0.5em 0.5em;
-      display: flex;
-      justify-content: top;
-      align-items: center;
-      flex-direction: column;
-      box-shadow: 0 0 0.1rem 0.1rem black;
-      position: relative;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      height: 11rem;
-    }
-    .settings.remove {
-      display: none;
-    }
-    .settings > .settings.small {
-      height: 10rem;
-    }
-    .settings.small {
-      height: 4.8rem;
-      width: 80vw;
-    }
-    .settings h2,
-    .settings h3 {
-      text-decoration: underline;
-    }
-    .settings * {
-      margin: 0;
-    }
-    .settings label {
-      font-weight: bold;
-    }
-    .settings select {
-      margin-bottom: 0.2rem;
-    }
-    .settings input[type="number"] {
-      width: 15vw;
-    }
-    .filterPage input[type="text"] {
-      width: 40vw;
-    }
-    .next {
-      position: absolute;
-      right: 3px;
-      bottom: 3px;
-    }
-    .back {
-      position: absolute;
-      left: 3px;
-      bottom: 3px;
-    }
-    .pageNumber {
-      position: absolute;
-      bottom: 0;
-      margin: auto;
-    }
-    .settingsPage,
-    .filterPage {
-      display: none;
-    }
-    .filterPage.active {
-      display: block;
-    }
-    .settingsPage.active {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      height: 100%;
-      position: relative;
-      top: -10px;
-    }
-    .settings select {
-      height: min-content;
-    }
-    .settingsPage.list.active {
-      display: block;
-      top: 0;
-    }
-    .filterOptions {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-    }
-    .filterOptions > div {
-      display: flex;
-      justify-content: space-around;
-    }
-    .filterOptions > div * {
-      display: block;
-      min-width: 40vw;
-    }
-    .filterOptions:not(.active) * {
-      display: none;
-    }
-    textarea.urlsList {
-      width: 90%;
-      text-align: left;
-      height: 12vh;
-      resize: none;
-      border: 1px solid black;
-      background-color: white;
-      padding: 0.2em;
-    }
-    .pageList {
-      display: block;
-      margin-top: 5px;
-      margin-bottom: 0;
-    }
-    .pageList * {
-      display: inline-block;
-      margin-right: 11px;
-      text-decoration: none;
-    }
-    .pageList .active {
-      text-decoration: underline;
-      font-weight: 500;
-    }
-    .scrollSettings > div {
-      margin-top: 0.3rem;
-    }
-    .scroll {
-      overflow-y: scroll;
-      padding: 0.3rem 0.5em 1.5em 0.5em;
-    }
-  </style>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto Youtube Shorts Scroller</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Link the new CSS file -->
+    <link rel="stylesheet" href="popup.css" />
+  </head>
   <body>
-    <h1>Auto Youtube Shorts Scroller Extension</h1>
-    <span style="display: block"
-      ><i style="font-size: 4.2vw">
-        <br />Automatically scrolls when a Short ends.<br /></i
-    ></span>
-    <button class="toggleBtn">Stop</button>
-    <i id="error" style="color: red; display: block"></i>
-    <div class="settings">
-      <h2>Settings</h2>
-      <div data-pageIndex="0" class="settingsPage active">
-        <label for="shortCutInput"
-          ><p style="font-size: 1rem">
-            Toggle Shortcut
-            <i style="font-size: 0.7em; display: block"
-              >Customize the key(s) to toggle the extension on/off. (Seperate
-              with
-              <span
-                style="
-                  background-color: rgb(220, 209, 209);
-                  font-weight: bold;
-                  font-size: larger;
-                "
-                >+</span
-              >)</i
-            >
-          </p></label
-        >
-        <input
-          type="text"
-          name="shortCutInput"
-          id="shortCutInput"
-          value="shift + s"
-          style="width: 40%; margin: 5px 0"
-        />
-        <p>
-          See
-          <a
-            href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
-            target="_blank"
-            >this link</a
-          >
-          to match the key(s) you want to use.
-        </p>
+    <header class="popup-header">
+      <div class="header-title-section">
+        <img src="../img/autoYTScrollerIcon48.png" alt="Logo" class="header-icon"/>
+        <h1 class="header-title">YouTube Auto ㅤ Shorts Scroller</h1>
       </div>
 
-      <div data-pageIndex="1" class="settingsPage">
-        <label for="filterShorts">
-          <p style="font-size: 1rem; margin-top: 2.5px">
-            Filter Shorts
-            <i style="font-size: 0.7em; display: block; margin-bottom: 2.5px"
-              >Auto skips videos by length/likes/views/comments</i
-            >
-          </p>
+      <div class="header-controls">
+         <!-- Master Status Toggle -->
+        <label class="status-toggle-label" for="status-toggle" title="Toggle Extension On/Off">
+            <div class="toggle-switch">
+              <input type="checkbox" id="status-toggle" />
+              <span class="slider"></span>
+            </div>
         </label>
-        <div class="filterShorts">
-          <div class="settings small">
-            <div data-pageIndex="0" class="filterPage filterOptions active">
-              <h3>Short Length</h3>
-              <div>
-                <label for="filterByMinLength">Minimum length: </label>
-                <select name="filterByMinLength" id="filterByMinLength">
-                  <option value="none">None</option>
-                  <option value="15">15 Seconds</option>
-                  <option value="30">30 Seconds</option>
-                  <option value="45">45 Seconds</option>
-                  <option value="60">1 Minute</option>
-                  <option value="90">1.5 Minutes</option>
-                  <option value="120">2 Minutes</option>
-                </select>
-              </div>
-              <div>
-                <label for="filterByMaxLength">Maximum length: </label>
-                <select name="filterByMaxLength" id="filterByMaxLength">
-                  <option value="none">None</option>
-                  <option value="15">15 Seconds</option>
-                  <option value="30">30 Seconds</option>
-                  <option value="45">45 Seconds</option>
-                  <option value="60">1 Minute</option>
-                  <option value="90">1.5 Minutes</option>
-                  <option value="120">2 Minutes</option>
-                </select>
-              </div>
-            </div>
-            <div data-pageIndex="1" class="filterPage filterOptions">
-              <h3>Views</h3>
-              <div>
-                <label for="filterByMinViews">Minimum views: </label>
-                <input
-                  style="display: inline"
-                  type="text"
-                  name="filterByMinViews"
-                  id="filterByMinViews"
-                  placeholder="No Filter"
-                  step="1000"
-                  min="0"
-                  title="Use underscores to format the number (e.g. 1_000_000)"
-                />
-              </div>
-              <div>
-                <label for="filterByMaxViews">Maximum views: </label>
-                <input
-                  style="display: inline"
-                  type="text"
-                  name="filterByMaxViews"
-                  id="filterByMaxViews"
-                  placeholder="No Filter"
-                  step="1000"
-                  min="0"
-                  title="Use underscores to format the number (e.g. 1_000_000)"
-                />
-              </div>
-            </div>
+        <a href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller" target="_blank" class="header-icon-link" title="GitHub Repository">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="help.html" target="_blank" class="header-icon-link" title="Help Page">
+          <i class="fas fa-question-circle"></i>
+        </a>
+      </div>
+    </header>
 
-            <div data-pageIndex="2" class="filterPage filterOptions">
-              <h3>Likes</h3>
-              <div>
-                <label for="filterByMinLikes">Minimum likes: </label>
-                <input
-                  style="display: inline"
-                  type="text"
-                  name="filterByMinLikes"
-                  id="filterByMinLikes"
-                  placeholder="No Filter"
-                  step="100"
-                  min="0"
-                  title="Use underscores to format the number (e.g. 1_000_000)"
-                />
-              </div>
-              <div>
-                <label for="filterByMaxLikes">Maximum likes: </label>
-                <input
-                  style="display: inline"
-                  type="text"
-                  name="filterByMaxLikes"
-                  id="filterByMaxLikes"
-                  placeholder="No Filter"
-                  step="100"
-                  min="0"
-                  title="Use underscores to format the number (e.g. 1_000_000)"
-                />
-              </div>
-            </div>
+    <div class="main-content">
+      <nav class="navigation-sidebar">
+        <div class="nav-item active" data-target-panel="panel-general" title="General Settings">
+          <i class="fas fa-cog"></i>
+          <span class="tooltip">General</span>
+        </div>
+        <div class="nav-item" data-target-panel="panel-filters" title="Content Filters">
+          <i class="fas fa-filter"></i>
+           <span class="tooltip">Filters</span>
+        </div>
+        <div class="nav-item" data-target-panel="panel-lists" title="Creator & Tag Lists">
+          <i class="fas fa-list"></i>
+           <span class="tooltip">Lists</span>
+        </div>
+        <div class="nav-item" data-target-panel="panel-shortcuts" title="Keyboard Shortcuts">
+          <i class="fas fa-keyboard"></i>
+           <span class="tooltip">Shortcuts</span>
+        </div>
+      </nav>
 
-            <div data-pageIndex="3" class="filterPage filterOptions">
-              <h3>Comments</h3>
-              <div>
-                <label for="filterByMinComments">Minimum comments: </label>
-                <input
-                  style="display: inline"
-                  type="text"
-                  name="filterByMinComments"
-                  id="filterByMinComments"
-                  placeholder="No Filter"
-                  step="50"
-                  min="0"
-                  title="Use underscores to format the number (e.g. 1_000_000)"
-                />
-              </div>
-              <div>
-                <label for="filterByMaxComments">Maximum comments: </label>
-                <input
-                  style="display: inline"
-                  type="text"
-                  name="filterByMaxComments"
-                  id="filterByMaxComments"
-                  placeholder="No Filter"
-                  step="50"
-                  min="0"
-                  title="Use underscores to format the number (e.g. 1_000_000)"
-                />
-              </div>
-            </div>
+      <main class="content-panels">
+        <!-- General Settings Panel -->
+        <section id="panel-general" class="content-panel active">
+          <h2>General Settings</h2>
+          <div class="form-group">
+            <label for="scrollDirectionInput">Scroll Direction</label>
+            <select id="scrollDirectionInput">
+              <option value="down">Down (Next Short)</option>
+              <option value="up">Up (Previous Short)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="amountOfPlaysInput">Plays Before Scrolling</label>
+            <input
+              type="number"
+              id="amountOfPlaysInput"
+              value="1"
+              min="1"
+              step="1"
+            />
+             <p class="description">Number of times a short replays before scrolling.</p>
+          </div>
+          <div class="form-group">
+            <label for="additionalScrollDelayInput">Additional Scroll Delay (ms)</label>
+            <input
+              type="number"
+              id="additionalScrollDelayInput"
+              value="0"
+              min="0"
+              step="50"
+            />
+             <p class="description">Extra time (milliseconds) to wait before scrolling.</p>
+          </div>
+           <div class="form-group">
+             <label class="toggle-switch-label" for="scrollOnCommentsInput">
+                 <span class="toggle-switch-text">Scroll When Comments are Open</span>
+                 <div class="toggle-switch">
+                    <input type="checkbox" id="scrollOnCommentsInput"/>
+                    <span class="slider"></span>
+                 </div>
+             </label>
+             <p class="description">If disabled, scrolling pauses while the comment section is open.</p>
+          </div>
+        </section>
 
-            <div id="backFilter" class="back">
-              <a href="#">&#8592; Last Page</a>
-            </div>
-            <div id="filterPageNumber" class="pageNumber">1/4</div>
-            <div id="nextFilter" class="next">
-              <a href="#">Next Page &#8594;</a>
+        <!-- Filters Panel -->
+        <section id="panel-filters" class="content-panel">
+          <h2>Content Filters</h2>
+           <p class="description" style="margin-bottom: 1rem; font-size: 0.85rem;">Automatically skip shorts based on these criteria. Set to 'None' or leave blank to disable a specific filter.</p>
+
+          <div class="form-group">
+            <label>Short Length</label>
+            <div class="filter-group">
+                <div>
+                    <label for="filterByMinLength">Min Length</label>
+                    <select id="filterByMinLength">
+                      <option value="none">None</option>
+                      <option value="15">15 Seconds</option>
+                      <option value="30">30 Seconds</option>
+                      <option value="45">45 Seconds</option>
+                      <option value="60">1 Minute</option>
+                      <option value="90">1.5 Minutes</option>
+                      <option value="120">2 Minutes</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="filterByMaxLength">Max Length</label>
+                    <select id="filterByMaxLength">
+                       <option value="none">None</option>
+                      <option value="15">15 Seconds</option>
+                      <option value="30">30 Seconds</option>
+                      <option value="45">45 Seconds</option>
+                      <option value="60">1 Minute</option>
+                      <option value="90">1.5 Minutes</option>
+                      <option value="120">2 Minutes</option>
+                    </select>
+                 </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div data-pageIndex="2" class="settingsPage scrollSettings scroll list">
-        <p style="font-size: 1rem; font-weight: bold">Scroll Settings</p>
-        <div>
-          <label for="scrollDirection"> Direction of Scroll <br /> </label>
-          <select name="scrollDirection" id="scrollDirectionInput">
-            <option value="down">Down</option>
-            <option value="up">Up</option>
-          </select>
-        </div>
-        <div>
-          <label for="amountOfPlays"> Amount of Plays Before Scrolling </label>
-          <input
-            type="number"
-            name="amountOfPlaysInput"
-            id="amountOfPlaysInput"
-            value="1"
-            min="1"
-            style="width: 40%"
-          />
-        </div>
-        <div>
-          <label for="scrollOnComments"
-            >Scroll When the Comments are Open:</label
-          >
-          <br />
-          <input
-            type="checkbox"
-            name="scrollOnComments"
-            id="scrollOnComments"
-            checked="true"
-          />
-        </div>
-        <div>
-          <label for="additionalScrollDelay"
-            >Additional Scroll Delay (ms):</label
-          >
-          <input
-            type="number"
-            name="additionalScrollDelay"
-            id="additionalScrollDelay"
-            value="0"
-            min="0"
-            style="width: 40%"
-          />
-        </div>
-      </div>
-      <div data-pageIndex="3" class="settingsPage">
-        <label for="shortCutInteractInput"
-          ><p style="font-size: 1rem">
-            Like/Dislike Shortcut
-            <i style="font-size: 0.7em; display: block"
-              >Customize the key(s) to like/dislike a short. (Seperate with
-              <span
-                style="
-                  background-color: rgb(220, 209, 209);
-                  font-weight: bold;
-                  font-size: larger;
-                "
-                >+</span
-              >)</i
-            >
-          </p></label
-        >
-        <input
-          type="text"
-          name="shortCutInteractInput"
-          id="shortCutInteractInput"
-          value="shift + f"
-          style="width: 40%"
-        />
-        <p>
-          See
-          <a
-            href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
-            target="_blank"
-            >this link</a
-          >
-          to match the key(s) you want to use. <br />Double perform shortcut to
-          dislike
-        </p>
-      </div>
-      <div data-pageIndex="4" class="settingsPage list scroll">
-        <label for="filterAuthors"
-          ><p style="font-size: 1rem">
-            Block Video Creators
-            <i style="font-size: 0.7em; display: block"
-              >Auto skips video created by inputted creators (seperate by a
-              comma)</i
-            >
-          </p></label
-        >
-        <textarea id="filterAuthors" class="urlsList"></textarea>
-
-        <label for="filterTags" style="margin-top: 0.5rem; display: block">
-          <div>
-            <a href="#" data-goToPageIndex="5" class="configureCreators"
-              >Configure Whitelisted Video Creators</a
-            >
+          <div class="form-group">
+            <label>Views</label>
+             <div class="filter-group">
+                <div>
+                    <label for="filterByMinViews">Min Views</label>
+                    <input type="text" id="filterByMinViews" placeholder="e.g., 1000 or 1k" />
+                </div>
+                 <div>
+                    <label for="filterByMaxViews">Max Views</label>
+                    <input type="text" id="filterByMaxViews" placeholder="e.g., 1000000 or 1m" />
+                 </div>
+             </div>
+              <p class="description">Use k (thousand) or m (million), e.g., <code>50k</code>, <code>2m</code>.</p>
           </div>
-          <p style="font-size: 1rem">
-            Block Video Tags
-            <i style="font-size: 0.7em; display: block"
-              >Auto skips video with inputted tags (seperate by a comma)</i
-            >
-          </p></label
-        >
-        <textarea id="filterTags" class="urlsList"></textarea>
-        <br />
-        <div>
-          <label for="scrollOnNoTags">Scroll when Short has no tags:</label>
-          <input
-            type="checkbox"
-            name="scrollOnNoTags"
-            id="scrollOnNoTags"
-            checked="false"
-          />
-        </div>
-      </div>
-      <div data-pageIndex="5" class="settingsPage">
-        <label for="whitelistTags" style="margin-top: 0.5rem; display: block">
-          <div>
-            <a href="#" data-goToPageIndex="4" class="configureCreators"
-              >Configure Blacklisted Creators</a
-            >
-          </div>
-          <p style="font-size: 1rem">
-            Whitelist Video Creators
-            <i style="font-size: 0.7em; display: block"
-              >Ignores blocked filters from inputted creators (seperate by a
-              comma)</i
-            >
-          </p></label
-        >
-        <textarea id="whitelistedAuthors" class="urlsList"></textarea>
-      </div>
 
-      <div id="backSettings" class="back">
-        <a href="#">&#8592; Last Page</a>
-      </div>
-      <div id="settingsPageNumber" class="pageNumber">1/5</div>
-      <div id="nextSettings" class="next">
-        <a href="#">Next Page &#8594;</a>
-      </div>
+          <div class="form-group">
+            <label>Likes</label>
+             <div class="filter-group">
+                 <div>
+                    <label for="filterByMinLikes">Min Likes</label>
+                    <input type="text" id="filterByMinLikes" placeholder="e.g., 500" />
+                 </div>
+                  <div>
+                    <label for="filterByMaxLikes">Max Likes</label>
+                    <input type="text" id="filterByMaxLikes" placeholder="e.g., 50k" />
+                  </div>
+             </div>
+             <p class="description">Use k (thousand) or m (million).</p>
+          </div>
+
+          <div class="form-group">
+            <label>Comments</label>
+             <div class="filter-group">
+                 <div>
+                    <label for="filterByMinComments">Min Comments</label>
+                    <input type="text" id="filterByMinComments" placeholder="e.g., 10" />
+                 </div>
+                  <div>
+                    <label for="filterByMaxComments">Max Comments</label>
+                    <input type="text" id="filterByMaxComments" placeholder="e.g., 1k" />
+                  </div>
+             </div>
+              <p class="description">Use k (thousand) or m (million).</p>
+          </div>
+        </section>
+
+        <!-- Lists Panel -->
+        <section id="panel-lists" class="content-panel">
+          <h2>Creator & Tag Lists</h2>
+          <div class="form-group">
+            <label for="filterAuthors">Blocked Creators</label>
+            <textarea id="filterAuthors" placeholder="e.g., Creator1, @AnotherCreator"></textarea>
+            <p class="description">Comma-separated list of creator names or handles to block. Case-insensitive.</p>
+          </div>
+          <div class="form-group">
+            <label for="whitelistedAuthors">Whitelisted Creators</label>
+            <textarea id="whitelistedAuthors" placeholder="e.g., FavoriteCreator, @MustWatch"></textarea>
+            <p class="description">Comma-separated list. Shorts from these creators bypass all filters.</p>
+          </div>
+          <div class="form-group">
+            <label for="filterTags">Blocked Tags</label>
+            <textarea id="filterTags" placeholder="e.g., #topic1, #badtag"></textarea>
+            <p class="description">Comma-separated list of tags (including #) to block.</p>
+          </div>
+           <div class="form-group">
+                <label class="toggle-switch-label" for="scrollOnNoTagsInput">
+                    <span class="toggle-switch-text">Scroll if Short Has No Tags</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="scrollOnNoTagsInput"/>
+                        <span class="slider"></span>
+                    </div>
+                </label>
+                <p class="description">If enabled, shorts without any tags in the description will be skipped.</p>
+           </div>
+        </section>
+
+        <!-- Shortcuts Panel -->
+        <section id="panel-shortcuts" class="content-panel">
+          <h2>Keyboard Shortcuts</h2>
+           <p class="description" style="margin-bottom: 1.5rem;">Define key combinations for quick actions. Use '+' to combine keys (e.g., <code>Shift+Alt+S</code>). See <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values" target="_blank" >MDN Key Values</a> for reference.</p>
+          <div class="form-group">
+            <label for="shortCutInput">Toggle Extension On/Off</label>
+            <input type="text" id="shortCutInput" />
+          </div>
+          <div class="form-group">
+            <label for="shortCutInteractInput">Like / Dislike Current Short</label>
+            <input type="text" id="shortCutInteractInput" />
+            <p class="description">Press once to Like, press again quickly to Dislike.</p>
+          </div>
+        </section>
+
+        <div id="error-message"></div>
+      </main>
     </div>
-    <div class="pageList">
-      <a href="#" data-pageIndex="0" class="active">Toggle Shortcut</a>
-      <a href="#" data-pageIndex="1">Filter Shorts</a>
-      <a href="#" data-pageIndex="2">Scroll Settings</a>
-      <a href="#" data-pageIndex="3">Like/Dislike Shortcut</a>
-      <a href="#" data-pageIndex="4">Filter Creators/Tags</a>
-    </div>
-    <span style="display: block"
-      ><p id="adYt">
-        <br />Prefer Insta Reels?
-        <a
-          href="https://chromewebstore.google.com/detail/auto-reels-scroller/bpgleagdakihfeingnhnknblcfgbfcdo"
-          target="_blank"
-          >Download the Instagram version!</a
-        ><br /></p
-    ></span>
-    <h4 id="adChrome">
-      Do you enjoy this extension? Make sure to give it 5 stars on the
-      <a
-        href="https://chrome.google.com/webstore/detail/auto-youtube-shorts-scroller/ckbnikemebopgknkpgjlkbffpkkhblbe"
-        target="_blank"
-        >Chrome Web Store!</a
-      >
-    </h4>
-    <div>
-      <a
-        aria-label="Github Page"
-        target="_blank"
-        style="
-          position: absolute;
-          top: 0;
-          left: 0;
-          border: 0;
-          transform: scale(0.6);
-          text-decoration: none;
-          display: inline;
-          color: inherit;
-        "
-        href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
-        class="github-corner"
-      >
-        <i style="font-size: 3rem" class="fa fa-github"></i
-      ></a>
-      <a
-        aria-label="Github Page"
-        target="_blank"
-        style="
-          position: absolute;
-          top: 0;
-          right: 0;
-          border: 0;
-          transform: scale(0.6);
-          text-decoration: none;
-          display: inline;
-          color: inherit;
-        "
-        href="/popup/help.html"
-        class="help-corner"
-      >
-        <i
-          style="font-size: 3rem"
-          class="fa fa-question-circle"
-          aria-hidden="true"
-        ></i
-      ></a>
-    </div>
+
+    <footer class="popup-footer">
+        <div class="footer-links">
+            Prefer Reels?
+            <a href="https://chromewebstore.google.com/detail/auto-reels-scroller/bpgleagdakihfeingnhnknblcfgbfcdo" target="_blank">Instagram Version</a>
+             |
+            <a href="https://chrome.google.com/webstore/detail/auto-youtube-shorts-scroller/ckbnikemebopgknkpgjlkbffpkkhblbe" target="_blank">Rate Extension</a>
+        </div>
+        <p style="margin-top: 0.5rem;">By Tyson3101</p>
+    </footer>
+
+    <!-- Include the updated script -->
     <script src="../dist/script.js"></script>
   </body>
 </html>
