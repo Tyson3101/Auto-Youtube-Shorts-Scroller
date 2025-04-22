@@ -1,0 +1,473 @@
+/* Nebula Theme v1.3 - Ultra Compact Layout */
+:root {
+  --bg-gradient-start: #1a1a2e;
+  --bg-gradient-mid: #16213e; /* Added for animation */
+  --bg-gradient-end: #2b3a67; /* Slightly lighter end for animation */
+  --primary-accent: #00a1ff; /* Slightly brighter blue */
+  --secondary-accent: #a040ff; /* Slightly brighter purple */
+  --text-primary: #e8e8e8; /* Slightly brighter text */
+  --text-secondary: #b0b0b0; /* Slightly brighter secondary */
+  --text-headings: #ffffff;
+  /* Adjusted alpha for glass effect */
+  --card-bg: rgba(35, 40, 65, 0.6); /* Less transparent, adjust as needed */
+  --card-border: rgba(255, 255, 255, 0.15); /* Slightly more visible */
+  --input-bg: rgba(0, 0, 0, 0.3);
+  --input-border: rgba(255, 255, 255, 0.2);
+  --input-border-focus: var(--primary-accent);
+  --success-color: #39ff14;
+  --error-color: #ff3131;
+  --link-color: #64ffda;
+  --link-hover-color: #ffffff; /* Hover to white for contrast */
+  --border-radius-md: 8px;
+  --border-radius-lg: 10px; /* Even smaller radius */
+  --font-family: "Inter", system-ui, sans-serif;
+  --transition-speed: 0.25s; /* Slightly slower for smoother feel */
+  --transition-speed-fast: 0.15s;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  /* Animated Gradient Background */
+  background: linear-gradient(
+    135deg,
+    var(--bg-gradient-start),
+    var(--bg-gradient-mid),
+    var(--bg-gradient-end)
+  );
+  background-size: 200% 200%; /* Needed for animation */
+  animation: gradientShift 15s ease infinite; /* Animation */
+
+  color: var(--text-primary);
+  min-width: 350px;
+  max-width: 450px;
+  /* Further reduced body padding */
+  padding: 0.8rem;
+  overflow: hidden; /* Explicitly hide overflow */
+  position: relative; /* For potential pseudo-elements */
+}
+
+/* Background Animation */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color var(--transition-speed-fast) ease, transform var(--transition-speed-fast) ease;
+  display: inline-block; /* Allow transform */
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: none; /* Remove underline on hover for cleaner look */
+   transform: translateY(-1px); /* Subtle lift */
+}
+
+/* Header */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  /* Gradient Border */
+  border-bottom: 1px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(to right, transparent, var(--card-border), transparent);
+}
+
+.header-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem; /* Slightly smaller gap */
+}
+
+.header-icon {
+    width: 32px; /* Slightly smaller icon */
+    height: 32px;
+    filter: drop-shadow(0 0 6px rgba(0, 161, 255, 0.6)); /* Enhanced glow */
+    transition: transform var(--transition-speed) ease;
+}
+.header-icon:hover {
+    transform: scale(1.1);
+}
+
+.header-title {
+  font-size: 1.15rem; /* Slightly smaller title */
+  font-weight: 700;
+  color: var(--text-headings);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3); /* Subtle text shadow */
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem; /* Smaller gap */
+}
+
+.header-icon-link {
+    color: var(--text-secondary);
+    font-size: 1.1rem; /* Smaller icons */
+    transition: color var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+.header-icon-link:hover {
+    color: var(--text-primary);
+    transform: scale(1.15) rotate(5deg); /* Add slight rotation */
+    text-decoration: none;
+}
+
+/* Main Content Area */
+.main-content {
+  display: flex;
+  gap: 0.7rem; /* Reduced gap */
+}
+
+/* Navigation Sidebar */
+.navigation-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem; /* Tighter nav items */
+  width: 36px; /* Smaller nav width */
+  flex-shrink: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* Match nav width */
+  height: 36px; /* Match nav width */
+  background-color: rgba(0,0,0, 0.2); /* Darker, less transparent */
+  border: 1px solid var(--input-border); /* Match input border */
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease; /* Animate all properties */
+  position: relative; /* For tooltip */
+}
+
+.nav-item i {
+    font-size: 1rem; /* Smaller icons in nav */
+    pointer-events: none;
+    transition: transform var(--transition-speed) ease; /* Animate icon */
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.08); /* Keep this hover */
+  color: var(--text-primary);
+  border-color: var(--primary-accent); /* Highlight border */
+}
+
+.nav-item:hover i {
+    transform: scale(1.1); /* Scale icon on hover */
+}
+
+.nav-item.active {
+  background-color: var(--primary-accent);
+  color: var(--text-headings);
+  border-color: var(--primary-accent);
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(0, 161, 255, 0.5); /* Slightly smaller glow */
+}
+.nav-item.active i {
+    transform: scale(1.1); /* Keep icon scaled when active */
+}
+
+/* Tooltip for Sidebar */
+.nav-item .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  background-color: rgba(0, 0, 0, 0.85); /* Slightly darker tooltip */
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 5px 8px; /* Smaller tooltip padding */
+  position: absolute;
+  z-index: 10;
+  left: 115%; /* Move slightly further */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem; /* Smaller tooltip font */
+  white-space: nowrap;
+  transition: opacity 0.2s 0.1s ease-in-out, visibility 0.2s 0.1s ease-in-out; /* Added delay */
+  pointer-events: none; /* Prevent tooltip blocking hover */
+}
+
+.nav-item:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Content Panels */
+.content-panels {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.content-panel {
+  display: none;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-lg);
+  /* Further reduced panel padding */
+  padding: 1rem;
+  /* Glassmorphism */
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%); /* Safari */
+  box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.25); /* Adjusted shadow */
+
+  animation: fadeIn var(--transition-speed) ease-in-out;
+}
+
+.content-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.content-panel h2 {
+  font-size: 1.1rem; /* Further reduced heading size and spacing */
+  font-weight: 700;
+  color: var(--text-headings);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  /* Gradient Border */
+  border-bottom: 1px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(to right, var(--primary-accent), var(--secondary-accent));
+}
+
+.form-group {
+  margin-bottom: 0.7rem; /* Heavily reduced form group margin */
+}
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem; /* Further reduced label size and margin */
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.3rem;
+}
+
+.form-group .description {
+    font-size: 0.7rem; /* Further reduced description size and spacing */
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.25;
+    margin-top: 0.1rem;
+    margin-bottom: 0.4rem;
+}
+.form-group .description code {
+    background-color: rgba(0,0,0,0.4);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.7rem; /* Match description size */
+    padding: 1px 3px;
+}
+
+/* Form Elements Styling */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem 0.7rem; /* Further reduced padding and font size for inputs */
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: var(--font-family);
+  transition: border-color var(--transition-speed-fast) ease, box-shadow var(--transition-speed-fast) ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 6px rgba(0, 161, 255, 0.5), 0 0 0 1px var(--input-border-focus); /* Adjusted glow */
+}
+
+select {
+  appearance: none;
+  /* Updated SVG arrow with accent color */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2300a1ff' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center; /* Adjusted position */
+  background-size: 14px 10px; /* Smaller arrow */
+  padding-right: 2.2rem; /* Adjust padding */
+}
+
+textarea {
+  min-height: 45px;
+  resize: vertical;
+}
+
+/* Custom Toggle Switch */
+.toggle-switch-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Push switch to the right */
+    cursor: pointer;
+    margin-bottom: 0.5rem; /* Reduced margin */
+}
+
+.toggle-switch-text {
+    font-size: 0.8rem; /* Further reduced font size */
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-right: 0.8rem; /* Smaller margin */
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px; /* Smaller width */
+  height: 22px; /* Smaller height */
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: var(--transition-speed) ease;
+  border-radius: 22px; /* Match height */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; /* Smaller knob */
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+  border-radius: 50%;
+   box-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Adjusted shadow */
+}
+
+input:checked + .slider {
+  background-color: var(--success-color);
+  box-shadow: 0 0 6px var(--success-color); /* Adjusted glow */
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px) scale(1.05); /* Adjusted translate */
+  box-shadow: 0 0 4px var(--success-color); /* Adjusted glow */
+}
+/* Added transition for unchecked state too */
+input:not(:checked) + .slider:before {
+    transform: translateX(0) scale(1);
+}
+
+/* Specific Toggle for Master Status */
+.status-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+.status-toggle-label .toggle-switch {
+    width: 46px; /* Slightly larger master width */
+    height: 26px; /* Slightly larger master height */
+}
+.status-toggle-label .slider {
+    border-radius: 26px;
+}
+.status-toggle-label .slider:before {
+    height: 20px; /* Larger knob */
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+}
+.status-toggle-label input:checked + .slider:before {
+    transform: translateX(20px) scale(1.05); /* Adjusted translate */
+}
+/* Red for off state */
+input:not(:checked) + .slider {
+    background-color: var(--error-color);
+    box-shadow: 0 0 6px var(--error-color); /* Adjusted glow */
+}
+input:not(:checked) + .slider:before {
+     box-shadow: 0 0 4px var(--error-color); /* Adjusted glow */
+}
+
+/* Filter Specific Styles */
+.filter-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.filter-group label {
+    margin-bottom: 0.15rem; /* Further reduced margin */
+    font-size: 0.75rem; /* Even smaller label */
+}
+
+/* Footer */
+.popup-footer {
+  margin-top: 1rem; /* Further reduced footer spacing */
+  padding-top: 0.6rem;
+  /* Gradient Border */
+   border-top: 1px solid;
+   border-image-slice: 1;
+   border-image-source: linear-gradient(to right, transparent, var(--card-border), transparent);
+  text-align: center;
+  color: var(--text-secondary);
+  /* Smaller footer text */
+  font-size: 0.7rem;
+}
+
+.footer-links a {
+    margin: 0 0.4rem; /* Tighter links */
+    transition: color var(--transition-speed-fast) ease; /* Standard link hover */
+}
+.footer-links a:hover {
+     color: var(--link-color);
+     text-decoration: underline;
+     transform: none; /* Remove lift from footer links */
+}
+
+/* Error Message */
+#error-message {
+    color: var(--error-color);
+    text-align: center;
+    min-height: 1em; /* Reduced min-height */
+    font-weight: 500;
+    /* Further reduced error size and margin */
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+} 
