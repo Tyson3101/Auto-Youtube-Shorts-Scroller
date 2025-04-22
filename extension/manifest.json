@@ -1,26 +1,26 @@
 {
-  "manifest_version": 3,
-  "name": "Auto Youtube Shorts Scroller",
-  "version": "3.0.2",
-  "content_scripts": [
-    {
-      "matches": ["https://www.youtube.com/*"],
-      "js": ["./dist/content.js"]
-    }
-  ],
-  "permissions": ["tabs", "storage"],
-  "icons": {
-    "16": "./img/autoYTScrollerIcon16.png",
-    "48": "./img/autoYTScrollerIcon48.png",
-    "128": "./img/autoYTScrollerIcon128.png"
-  },
-  "background": {
-    "service_worker": "./dist/background.js"
-  },
-  "action": {
-    "default_popup": "./popup/popup.html",
-    "default_icon": "./img/autoYTScrollerIcon128.png",
-    "default_title": "Start scrolling!"
-  },
-  "description": "Automatically scrolls to the next Youtube Short when one ends!"
+   "manifest_version": 3,
+   "name": "Auto Youtube Shorts Scroller",
+   "version": "3.1.0",
+   "content_scripts": [
+      {
+         "matches": ["https://www.youtube.com/*"],
+         "js": ["./dist/content.js"]
+      }
+   ],
+   "permissions": ["tabs", "storage"],
+   "icons": {
+      "16": "./img/autoYTScrollerIcon16.png",
+      "48": "./img/autoYTScrollerIcon48.png",
+      "128": "./img/autoYTScrollerIcon128.png"
+   },
+   "background": {
+      "service_worker": "./dist/background.js"
+   },
+   "action": {
+      "default_popup": "./popup/popup.html",
+      "default_icon": "./img/autoYTScrollerIcon128.png",
+      "default_title": "Start scrolling!"
+   },
+   "description": "Automatically scrolls to the next Youtube Short when one ends!"
 }
