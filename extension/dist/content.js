@@ -1,7 +1,11 @@
 // ------------------------------
 // CONSTANT SELECTORS VARIABLES
 // ------------------------------
-const VIDEOS_LIST_SELECTOR = ".reel-video-in-sequence";
+const VIDEOS_LIST_SELECTORS = [
+    ".reel-video-in-sequence",
+    ".reel-video-in-sequence-new",
+];
+const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
 const LIKE_BUTTON_SELECTOR = "#like-button button";
 const DISLIKE_BUTTON_SELECTOR = "#dislike-button button";
 const COMMENTS_SELECTOR = "ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
@@ -63,6 +67,7 @@ function stopAutoScrolling() {
         // Adds back the loop attribute to the video element
         currentVideoElement.setAttribute("loop", "true");
         currentVideoElement.removeEventListener("ended", shortEnded);
+        currentVideoElement._hasEndEvent = false;
     }
 }
 async function checkForNewShort() {
@@ -78,6 +83,7 @@ async function checkForNewShort() {
         const previousShort = currentVideoElement;
         if (previousShort) {
             previousShort.removeEventListener("ended", shortEnded);
+            previousShort._hasEndEvent = false;
         }
         // Set the new current short id and video element
         currentShortId = parseInt(currentShort.id);
@@ -107,6 +113,7 @@ async function checkForNewShort() {
         console.log("[Auto Youtube Shorts Scroller] Current ID of Short: ", currentShortId);
         // Add event listener to the current video element
         currentVideoElement.addEventListener("ended", shortEnded);
+        currentVideoElement._hasEndEvent = true;
         // Check if the current short has metadata
         const isMetaDataHydrated = (selector) => {
             return currentShort.querySelector(selector) != null;
@@ -138,6 +145,13 @@ async function checkForNewShort() {
     // Force removal of the loop attribute if it exists
     if (currentVideoElement?.hasAttribute("loop") && applicationIsOn) {
         currentVideoElement.removeAttribute("loop");
+    }
+    // If the video element doesn't have end event listener, add it
+    if (currentVideoElement?._hasEndEvent === false &&
+        currentShort &&
+        applicationIsOn) {
+        currentVideoElement.addEventListener("ended", shortEnded);
+        currentVideoElement._hasEndEvent = true;
     }
 }
 function shortEnded(e) {
@@ -190,8 +204,10 @@ async function scrollToNextShort(prevShortId = null, useDelayAndCheckComments = 
         if (nextShortContainer == null)
             return window.location.reload(); // If no next short is found, reload the page (Last resort)
         // If next short container is found, remove the current video element end event listener
-        if (currentVideoElement)
+        if (currentVideoElement) {
             currentVideoElement.removeEventListener("ended", shortEnded);
+            currentVideoElement._hasEndEvent = false;
+        }
         // Scroll to the next short container
         nextShortContainer.scrollIntoView({
             behavior: "smooth",
@@ -205,7 +221,17 @@ async function scrollToNextShort(prevShortId = null, useDelayAndCheckComments = 
     useDelayAndCheckComments ? additionalScrollDelay : 0);
 }
 function findShortContainer(id = null) {
-    const shorts = [...document.querySelectorAll(VIDEOS_LIST_SELECTOR)];
+    let shorts = [];
+    // Finds the short container by the selector (Incase of updates)
+    for (let i = 0; i < VIDEOS_LIST_SELECTORS.length; i++) {
+        const shortList = [
+            ...document.querySelectorAll(VIDEOS_LIST_SELECTORS[i]),
+        ];
+        if (shortList.length > 0) {
+            shorts = [...shortList];
+            break;
+        }
+    }
     if (id != null) {
         const short = shorts.find((short) => short.id == id.toString());
         if (short)
@@ -217,8 +243,8 @@ function findShortContainer(id = null) {
     // If id is provided, return short with id index from shorts list selector
     return id > 1
         ? shorts[id]
-        : (shorts.find((short) => short.hasAttribute("is-active")) ||
-            shorts[0]);
+        : shorts.find((short) => !!short.querySelector(CURRENT_SHORT_SELECTOR) ||
+            !!short.querySelector("[is-active]"));
 }
 async function waitForNextShort(retries = 5, delay = 500) {
     for (let i = 0; i < retries; i++) {
@@ -260,7 +286,7 @@ async function checkShortValidity(currentShort) {
             { whitelistedCreators },
         ],
     });
-    if (!creatorName || !viewCount || !likeCount || !commentCount)
+    if (!creatorName || !videoLength || !commentCount)
         return false;
     // Ignores all checks if whitelisted creator
     if (whitelistedCreators.length > 0) {
@@ -274,9 +300,9 @@ async function checkShortValidity(currentShort) {
     }
     if (!checkValidVideoLength(videoLength))
         return false;
-    if (!checkValidViewCount(viewCount))
+    if (viewCount != null && !checkValidViewCount(viewCount))
         return false;
-    if (!checkValidLikeCount(likeCount))
+    if (likeCount != null && !checkValidLikeCount(likeCount))
         return false;
     if (!checkValidCommentCount(commentCount))
         return false;
@@ -292,29 +318,37 @@ async function checkShortValidity(currentShort) {
         return true;
     }
     function checkValidViewCount(viewCount) {
+        const viewCountText = viewCount.innerText
+            .trim()
+            .toLowerCase()
+            .replaceAll(",", "");
+        const filterMinViewsParsed = parseTextToNumber(filterMinViews);
+        const filterMaxViewsParsed = parseTextToNumber(filterMaxViews);
         if (filterMinViews !== "none" &&
-            parseInt(viewCount.innerText) < parseInt(filterMinViews))
+            parseInt(viewCountText) < filterMinViewsParsed)
             return false;
         if (filterMaxViews !== "none" &&
-            parseInt(viewCount.innerText) > parseInt(filterMaxViews))
+            parseInt(viewCountText) > filterMaxViewsParsed)
             return false;
         return true;
     }
     function checkValidLikeCount(likeCount) {
-        const likeNum = parseLikeTextToNumber(likeCount.innerText);
-        if (filterMinLikes !== "none" && likeNum < parseInt(filterMinLikes))
+        const likeNum = parseTextToNumber(likeCount.innerText);
+        const filterMinLikesParsed = parseTextToNumber(filterMinLikes);
+        const filterMaxLikesParsed = parseTextToNumber(filterMaxLikes);
+        if (filterMinLikes !== "none" && likeNum < filterMinLikesParsed)
             return false;
-        if (filterMaxLikes !== "none" && likeNum > parseInt(filterMaxLikes))
+        if (filterMaxLikes !== "none" && likeNum > filterMaxLikesParsed)
             return false;
         return true;
     }
     function checkValidCommentCount(commentCount) {
-        const commentNum = parseLikeTextToNumber(commentCount.innerText);
-        if (filterMinComments !== "none" &&
-            commentNum < parseInt(filterMinComments))
+        const commentNum = parseTextToNumber(commentCount.innerText);
+        const filterMinCommentsParsed = parseTextToNumber(filterMinComments);
+        const filterMaxCommentsParsed = parseTextToNumber(filterMaxComments);
+        if (filterMinComments !== "none" && commentNum < filterMinCommentsParsed)
             return false;
-        if (filterMaxComments !== "none" &&
-            commentNum > parseInt(filterMaxComments))
+        if (filterMaxComments !== "none" && commentNum > filterMaxCommentsParsed)
             return false;
         return true;
     }
@@ -592,7 +626,7 @@ function shortCutListener() {
         pressedKeys = [];
     });
 }
-function parseLikeTextToNumber(text) {
+function parseTextToNumber(text) {
     text = text.trim().toLowerCase();
     if (text.endsWith("k")) {
         return parseFloat(text) * 1_000;

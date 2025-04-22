@@ -1,524 +1,464 @@
 // VARIBLES
-const errMsg = document.querySelector("#error") as HTMLParagraphElement;
-const toggleBtn = document.querySelector(".toggleBtn") as HTMLButtonElement;
-const filteredAuthors = document.querySelector(
-  "#filterAuthors"
+const errMsg = document.querySelector("#error-message") as HTMLDivElement;
+const statusToggle = document.querySelector(
+   "#status-toggle"
 ) as HTMLInputElement;
-const whitelistedAuthors = document.querySelector(
-  "#whitelistedAuthors"
+const filteredAuthorsInput = document.querySelector(
+   "#filterAuthors"
 ) as HTMLInputElement;
-const filteredTags = document.querySelector("#filterTags") as HTMLInputElement;
+const whitelistedAuthorsInput = document.querySelector(
+   "#whitelistedAuthors"
+) as HTMLInputElement;
+const filteredTagsInput = document.querySelector(
+   "#filterTags"
+) as HTMLInputElement;
 const shortCutInput = document.querySelector(
-  "#shortCutInput"
+   "#shortCutInput"
 ) as HTMLInputElement;
 const shortCutInteractInput = document.querySelector(
-  "#shortCutInteractInput"
+   "#shortCutInteractInput"
 ) as HTMLInputElement;
-const filterByMaxLength = document.querySelector(
-  "#filterByMaxLength"
-) as HTMLSelectElement;
-const filterByMinLength = document.querySelector(
-  "#filterByMinLength"
-) as HTMLSelectElement;
-const filterByMinViews = document.querySelector(
-  "#filterByMinViews"
+const filterByMaxLengthInput = document.querySelector(
+   "#filterByMaxLength"
 ) as HTMLInputElement;
-const filterByMaxViews = document.querySelector(
-  "#filterByMaxViews"
+const filterByMinLengthInput = document.querySelector(
+   "#filterByMinLength"
 ) as HTMLInputElement;
-const filterByMinLikes = document.querySelector(
-  "#filterByMinLikes"
+const filterByMinViewsInput = document.querySelector(
+   "#filterByMinViews"
 ) as HTMLInputElement;
-const filterByMaxLikes = document.querySelector(
-  "#filterByMaxLikes"
+const filterByMaxViewsInput = document.querySelector(
+   "#filterByMaxViews"
 ) as HTMLInputElement;
-const filterByMinComments = document.querySelector(
-  "#filterByMinComments"
+const filterByMinLikesInput = document.querySelector(
+   "#filterByMinLikes"
 ) as HTMLInputElement;
-const filterByMaxComments = document.querySelector(
-  "#filterByMaxComments"
+const filterByMaxLikesInput = document.querySelector(
+   "#filterByMaxLikes"
+) as HTMLInputElement;
+const filterByMinCommentsInput = document.querySelector(
+   "#filterByMinComments"
+) as HTMLInputElement;
+const filterByMaxCommentsInput = document.querySelector(
+   "#filterByMaxComments"
 ) as HTMLInputElement;
 const scrollDirectionInput = document.querySelector(
-  "#scrollDirectionInput"
-) as HTMLSelectElement;
+   "#scrollDirectionInput"
+) as HTMLInputElement;
 const amountOfPlaysInput = document.querySelector(
-  "#amountOfPlaysInput"
+   "#amountOfPlaysInput"
 ) as HTMLInputElement;
 const scrollOnCommentsInput = document.querySelector(
-  "#scrollOnComments"
+   "#scrollOnCommentsInput"
 ) as HTMLInputElement;
 const scrollOnNoTagsInput = document.querySelector(
-  "#scrollOnNoTags"
+   "#scrollOnNoTagsInput"
 ) as HTMLInputElement;
 const additionalScrollDelayInput = document.querySelector(
-  "#additionalScrollDelay"
+   "#additionalScrollDelayInput"
 ) as HTMLInputElement;
-const nextSettings = document.querySelector("#nextSettings") as HTMLDivElement;
-const backSettings = document.querySelector("#backSettings") as HTMLDivElement;
-const nextFilter = document.querySelector("#nextFilter") as HTMLDivElement;
-const backFilter = document.querySelector("#backFilter") as HTMLDivElement;
-const pageList = document.querySelector(".pageList") as HTMLDivElement;
+
+// Navigation Elements
+const navItems = document.querySelectorAll(".nav-item");
+const contentPanels = document.querySelectorAll(".content-panel");
 
 // Call Functions
 getAllSettingsForPopup();
-pageNavigation("settings");
-pageNavigation("filter");
+setupNavigation();
+setupEventListeners();
 
 // Listens to toggle button click
-document.onclick = (e: Event) => {
-  if ((e.target as HTMLButtonElement).classList.contains("toggleBtn"))
-    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      if (!tabs[0]?.url?.toLowerCase().includes("youtube.com")) {
-        errMsg.innerText = "Only can be toggled on Youtube!";
-      } else {
-        // get applicationIsOn from chrome storage
-        chrome.storage.local.get(["applicationIsOn"], (result) => {
-          if (!result.applicationIsOn) {
-            chrome.storage.local.set({ applicationIsOn: true });
-            changeToggleButton(true);
-          } else {
-            chrome.storage.local.set({ applicationIsOn: false });
-            changeToggleButton(false);
-          }
-        });
-      }
-    });
+document.onclick = (e) => {
+   if ((e.target as HTMLDivElement).classList.contains("toggleBtn"))
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+         if (!tabs[0]?.url?.toLowerCase().includes("youtube.com")) {
+            errMsg.innerText = "Only can be toggled on Youtube!";
+         } else {
+            // get applicationIsOn from chrome storage
+            chrome.storage.local.get(["applicationIsOn"], (result) => {
+               if (!result.applicationIsOn) {
+                  chrome.storage.local.set({ applicationIsOn: true });
+                  changeToggleButton(true);
+               } else {
+                  chrome.storage.local.set({ applicationIsOn: false });
+                  changeToggleButton(false);
+               }
+            });
+         }
+      });
 };
 
 function changeToggleButton(result: boolean) {
-  toggleBtn.innerText = result ? "Stop" : "Start";
-  toggleBtn.classList.remove(result ? "start" : "stop");
-  toggleBtn.classList.add(result ? "stop" : "start");
+   statusToggle.checked = result;
 }
 
-function pageNavigation(pageType: "settings" | "filter") {
-  let page = pageType.charAt(0).toUpperCase() + pageType.slice(1);
-  const nextButton = document.getElementById(`next${page}`);
-  const backButton = document.getElementById(`back${page}`);
-  nextButton.onclick = () => {
-    changePage(pageType, 1);
-  };
-  backButton.onclick = () => {
-    changePage(pageType, -1);
-  };
-  if (pageType == "settings") {
-    pageList.onclick = (e) => {
-      const ele = e.target as HTMLDivElement;
-      if (ele?.tagName?.toLowerCase() == "a") {
-        changePage(
-          "settings",
-          0,
-          parseInt((e.target as HTMLAnchorElement).dataset["pageindex"])
-        );
-      }
-    };
+function setupNavigation() {
+   navItems.forEach((item: HTMLDivElement) => {
+      item.addEventListener("click", () => {
+         const targetPanelId = item.dataset.targetPanel;
 
-    document
-      .querySelectorAll(".configureCreators")
-      .forEach((ele: HTMLAnchorElement) => {
-        ele.addEventListener("click", () => {
-          changePage("settings", 0, parseInt(ele.dataset["gotopageindex"]));
-        });
+         // Update nav item active state
+         navItems.forEach((nav) => nav.classList.remove("active"));
+         item.classList.add("active");
+
+         // Update content panel active state
+         contentPanels.forEach((panel) => {
+            if (panel.id === targetPanelId) {
+               panel.classList.add("active");
+            } else {
+               panel.classList.remove("active");
+            }
+         });
       });
-  }
+   });
 }
 
-function changePage(
-  page: "settings" | "filter",
-  direction: number,
-  index?: number
-) {
-  let pageIndex = index + 1;
-  let pages: NodeListOf<HTMLDivElement>;
-  const pageNumber = document.querySelector(
-    `#${page}PageNumber`
-  ) as HTMLDivElement;
-  if (page == "settings") {
-    pages = document.querySelectorAll(".settingsPage");
-  }
-  if (page == "filter") {
-    pages = document.querySelectorAll(".filterPage");
-  }
-  let newPage: HTMLDivElement;
-  const active = [...pages].find((page) => page.classList.contains("active"));
-  if (index == null) {
-    newPage = (() => {
-      const changeIndex = parseInt(active.dataset["pageindex"]) + direction;
-      if (changeIndex >= pages.length) return pages[0];
-      if (changeIndex < 0) return pages[pages.length - 1];
-      return pages[changeIndex];
-    })();
-    pageIndex = parseInt(newPage.dataset["pageindex"]) + 1;
-  } else {
-    newPage = pages[index];
-  }
-  pageNumber.innerText = `${pageIndex}/${pages.length}`;
-  active.classList.remove("active");
-  newPage.classList.add("active");
-  if (page == "settings") {
-    let oldActive = pageList.querySelector(".active") as HTMLDivElement;
-    let newActive = pageList.querySelector(
-      `[data-pageindex="${newPage.dataset["pageindex"]}"]`
-    ) as HTMLDivElement;
-    oldActive?.classList.remove("active");
-    newActive?.classList.add("active");
-  }
+function setupEventListeners() {
+   // Master Status Toggle
+   statusToggle.addEventListener("change", (e: any) => {
+      const isChecked = (e.target as HTMLInputElement).checked;
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+         // Basic check if on YouTube - could be refined
+         if (!tabs[0]?.url?.toLowerCase().includes("youtube.com/shorts")) {
+            errMsg.innerText =
+               "Toggle works reliably on youtube.com/shorts pages.";
+            // Optionally revert the toggle visually if not on YT
+            // e.target.checked = !isChecked;
+            chrome.storage.local.set({ applicationIsOn: isChecked }); // Still allow setting it
+         } else {
+            errMsg.innerText = ""; // Clear error on success
+            chrome.storage.local.set({ applicationIsOn: isChecked });
+         }
+      });
+   });
+
+   // Update listeners to use 'input' for textareas for better responsiveness
+   filteredAuthorsInput.addEventListener(
+      "input",
+      handleListInputChange(filteredAuthorsInput, "filteredAuthors")
+   );
+   whitelistedAuthorsInput.addEventListener(
+      "input",
+      handleListInputChange(whitelistedAuthorsInput, "whitelistedAuthors")
+   );
+   filteredTagsInput.addEventListener(
+      "input",
+      handleListInputChange(filteredTagsInput, "filteredTags")
+   );
+
+   // Use 'change' for inputs/selects that don't need instant updates
+   shortCutInput.addEventListener(
+      "change",
+      handleShortcutInputChange(shortCutInput, "shortCutKeys", "shift+d")
+   );
+   shortCutInteractInput.addEventListener(
+      "change",
+      handleShortcutInputChange(
+         shortCutInteractInput,
+         "shortCutInteractKeys",
+         "shift+g"
+      )
+   );
+
+   filterByMinLengthInput.addEventListener(
+      "change",
+      handleSelectChange("filterByMinLength")
+   );
+   filterByMaxLengthInput.addEventListener(
+      "change",
+      handleSelectChange("filterByMaxLength")
+   );
+
+   filterByMinViewsInput.addEventListener(
+      "change",
+      handleNumericInputChange("filterByMinViews")
+   );
+   filterByMaxViewsInput.addEventListener(
+      "change",
+      handleNumericInputChange("filterByMaxViews")
+   );
+   filterByMinLikesInput.addEventListener(
+      "change",
+      handleNumericInputChange("filterByMinLikes")
+   );
+   filterByMaxLikesInput.addEventListener(
+      "change",
+      handleNumericInputChange("filterByMaxLikes")
+   );
+   filterByMinCommentsInput.addEventListener(
+      "change",
+      handleNumericInputChange("filterByMinComments")
+   );
+   filterByMaxCommentsInput.addEventListener(
+      "change",
+      handleNumericInputChange("filterByMaxComments")
+   );
+
+   scrollDirectionInput.addEventListener(
+      "change",
+      handleSelectChange("scrollDirection")
+   );
+   amountOfPlaysInput.addEventListener(
+      "change",
+      handleIntegerInputChange("amountOfPlaysToSkip", 1)
+   );
+   additionalScrollDelayInput.addEventListener(
+      "change",
+      handleIntegerInputChange("additionalScrollDelay", 0)
+   );
+
+   scrollOnCommentsInput.addEventListener(
+      "change",
+      handleCheckboxChange("scrollOnComments")
+   );
+   scrollOnNoTagsInput.addEventListener(
+      "change",
+      handleCheckboxChange("scrollOnNoTags")
+   );
+
+   // Listen for storage changes to update UI (especially the master toggle)
+   chrome.storage.onChanged.addListener((changes) => {
+      if (changes["applicationIsOn"]?.newValue !== undefined) {
+         statusToggle.checked = changes["applicationIsOn"].newValue;
+      }
+      // Add listeners for other settings if needed for dynamic updates,
+      // but usually reloading settings on popup open is sufficient.
+   });
+}
+
+function handleListInputChange(element, storageKey) {
+   return () => {
+      const value = element.value
+         .trim()
+         .split(/\s*,\s*/)
+         .map((v) => v.trim()) // Trim each item
+         .filter((v) => v); // Remove empty strings
+      chrome.storage.local.set({ [storageKey]: value });
+   };
+}
+
+function handleShortcutInputChange(element, storageKey, defaultValue) {
+   return () => {
+      const value = element.value
+         .trim()
+         .toLowerCase()
+         .split(/\s*\+\s*/)
+         .filter((v) => v);
+      if (!value.length) {
+         // Optional: reset to default or show error
+         // chrome.storage.local.set({ [storageKey]: defaultValue.split('+') });
+         // element.value = defaultValue;
+         return;
+      }
+      chrome.storage.local.set({ [storageKey]: value });
+      element.value = value.join("+"); // Standardize format
+   };
+}
+
+function handleSelectChange(storageKey) {
+   return (e) => {
+      chrome.storage.local.set({ [storageKey]: e.target.value });
+   };
+}
+
+function handleNumericInputChange(storageKey) {
+   return (e) => {
+      let value = e.target.value.trim().toLowerCase();
+      let storageValue = "none"; // Default to 'none'
+
+      if (value === "" || value === "none") {
+         storageValue = "none";
+         e.target.value = ""; // Clear input if set to none/empty
+      } else {
+         // Basic check if it looks like a number or has k/m suffix
+         // More robust parsing could be added (like in content.js)
+         if (
+            /^(\d+(\.\d+)?|\d+)[km]?$/.test(value) ||
+            /^\d+$/.test(value.replace(/[,_]/g, ""))
+         ) {
+            storageValue = value; // Store the user's input format (like 50k)
+         } else {
+            // Invalid format, treat as 'none'
+            storageValue = "none";
+            e.target.value = ""; // Clear invalid input
+            errMsg.innerText = `Invalid number format for ${storageKey}. Use numbers, k, or m.`;
+            setTimeout(() => (errMsg.innerText = ""), 3000); // Clear error message
+         }
+      }
+      chrome.storage.local.set({ [storageKey]: storageValue });
+   };
+}
+
+function handleIntegerInputChange(storageKey, defaultValue) {
+   return (e) => {
+      const value = parseInt(e.target.value, 10);
+      if (isNaN(value) || value < (e.target.min || 0)) {
+         chrome.storage.local.set({ [storageKey]: defaultValue });
+         e.target.value = defaultValue.toString(); // Reset to default if invalid
+      } else {
+         chrome.storage.local.set({ [storageKey]: value });
+         e.target.value = value.toString(); // Ensure it's displayed as a clean number
+      }
+   };
+}
+
+function handleCheckboxChange(storageKey) {
+   return (e) => {
+      chrome.storage.local.set({ [storageKey]: e.target.checked });
+   };
 }
 
 function getAllSettingsForPopup() {
-  // Get Settings and show them on the popup (and check for updates and reflect them)
-  chrome.storage.local.get(
-    ["shortCutKeys", "shortCutInteractKeys"],
-    async ({ shortCutKeys, shortCutInteractKeys }) => {
-      if (shortCutKeys == undefined) {
-        await chrome.storage.local.set({
-          shortCutKeys: ["shift", "d"],
-        });
-        shortCutInput.value = "shift+d";
-      } else {
-        shortCutInput.value = shortCutKeys.join("+");
+   // Combine keys for a single 'get' call
+   const keysToGet = [
+      "applicationIsOn",
+      "shortCutKeys",
+      "shortCutInteractKeys",
+      "filteredAuthors",
+      "whitelistedAuthors",
+      "filteredTags",
+      "filterByMinLength",
+      "filterByMaxLength",
+      "filterByMinViews",
+      "filterByMaxViews",
+      "filterByMinLikes",
+      "filterByMaxLikes",
+      "filterByMinComments",
+      "filterByMaxComments",
+      "scrollDirection",
+      "amountOfPlaysToSkip",
+      "scrollOnComments",
+      "scrollOnNoTags",
+      "additionalScrollDelay",
+   ];
+
+   chrome.storage.local.get(keysToGet, (result) => {
+      // Master Status Toggle
+      statusToggle.checked = result.applicationIsOn ?? true; // Default to true if undefined
+
+      // Shortcuts
+      shortCutInput.value = (result.shortCutKeys ?? ["shift", "d"]).join("+");
+      shortCutInteractInput.value = (
+         result.shortCutInteractKeys ?? ["shift", "g"]
+      ).join("+");
+
+      // Lists (Authors/Tags)
+      filteredAuthorsInput.value = (
+         result.filteredAuthors ?? ["Tyson3101"]
+      ).join(",");
+      whitelistedAuthorsInput.value = (
+         result.whitelistedAuthors ?? ["Tyson3101"]
+      ).join(","); // Default potentially empty?
+      filteredTagsInput.value = (
+         result.filteredTags ?? ["#nsfw", "#leagueoflegends"]
+      ).join(",");
+
+      // Filters
+      filterByMinLengthInput.value = result.filterByMinLength ?? "none";
+      filterByMaxLengthInput.value = result.filterByMaxLength ?? "none";
+      filterByMinViewsInput.value =
+         result.filterByMinViews === "none" ||
+         result.filterByMinViews === undefined
+            ? ""
+            : result.filterByMinViews;
+      filterByMaxViewsInput.value =
+         result.filterByMaxViews === "none" ||
+         result.filterByMaxViews === undefined
+            ? ""
+            : result.filterByMaxViews;
+      filterByMinLikesInput.value =
+         result.filterByMinLikes === "none" ||
+         result.filterByMinLikes === undefined
+            ? ""
+            : result.filterByMinLikes;
+      filterByMaxLikesInput.value =
+         result.filterByMaxLikes === "none" ||
+         result.filterByMaxLikes === undefined
+            ? ""
+            : result.filterByMaxLikes;
+      filterByMinCommentsInput.value =
+         result.filterByMinComments === "none" ||
+         result.filterByMinComments === undefined
+            ? ""
+            : result.filterByMinComments;
+      filterByMaxCommentsInput.value =
+         result.filterByMaxComments === "none" ||
+         result.filterByMaxComments === undefined
+            ? ""
+            : result.filterByMaxComments;
+
+      // General Settings
+      scrollDirectionInput.value = result.scrollDirection ?? "down";
+      amountOfPlaysInput.value = (result.amountOfPlaysToSkip ?? 1).toString();
+      additionalScrollDelayInput.value = (
+         result.additionalScrollDelay ?? 0
+      ).toString();
+      scrollOnCommentsInput.checked = result.scrollOnComments ?? false; // Default to false
+      scrollOnNoTagsInput.checked = result.scrollOnNoTags ?? false; // Default to false
+
+      // Initialize default values in storage if they were undefined
+      const defaultsToSet = {} as {
+         applicationIsOn: boolean;
+         shortCutKeys: string[];
+         shortCutInteractKeys: string[];
+         filteredAuthors: string[];
+         whitelistedAuthors: string[];
+         filteredTags: string[];
+         filterByMinLength: string;
+         filterByMaxLength: string;
+         filterByMinViews: string;
+         filterByMaxViews: string;
+         filterByMinLikes: string;
+         filterByMaxLikes: string;
+         filterByMinComments: string;
+         filterByMaxComments: string;
+         scrollDirection: string;
+         amountOfPlaysToSkip: number;
+         scrollOnComments: boolean;
+         scrollOnNoTags: boolean;
+         additionalScrollDelay: number;
+      };
+      if (result.applicationIsOn === undefined)
+         defaultsToSet.applicationIsOn = true;
+      if (result.shortCutKeys === undefined)
+         defaultsToSet.shortCutKeys = ["shift", "d"];
+      if (result.shortCutInteractKeys === undefined)
+         defaultsToSet.shortCutInteractKeys = ["shift", "g"];
+      if (result.filteredAuthors === undefined)
+         defaultsToSet.filteredAuthors = ["Tyson3101"];
+      if (result.whitelistedAuthors === undefined)
+         defaultsToSet.whitelistedAuthors = []; // Maybe empty default?
+      if (result.filteredTags === undefined)
+         defaultsToSet.filteredTags = ["#nsfw", "#leagueoflegends"];
+      if (result.filterByMinLength === undefined)
+         defaultsToSet.filterByMinLength = "none";
+      if (result.filterByMaxLength === undefined)
+         defaultsToSet.filterByMaxLength = "none";
+      if (result.filterByMinViews === undefined)
+         defaultsToSet.filterByMinViews = "none";
+      if (result.filterByMaxViews === undefined)
+         defaultsToSet.filterByMaxViews = "none";
+      if (result.filterByMinLikes === undefined)
+         defaultsToSet.filterByMinLikes = "none";
+      if (result.filterByMaxLikes === undefined)
+         defaultsToSet.filterByMaxLikes = "none";
+      if (result.filterByMinComments === undefined)
+         defaultsToSet.filterByMinComments = "none";
+      if (result.filterByMaxComments === undefined)
+         defaultsToSet.filterByMaxComments = "none";
+      if (result.scrollDirection === undefined)
+         defaultsToSet.scrollDirection = "down";
+      if (result.amountOfPlaysToSkip === undefined)
+         defaultsToSet.amountOfPlaysToSkip = 1;
+      if (result.scrollOnComments === undefined)
+         defaultsToSet.scrollOnComments = false;
+      if (result.scrollOnNoTags === undefined)
+         defaultsToSet.scrollOnNoTags = false;
+      if (result.additionalScrollDelay === undefined)
+         defaultsToSet.additionalScrollDelay = 0;
+
+      if (Object.keys(defaultsToSet).length > 0) {
+         chrome.storage.local.set(defaultsToSet);
       }
-      shortCutInput.addEventListener("change", () => {
-        const value = shortCutInput.value.trim().split(/\s*\+\s*/);
-        if (!value.length) return;
-        chrome.storage.local.set({
-          shortCutKeys: value,
-        });
-        shortCutInput.value = value.join("+");
-      });
-      if (shortCutInteractKeys == undefined) {
-        await chrome.storage.local.set({
-          shortCutInteractKeys: ["shift", "g"],
-        });
-        shortCutInteractInput.value = "shift+g";
-      } else {
-        shortCutInteractInput.value = shortCutInteractKeys.join("+");
-      }
-      shortCutInteractInput.addEventListener("change", (e) => {
-        const value = (e.target as HTMLSelectElement).value
-          .trim()
-          .split(/\s*\+\s*/);
-        if (!value.length) return;
-        chrome.storage.local.set({
-          shortCutInteractKeys: value,
-        });
-        shortCutInteractInput.value = value.join("+");
-      });
-    }
-  );
-
-  chrome.storage.local.get("filteredAuthors", (result) => {
-    let value = result["filteredAuthors"];
-    if (value == undefined) {
-      chrome.storage.local.set({
-        filteredAuthors: ["Tyson3101"],
-      });
-      value = ["Tyson3101"];
-    }
-    filteredAuthors.value = value.join(",");
-  });
-
-  filteredAuthors.addEventListener("input", () => {
-    const value = filteredAuthors.value
-      .trim()
-      .split(/\s*,\s*/)
-      .filter((v) => v);
-    chrome.storage.local.set({
-      filteredAuthors: value,
-    });
-  });
-
-  chrome.storage.local.get("whitelistedAuthors", (result) => {
-    let value = result["whitelistedAuthors"];
-    if (value == undefined) {
-      chrome.storage.local.set({
-        whitelistedAuthors: ["Tyson3101"],
-      });
-      value = ["Tyson3101"];
-    }
-    whitelistedAuthors.value = value.join(",");
-  });
-
-  whitelistedAuthors.addEventListener("input", () => {
-    const value = whitelistedAuthors.value
-      .trim()
-      .split(/\s*,\s*/)
-      .filter((v) => v);
-    chrome.storage.local.set({
-      whitelistedAuthors: value,
-    });
-  });
-
-  chrome.storage.local.get("filteredTags", (result) => {
-    let value = result["filteredTags"];
-    if (value == undefined) {
-      chrome.storage.local.set({
-        filteredTags: ["#nsfw", "#leagueoflegends"],
-      });
-      value = ["#nsfw", "#leagueoflegends"];
-    }
-    filteredTags.value = value.join(",");
-  });
-
-  filteredTags.addEventListener("input", () => {
-    const value = filteredTags.value
-      .trim()
-      .split(/\s*,\s*/)
-      .filter((v) => v);
-    chrome.storage.local.set({
-      filteredTags: value,
-    });
-  });
-
-  chrome.storage.local.get(["filterByMinLength"], async (result) => {
-    let value = result["filterByMinLength"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMinLength: "none" });
-      return (filterByMinLength.value = "none");
-    }
-    filterByMinLength.value = value;
-  });
-  chrome.storage.local.get(["filterByMaxLength"], async (result) => {
-    let value = result["filterByMaxLength"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMaxLength: "none" });
-      return (filterByMaxLength.value = "none");
-    }
-    filterByMaxLength.value = value;
-  });
-
-  chrome.storage.local.get(["filterByMaxLength"], async (result) => {
-    let value = result["filterByMaxLength"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMaxLength: "none" });
-      return (filterByMaxLength.value = "none");
-    }
-    filterByMaxLength.value = value;
-  });
-  chrome.storage.local.get(["filterByMinLength"], async (result) => {
-    let value = result["filterByMinLength"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMinLength: "none" });
-      return (filterByMinLength.value = "");
-    }
-    filterByMinLength.value = value;
-  });
-  chrome.storage.local.get(["filterByMinViews"], async (result) => {
-    let value = result["filterByMinViews"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMinViews: "none" });
-      return (filterByMinViews.value = "");
-    }
-    filterByMinViews.value = value === "none" ? "" : value;
-  });
-  chrome.storage.local.get(["filterByMaxViews"], async (result) => {
-    let value = result["filterByMaxViews"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMaxViews: "none" });
-      return (filterByMaxViews.value = "");
-    }
-    filterByMaxViews.value = value === "none" ? "" : value;
-  });
-  chrome.storage.local.get(["filterByMinLikes"], async (result) => {
-    let value = result["filterByMinLikes"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMinLikes: "none" });
-      return (filterByMinLikes.value = "");
-    }
-    filterByMinLikes.value = value === "none" ? "" : value;
-  });
-  chrome.storage.local.get(["filterByMaxLikes"], async (result) => {
-    let value = result["filterByMaxLikes"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMaxLikes: "none" });
-      return (filterByMaxLikes.value = "");
-    }
-    filterByMaxLikes.value = value === "none" ? "" : value;
-  });
-  chrome.storage.local.get(["filterByMinComments"], async (result) => {
-    let value = result["filterByMinComments"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMinComments: "none" });
-      return (filterByMinComments.value = "");
-    }
-    filterByMinComments.value = value === "none" ? "" : value;
-  });
-  chrome.storage.local.get(["filterByMaxComments"], async (result) => {
-    let value = result["filterByMaxComments"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ filterByMaxComments: "none" });
-      return (filterByMaxComments.value = "");
-    }
-    filterByMaxComments.value = value === "none" ? "" : value;
-  });
-
-  filterByMinLength.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      filterByMinLength: (e.target as HTMLSelectElement).value,
-    });
-  });
-
-  filterByMaxLength.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      filterByMaxLength: (e.target as HTMLSelectElement).value,
-    });
-  });
-
-  filterByMinViews.addEventListener("change", (e) => {
-    let value = (e.target as HTMLInputElement).value;
-    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
-    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
-      value = "none";
-      filterByMinViews.value = "";
-    }
-    chrome.storage.local.set({
-      filterByMinViews: value,
-    });
-  });
-
-  filterByMaxViews.addEventListener("change", (e) => {
-    let value = (e.target as HTMLInputElement).value;
-    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
-    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
-      value = "none";
-      filterByMaxViews.value = "";
-    }
-    chrome.storage.local.set({
-      filterByMaxViews: value,
-    });
-  });
-
-  filterByMinLikes.addEventListener("change", (e) => {
-    let value = (e.target as HTMLInputElement).value;
-    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
-    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
-      value = "none";
-      filterByMinLikes.value = "";
-    }
-    chrome.storage.local.set({
-      filterByMinLikes: value,
-    });
-  });
-
-  filterByMaxLikes.addEventListener("change", (e) => {
-    let value = (e.target as HTMLInputElement).value;
-    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
-    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
-      value = "none";
-      filterByMaxLikes.value = "";
-    }
-    chrome.storage.local.set({
-      filterByMaxLikes: value,
-    });
-  });
-
-  filterByMinComments.addEventListener("change", (e) => {
-    let value = (e.target as HTMLInputElement).value;
-    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
-    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
-      value = "none";
-      filterByMinComments.value = "";
-    }
-    chrome.storage.local.set({
-      filterByMinComments: value,
-    });
-  });
-
-  filterByMaxComments.addEventListener("change", (e) => {
-    let value = (e.target as HTMLInputElement).value;
-    let checkValue = value.replaceAll("_", "").replaceAll(",", "");
-    if (parseInt(checkValue) <= 0 || isNaN(parseInt(checkValue))) {
-      value = "none";
-      filterByMaxComments.value = "";
-    }
-    chrome.storage.local.set({
-      filterByMaxComments: value,
-    });
-  });
-
-  chrome.storage.local.get(["scrollDirection"], async (result) => {
-    let value = result["scrollDirection"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ scrollDirection: "down" });
-      scrollDirectionInput.value = "down";
-    }
-    scrollDirectionInput.value = value;
-  });
-
-  scrollDirectionInput.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      scrollDirection: (e.target as HTMLSelectElement).value,
-    });
-  });
-
-  chrome.storage.local.get(["amountOfPlaysToSkip"], async (result) => {
-    let value = result["amountOfPlaysToSkip"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
-      amountOfPlaysInput.value = "1";
-    }
-    amountOfPlaysInput.value = value;
-  });
-
-  amountOfPlaysInput.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      amountOfPlaysToSkip: parseInt((e.target as HTMLSelectElement).value),
-    });
-  });
-
-  chrome.storage.local.get(["additionalScrollDelay"], async (result) => {
-    let value = result["additionalScrollDelay"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ additionalScrollDelay: 0 });
-      additionalScrollDelayInput.value = "0";
-    }
-    additionalScrollDelayInput.value = value;
-  });
-
-  additionalScrollDelayInput.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      additionalScrollDelay: parseInt((e.target as HTMLSelectElement).value),
-    });
-  });
-
-  chrome.storage.local.get(["scrollOnComments"], async (result) => {
-    let value = result["scrollOnComments"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ scrollOnComments: false });
-      scrollOnCommentsInput.checked = true;
-    }
-    scrollOnCommentsInput.checked = value;
-  });
-
-  scrollOnCommentsInput.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      scrollOnComments: (e.target as HTMLInputElement).checked,
-    });
-  });
-
-  chrome.storage.local.get(["scrollOnNoTags"], async (result) => {
-    let value = result["scrollOnNoTags"];
-    if (value == undefined) {
-      await chrome.storage.local.set({ scrollOnNoTags: false });
-      scrollOnNoTagsInput.checked = true;
-    }
-    scrollOnNoTagsInput.checked = value;
-  });
-
-  scrollOnNoTagsInput.addEventListener("change", (e) => {
-    chrome.storage.local.set({
-      scrollOnNoTags: (e.target as HTMLInputElement).checked,
-    });
-  });
-
-  chrome.storage.onChanged.addListener((result) => {
-    if (result["applicationIsOn"]?.newValue != undefined)
-      changeToggleButton(result["applicationIsOn"].newValue);
-  });
-
-  chrome.storage.local.get(["applicationIsOn"], (result) => {
-    if (result["applicationIsOn"] == null) {
-      changeToggleButton(true);
-    } else changeToggleButton(result["applicationIsOn"]);
-  });
+   });
 }
