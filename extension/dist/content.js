@@ -105,13 +105,15 @@ async function checkForNewShort() {
             }
         }
         // Check if the current short is an ad
-        if (currentShort.querySelector("ytd-ad-slot-renderer")) {
-            console.log("[Auto Youtube Shorts Scroller] Ad detected, skipping...");
+        if (currentShort.querySelector("ytd-ad-slot-renderer") ||
+            currentShort.querySelector("ad-button-view-model")) {
+            console.log("[Auto Youtube Shorts Scroller] Ad detected..., scrolling to next short...");
             return scrollToNextShort(currentShortId, false);
         }
         // Log the current short id
         console.log("[Auto Youtube Shorts Scroller] Current ID of Short: ", currentShortId);
         // Add event listener to the current video element
+        console.log("[Auto Youtube Shorts Scroller] Adding event listener to video element...");
         currentVideoElement.addEventListener("ended", shortEnded);
         currentVideoElement._hasEndEvent = true;
         // Check if the current short has metadata
@@ -145,13 +147,6 @@ async function checkForNewShort() {
     // Force removal of the loop attribute if it exists
     if (currentVideoElement?.hasAttribute("loop") && applicationIsOn) {
         currentVideoElement.removeAttribute("loop");
-    }
-    // If the video element doesn't have end event listener, add it
-    if (currentVideoElement?._hasEndEvent === false &&
-        currentShort &&
-        applicationIsOn) {
-        currentVideoElement.addEventListener("ended", shortEnded);
-        currentVideoElement._hasEndEvent = true;
     }
 }
 function shortEnded(e) {
@@ -238,13 +233,13 @@ function findShortContainer(id = null) {
             return short;
     }
     if (shorts.length === 0)
-        return;
+        return null;
     // If no id is provided, find the first short with the is-active attribute
     // If id is provided, return short with id index from shorts list selector
     return id > 1
         ? shorts[id]
-        : shorts.find((short) => !!short.querySelector(CURRENT_SHORT_SELECTOR) ||
-            !!short.querySelector("[is-active]"));
+        : (shorts.find((short) => short.querySelector("ytd-reel-video-renderer") ||
+            short.hasAttribute("[is-active]")) || shorts[0]);
 }
 async function waitForNextShort(retries = 5, delay = 500) {
     for (let i = 0; i < retries; i++) {
@@ -265,10 +260,12 @@ async function checkShortValidity(currentShort) {
     const videoLength = currentVideoElement?.duration;
     const viewCount = document.querySelector(VIEW_COUNT_SELECTOR);
     const likeCount = document.querySelector(LIKES_COUNT_SELECTOR);
-    const commentCount = currentShort.querySelector(COMMENTS_COUNT_SELECTOR);
+    const commentCount = currentShort &&
+        currentShort.querySelector(COMMENTS_COUNT_SELECTOR);
     const tags = document.querySelectorAll(DESCRIPTION_TAGS_SELECTOR);
-    const creatorName = (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
-        currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
+    const creatorName = currentShort &&
+        (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
+            currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
     console.log("[Auto Youtube Shorts Scroller]", {
         filters: [
             { videoLength, filterMinLength, filterMaxLength },
@@ -286,7 +283,7 @@ async function checkShortValidity(currentShort) {
             { whitelistedCreators },
         ],
     });
-    if (!creatorName || !videoLength || !commentCount)
+    if (!creatorName || !commentCount)
         return false;
     // Ignores all checks if whitelisted creator
     if (whitelistedCreators.length > 0) {
@@ -300,9 +297,9 @@ async function checkShortValidity(currentShort) {
     }
     if (!checkValidVideoLength(videoLength))
         return false;
-    if (viewCount != null && !checkValidViewCount(viewCount))
+    if (viewCount && !checkValidViewCount(viewCount))
         return false;
-    if (likeCount != null && !checkValidLikeCount(likeCount))
+    if (likeCount && !checkValidLikeCount(likeCount))
         return false;
     if (!checkValidCommentCount(commentCount))
         return false;

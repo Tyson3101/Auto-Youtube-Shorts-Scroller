@@ -125,8 +125,13 @@ async function checkForNewShort() {
       }
 
       // Check if the current short is an ad
-      if (currentShort.querySelector("ytd-ad-slot-renderer")) {
-         console.log("[Auto Youtube Shorts Scroller] Ad detected, skipping...");
+      if (
+         currentShort.querySelector("ytd-ad-slot-renderer") ||
+         currentShort.querySelector("ad-button-view-model")
+      ) {
+         console.log(
+            "[Auto Youtube Shorts Scroller] Ad detected..., scrolling to next short..."
+         );
          return scrollToNextShort(currentShortId, false);
       }
 
@@ -137,6 +142,10 @@ async function checkForNewShort() {
       );
 
       // Add event listener to the current video element
+
+      console.log(
+         "[Auto Youtube Shorts Scroller] Adding event listener to video element..."
+      );
       currentVideoElement.addEventListener("ended", shortEnded);
       currentVideoElement._hasEndEvent = true;
 
@@ -178,15 +187,6 @@ async function checkForNewShort() {
    // Force removal of the loop attribute if it exists
    if (currentVideoElement?.hasAttribute("loop") && applicationIsOn) {
       currentVideoElement.removeAttribute("loop");
-   }
-   // If the video element doesn't have end event listener, add it
-   if (
-      currentVideoElement?._hasEndEvent === false &&
-      currentShort &&
-      applicationIsOn
-   ) {
-      currentVideoElement.addEventListener("ended", shortEnded);
-      currentVideoElement._hasEndEvent = true;
    }
 }
 
@@ -285,16 +285,16 @@ function findShortContainer(id = null) {
       const short = shorts.find((short) => short.id == id.toString());
       if (short) return short as HTMLDivElement;
    }
-   if (shorts.length === 0) return;
+   if (shorts.length === 0) return null;
    // If no id is provided, find the first short with the is-active attribute
    // If id is provided, return short with id index from shorts list selector
    return id > 1
       ? (shorts[id] as HTMLDivElement)
-      : (shorts.find(
+      : ((shorts.find(
            (short) =>
-              !!short.querySelector(CURRENT_SHORT_SELECTOR) ||
-              !!short.querySelector("[is-active]")
-        ) as HTMLDivElement);
+              short.querySelector("ytd-reel-video-renderer") ||
+              short.hasAttribute("[is-active]")
+        ) || shorts[0]) as HTMLDivElement);
 }
 
 async function waitForNextShort(retries = 5, delay = 500) {
@@ -323,14 +323,18 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
    const likeCount = document.querySelector(
       LIKES_COUNT_SELECTOR
    ) as HTMLSpanElement;
-   const commentCount = currentShort.querySelector(
-      COMMENTS_COUNT_SELECTOR
-   ) as HTMLSpanElement;
+   const commentCount =
+      currentShort &&
+      (currentShort.querySelector(COMMENTS_COUNT_SELECTOR) as HTMLSpanElement);
    const tags = document.querySelectorAll(
       DESCRIPTION_TAGS_SELECTOR
    ) as NodeListOf<HTMLAnchorElement>;
-   const creatorName = (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
-      currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2)) as HTMLAnchorElement;
+   const creatorName =
+      currentShort &&
+      ((currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
+         currentShort.querySelector(
+            AUTHOUR_NAME_SELECTOR_2
+         )) as HTMLAnchorElement);
 
    console.log("[Auto Youtube Shorts Scroller]", {
       filters: [
@@ -350,7 +354,7 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
       ],
    });
 
-   if (!creatorName || !videoLength || !commentCount) return false;
+   if (!creatorName || !commentCount) return false;
 
    // Ignores all checks if whitelisted creator
    if (whitelistedCreators.length > 0) {
@@ -366,8 +370,8 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
    }
 
    if (!checkValidVideoLength(videoLength)) return false;
-   if (viewCount != null && !checkValidViewCount(viewCount)) return false;
-   if (likeCount != null && !checkValidLikeCount(likeCount)) return false;
+   if (viewCount && !checkValidViewCount(viewCount)) return false;
+   if (likeCount && !checkValidLikeCount(likeCount)) return false;
    if (!checkValidCommentCount(commentCount)) return false;
    if (!checkValidTags(tags)) return false;
    if (!checkValidCreator(creatorName)) return false;

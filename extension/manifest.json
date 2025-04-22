@@ -10,9 +10,9 @@
    ],
    "permissions": ["tabs", "storage"],
    "icons": {
-      "16": "./img/autoYTScrollerIcon16.png",
-      "48": "./img/autoYTScrollerIcon48.png",
-      "128": "./img/autoYTScrollerIcon128.png"
+      "16": "img/autoYTScrollerIcon16.png",
+      "48": "img/autoYTScrollerIcon48.png",
+      "128": "img/autoYTScrollerIcon128.png"
    },
    "background": {
       "service_worker": "./dist/background.js"
