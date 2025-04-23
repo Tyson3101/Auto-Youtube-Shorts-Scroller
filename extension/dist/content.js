@@ -71,9 +71,11 @@ function stopAutoScrolling() {
     }
 }
 async function checkForNewShort() {
-    if (!applicationIsOn)
+    if (!applicationIsOn || !isShortsPage())
         return;
     const currentShort = findShortContainer();
+    if (!currentShort)
+        return;
     // Checks if the current short is the same as the last one
     if (currentShort?.id != currentShortId) {
         // Prevent scrolling from previous short ending
@@ -196,7 +198,7 @@ async function scrollToNextShort(prevShortId = null, useDelayAndCheckComments = 
         if (prevShortId != null && currentShortId != prevShortId)
             return; // If the short changed, don't scroll
         const nextShortContainer = await waitForNextShort();
-        if (nextShortContainer == null)
+        if (nextShortContainer == null && isShortsPage())
             return window.location.reload(); // If no next short is found, reload the page (Last resort)
         // If next short container is found, remove the current video element end event listener
         if (currentVideoElement) {
@@ -227,21 +229,31 @@ function findShortContainer(id = null) {
             break;
         }
     }
+    // If an id is provided, find the short with that id
     if (id != null) {
+        if (shorts.length === 0)
+            return document.getElementById(id); // Short container should always contain id of the short order.
         const short = shorts.find((short) => short.id == id.toString());
         if (short)
             return short;
     }
+    // If no shorts are found, return the first short with the id of 0
     if (shorts.length === 0)
-        return null;
+        return document.getElementById(currentShortId || 0);
     // If no id is provided, find the first short with the is-active attribute
     // If id is provided, return short with id index from shorts list selector
     return id > 1
         ? shorts[id]
-        : (shorts.find((short) => short.querySelector("ytd-reel-video-renderer") ||
-            short.hasAttribute("[is-active]")) || shorts[0]);
+        : (shorts.find((short) => 
+        // Active short either has the is-active attribute or a hydrated HTML of short.
+        short.hasAttribute("is-active") ||
+            short.querySelector(CURRENT_SHORT_SELECTOR) ||
+            short.querySelector("[is-active]")) ||
+            shorts[0]) /*If no short found, return first short */;
 }
 async function waitForNextShort(retries = 5, delay = 500) {
+    if (!isShortsPage())
+        return null;
     for (let i = 0; i < retries; i++) {
         // Find the next short container
         const nextShort = findShortContainer(currentShortId + scrollDirection);
@@ -622,6 +634,19 @@ function shortCutListener() {
         }
         pressedKeys = [];
     });
+}
+function isShortsPage() {
+    let containsShortElements = false;
+    for (let i = 0; i < VIDEOS_LIST_SELECTORS.length; i++) {
+        const doesPageHaveAShort = document.querySelector(VIDEOS_LIST_SELECTORS[i]);
+        if (doesPageHaveAShort) {
+            containsShortElements = true;
+            break;
+        }
+    }
+    if (!containsShortElements)
+        console.log("[Auto Youtube Shorts Scroller] Not on shorts page.");
+    return containsShortElements;
 }
 function parseTextToNumber(text) {
     text = text.trim().toLowerCase();

@@ -86,8 +86,9 @@ function stopAutoScrolling() {
 }
 
 async function checkForNewShort() {
-   if (!applicationIsOn) return;
+   if (!applicationIsOn || !isShortsPage()) return;
    const currentShort = findShortContainer();
+   if (!currentShort) return;
 
    // Checks if the current short is the same as the last one
    if (currentShort?.id != currentShortId) {
@@ -146,6 +147,7 @@ async function checkForNewShort() {
       console.log(
          "[Auto Youtube Shorts Scroller] Adding event listener to video element..."
       );
+
       currentVideoElement.addEventListener("ended", shortEnded);
       currentVideoElement._hasEndEvent = true;
 
@@ -245,7 +247,8 @@ async function scrollToNextShort(
          if (prevShortId != null && currentShortId != prevShortId) return; // If the short changed, don't scroll
 
          const nextShortContainer = await waitForNextShort();
-         if (nextShortContainer == null) return window.location.reload(); // If no next short is found, reload the page (Last resort)
+         if (nextShortContainer == null && isShortsPage())
+            return window.location.reload(); // If no next short is found, reload the page (Last resort)
 
          // If next short container is found, remove the current video element end event listener
          if (currentVideoElement) {
@@ -281,23 +284,32 @@ function findShortContainer(id = null) {
       }
    }
 
+   // If an id is provided, find the short with that id
    if (id != null) {
+      if (shorts.length === 0)
+         return document.getElementById(id) as HTMLDivElement; // Short container should always contain id of the short order.
       const short = shorts.find((short) => short.id == id.toString());
       if (short) return short as HTMLDivElement;
    }
-   if (shorts.length === 0) return null;
+   // If no shorts are found, return the first short with the id of 0
+   if (shorts.length === 0)
+      return document.getElementById(currentShortId || 0) as HTMLDivElement;
    // If no id is provided, find the first short with the is-active attribute
    // If id is provided, return short with id index from shorts list selector
    return id > 1
       ? (shorts[id] as HTMLDivElement)
       : ((shorts.find(
            (short) =>
-              short.querySelector("ytd-reel-video-renderer") ||
-              short.hasAttribute("[is-active]")
-        ) || shorts[0]) as HTMLDivElement);
+              // Active short either has the is-active attribute or a hydrated HTML of short.
+              short.hasAttribute("is-active") ||
+              short.querySelector(CURRENT_SHORT_SELECTOR) ||
+              short.querySelector("[is-active]")
+        ) ||
+           shorts[0]) /*If no short found, return first short */ as HTMLDivElement);
 }
 
 async function waitForNextShort(retries = 5, delay = 500) {
+   if (!isShortsPage()) return null;
    for (let i = 0; i < retries; i++) {
       // Find the next short container
       const nextShort = findShortContainer(currentShortId + scrollDirection);
@@ -309,6 +321,7 @@ async function waitForNextShort(retries = 5, delay = 500) {
       window.scrollBy(0, -100);
       await new Promise((r) => setTimeout(r, delay));
    }
+
    console.log(
       "[Auto Youtube Shorts Scroller] The next short has not loaded in, reloading page..."
    );
@@ -715,6 +728,22 @@ function shortCutListener() {
       }
       pressedKeys = [];
    });
+}
+
+function isShortsPage() {
+   let containsShortElements = false;
+   for (let i = 0; i < VIDEOS_LIST_SELECTORS.length; i++) {
+      const doesPageHaveAShort = document.querySelector(
+         VIDEOS_LIST_SELECTORS[i]
+      ) as HTMLDivElement;
+      if (doesPageHaveAShort) {
+         containsShortElements = true;
+         break;
+      }
+   }
+   if (!containsShortElements)
+      console.log("[Auto Youtube Shorts Scroller] Not on shorts page.");
+   return containsShortElements;
 }
 
 function parseTextToNumber(text: string): number {
