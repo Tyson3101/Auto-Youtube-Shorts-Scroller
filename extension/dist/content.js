@@ -644,8 +644,6 @@ function isShortsPage() {
             break;
         }
     }
-    if (!containsShortElements)
-        console.log("[Auto Youtube Shorts Scroller] Not on shorts page.");
     return containsShortElements;
 }
 function parseTextToNumber(text) {
