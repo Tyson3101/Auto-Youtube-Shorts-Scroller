@@ -15,7 +15,7 @@ const LIKES_COUNT_SELECTOR =
 const VIEW_COUNT_SELECTOR =
    "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
 const COMMENTS_COUNT_SELECTOR =
-   "#comments-button > ytd-button-renderer > yt-button-shape > label > div > span";
+	 "#button-bar > reel-action-bar-view-model > button-view-model:nth-of-type(1) > label > div > span";
 const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
 const AUTHOUR_NAME_SELECTOR =
    "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
