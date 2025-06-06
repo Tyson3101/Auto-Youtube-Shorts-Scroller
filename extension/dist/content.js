@@ -11,7 +11,10 @@ const DISLIKE_BUTTON_SELECTOR = "#dislike-button button";
 const COMMENTS_SELECTOR = "ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
-const COMMENTS_COUNT_SELECTOR = "#button-bar > reel-action-bar-view-model > button-view-model:nth-of-type(1) > label > div > span";
+const COMMENTS_COUNT_SELECTORS = [
+    "#comments-button > ytd-button-renderer > yt-button-shape > label > div > span",
+    "#button-bar > reel-action-bar-view-model > button-view-model:nth-of-type(1) > label > div > span",
+];
 const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
 const AUTHOUR_NAME_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
 const AUTHOUR_NAME_SELECTOR_2 = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
@@ -115,9 +118,8 @@ async function checkForNewShort() {
         // Log the current short id
         console.log("[Auto Youtube Shorts Scroller] Current ID of Short: ", currentShortId);
         // Add event listener to the current video element
-        console.log("[Auto Youtube Shorts Scroller] Adding event listener to video element...");
+        console.log("[Auto Youtube Shorts Scroller] Adding event listener to video element...", currentVideoElement);
         currentVideoElement.addEventListener("ended", shortEnded);
-        console.log(currentVideoElement.duration);
         currentVideoElement._hasEndEvent = true;
         // Check if the current short has metadata
         const isMetaDataHydrated = (selector) => {
@@ -274,7 +276,7 @@ async function checkShortValidity(currentShort) {
     const viewCount = document.querySelector(VIEW_COUNT_SELECTOR);
     const likeCount = document.querySelector(LIKES_COUNT_SELECTOR);
     const commentCount = currentShort &&
-        currentShort.querySelector(COMMENTS_COUNT_SELECTOR);
+        currentShort.querySelector(COMMENTS_COUNT_SELECTORS.join(","));
     const tags = document.querySelectorAll(DESCRIPTION_TAGS_SELECTOR);
     const creatorName = currentShort &&
         (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
@@ -638,13 +640,9 @@ function shortCutListener() {
 }
 function isShortsPage() {
     let containsShortElements = false;
-    for (let i = 0; i < VIDEOS_LIST_SELECTORS.length; i++) {
-        const doesPageHaveAShort = document.querySelector(VIDEOS_LIST_SELECTORS[i]);
-        if (doesPageHaveAShort) {
-            containsShortElements = true;
-            break;
-        }
-    }
+    const doesPageHaveAShort = document.querySelector(VIDEOS_LIST_SELECTORS.join(","));
+    if (doesPageHaveAShort)
+        containsShortElements = true;
     return containsShortElements;
 }
 function parseTextToNumber(text) {
