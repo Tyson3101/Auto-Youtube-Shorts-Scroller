@@ -11,7 +11,7 @@ const DISLIKE_BUTTON_SELECTOR = "#dislike-button button";
 const COMMENTS_SELECTOR = "ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
-const COMMENTS_COUNT_SELECTOR = "#comments-button > ytd-button-renderer > yt-button-shape > label > div > span";
+const COMMENTS_COUNT_SELECTOR = "#button-bar > reel-action-bar-view-model > button-view-model:nth-of-type(1) > label > div > span";
 const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
 const AUTHOUR_NAME_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
 const AUTHOUR_NAME_SELECTOR_2 = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
@@ -117,6 +117,7 @@ async function checkForNewShort() {
         // Add event listener to the current video element
         console.log("[Auto Youtube Shorts Scroller] Adding event listener to video element...");
         currentVideoElement.addEventListener("ended", shortEnded);
+        console.log(currentVideoElement.duration);
         currentVideoElement._hasEndEvent = true;
         // Check if the current short has metadata
         const isMetaDataHydrated = (selector) => {
