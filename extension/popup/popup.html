@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -17,22 +17,40 @@
   <body>
     <header class="popup-header">
       <div class="header-title-section">
-        <img src="../img/autoYTScrollerIcon48.png" alt="Logo" class="header-icon"/>
+        <img
+          src="../img/autoYTScrollerIcon48.png"
+          alt="Logo"
+          class="header-icon"
+        />
         <h1 class="header-title">YouTube Auto ㅤ Shorts Scroller</h1>
       </div>
 
       <div class="header-controls">
-         <!-- Master Status Toggle -->
-        <label class="status-toggle-label" for="status-toggle" title="Toggle Extension On/Off">
-            <div class="toggle-switch">
-              <input type="checkbox" id="status-toggle" />
-              <span class="slider"></span>
-            </div>
+        <!-- Master Status Toggle -->
+        <label
+          class="status-toggle-label"
+          for="status-toggle"
+          title="Toggle Extension On/Off"
+        >
+          <div class="toggle-switch">
+            <input type="checkbox" id="status-toggle" />
+            <span class="slider"></span>
+          </div>
         </label>
-        <a href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller" target="_blank" class="header-icon-link" title="GitHub Repository">
+        <a
+          href="https://github.com/Tyson3101/Auto-Youtube-Shorts-Scroller"
+          target="_blank"
+          class="header-icon-link"
+          title="GitHub Repository"
+        >
           <i class="fab fa-github"></i>
         </a>
-        <a href="help.html" target="_blank" class="header-icon-link" title="Help Page">
+        <a
+          href="help.html"
+          target="_blank"
+          class="header-icon-link"
+          title="Help Page"
+        >
           <i class="fas fa-question-circle"></i>
         </a>
       </div>
@@ -40,21 +58,37 @@
 
     <div class="main-content">
       <nav class="navigation-sidebar">
-        <div class="nav-item active" data-target-panel="panel-general" title="General Settings">
+        <div
+          class="nav-item active"
+          data-target-panel="panel-general"
+          title="General Settings"
+        >
           <i class="fas fa-cog"></i>
           <span class="tooltip">General</span>
         </div>
-        <div class="nav-item" data-target-panel="panel-filters" title="Content Filters">
+        <div
+          class="nav-item"
+          data-target-panel="panel-filters"
+          title="Content Filters"
+        >
           <i class="fas fa-filter"></i>
-           <span class="tooltip">Filters</span>
+          <span class="tooltip">Filters</span>
         </div>
-        <div class="nav-item" data-target-panel="panel-lists" title="Creator & Tag Lists">
+        <div
+          class="nav-item"
+          data-target-panel="panel-lists"
+          title="Creator & Tag Lists"
+        >
           <i class="fas fa-list"></i>
-           <span class="tooltip">Lists</span>
+          <span class="tooltip">Lists</span>
         </div>
-        <div class="nav-item" data-target-panel="panel-shortcuts" title="Keyboard Shortcuts">
+        <div
+          class="nav-item"
+          data-target-panel="panel-shortcuts"
+          title="Keyboard Shortcuts"
+        >
           <i class="fas fa-keyboard"></i>
-           <span class="tooltip">Shortcuts</span>
+          <span class="tooltip">Shortcuts</span>
         </div>
       </nav>
 
@@ -78,10 +112,14 @@
               min="1"
               step="1"
             />
-             <p class="description">Number of times a short replays before scrolling.</p>
+            <p class="description">
+              Number of times a short replays before scrolling.
+            </p>
           </div>
           <div class="form-group">
-            <label for="additionalScrollDelayInput">Additional Scroll Delay (ms)</label>
+            <label for="additionalScrollDelayInput"
+              >Additional Scroll Delay (ms)</label
+            >
             <input
               type="number"
               id="additionalScrollDelayInput"
@@ -89,98 +127,137 @@
               min="0"
               step="50"
             />
-             <p class="description">Extra time (milliseconds) to wait before scrolling.</p>
+            <p class="description">
+              Extra time (milliseconds) to wait before scrolling.
+            </p>
           </div>
-           <div class="form-group">
-             <label class="toggle-switch-label" for="scrollOnCommentsInput">
-                 <span class="toggle-switch-text">Scroll When Comments are Open</span>
-                 <div class="toggle-switch">
-                    <input type="checkbox" id="scrollOnCommentsInput"/>
-                    <span class="slider"></span>
-                 </div>
-             </label>
-             <p class="description">If disabled, scrolling pauses while the comment section is open.</p>
+          <div class="form-group">
+            <label class="toggle-switch-label" for="scrollOnCommentsInput">
+              <span class="toggle-switch-text"
+                >Scroll When Comments are Open</span
+              >
+              <div class="toggle-switch">
+                <input type="checkbox" id="scrollOnCommentsInput" />
+                <span class="slider"></span>
+              </div>
+            </label>
+            <p class="description">
+              If disabled, scrolling pauses while the comment section is open.
+            </p>
           </div>
         </section>
 
         <!-- Filters Panel -->
         <section id="panel-filters" class="content-panel">
           <h2>Content Filters</h2>
-           <p class="description" style="margin-bottom: 1rem; font-size: 0.85rem;">Automatically skip shorts based on these criteria. Set to 'None' or leave blank to disable a specific filter.</p>
+          <p
+            class="description"
+            style="margin-bottom: 1rem; font-size: 0.85rem"
+          >
+            Automatically skip shorts based on these criteria. Set to 'None' or
+            leave blank to disable a specific filter.
+          </p>
 
           <div class="form-group">
             <label>Short Length</label>
             <div class="filter-group">
-                <div>
-                    <label for="filterByMinLength">Min Length</label>
-                    <select id="filterByMinLength">
-                      <option value="none">None</option>
-                      <option value="15">15 Seconds</option>
-                      <option value="30">30 Seconds</option>
-                      <option value="45">45 Seconds</option>
-                      <option value="60">1 Minute</option>
-                      <option value="90">1.5 Minutes</option>
-                      <option value="120">2 Minutes</option>
-                    </select>
-                </div>
-                 <div>
-                    <label for="filterByMaxLength">Max Length</label>
-                    <select id="filterByMaxLength">
-                       <option value="none">None</option>
-                      <option value="15">15 Seconds</option>
-                      <option value="30">30 Seconds</option>
-                      <option value="45">45 Seconds</option>
-                      <option value="60">1 Minute</option>
-                      <option value="90">1.5 Minutes</option>
-                      <option value="120">2 Minutes</option>
-                    </select>
-                 </div>
+              <div>
+                <label for="filterByMinLength">Min Length</label>
+                <select id="filterByMinLength">
+                  <option value="none">None</option>
+                  <option value="15">15 Seconds</option>
+                  <option value="30">30 Seconds</option>
+                  <option value="45">45 Seconds</option>
+                  <option value="60">1 Minute</option>
+                  <option value="90">1.5 Minutes</option>
+                  <option value="120">2 Minutes</option>
+                </select>
+              </div>
+              <div>
+                <label for="filterByMaxLength">Max Length</label>
+                <select id="filterByMaxLength">
+                  <option value="none">None</option>
+                  <option value="15">15 Seconds</option>
+                  <option value="30">30 Seconds</option>
+                  <option value="45">45 Seconds</option>
+                  <option value="60">1 Minute</option>
+                  <option value="90">1.5 Minutes</option>
+                  <option value="120">2 Minutes</option>
+                </select>
+              </div>
             </div>
           </div>
 
           <div class="form-group">
             <label>Views</label>
-             <div class="filter-group">
-                <div>
-                    <label for="filterByMinViews">Min Views</label>
-                    <input type="text" id="filterByMinViews" placeholder="e.g., 1000 or 1k" />
-                </div>
-                 <div>
-                    <label for="filterByMaxViews">Max Views</label>
-                    <input type="text" id="filterByMaxViews" placeholder="e.g., 1000000 or 1m" />
-                 </div>
-             </div>
-              <p class="description">Use k (thousand) or m (million), e.g., <code>50k</code>, <code>2m</code>.</p>
+            <div class="filter-group">
+              <div>
+                <label for="filterByMinViews">Min Views</label>
+                <input
+                  type="text"
+                  id="filterByMinViews"
+                  placeholder="e.g., 1000 or 1k"
+                />
+              </div>
+              <div>
+                <label for="filterByMaxViews">Max Views</label>
+                <input
+                  type="text"
+                  id="filterByMaxViews"
+                  placeholder="e.g., 1000000 or 1m"
+                />
+              </div>
+            </div>
+            <p class="description">
+              Use k (thousand) or m (million), e.g., <code>50k</code>,
+              <code>2m</code>.
+            </p>
           </div>
 
           <div class="form-group">
             <label>Likes</label>
-             <div class="filter-group">
-                 <div>
-                    <label for="filterByMinLikes">Min Likes</label>
-                    <input type="text" id="filterByMinLikes" placeholder="e.g., 500" />
-                 </div>
-                  <div>
-                    <label for="filterByMaxLikes">Max Likes</label>
-                    <input type="text" id="filterByMaxLikes" placeholder="e.g., 50k" />
-                  </div>
-             </div>
-             <p class="description">Use k (thousand) or m (million).</p>
+            <div class="filter-group">
+              <div>
+                <label for="filterByMinLikes">Min Likes</label>
+                <input
+                  type="text"
+                  id="filterByMinLikes"
+                  placeholder="e.g., 500"
+                />
+              </div>
+              <div>
+                <label for="filterByMaxLikes">Max Likes</label>
+                <input
+                  type="text"
+                  id="filterByMaxLikes"
+                  placeholder="e.g., 50k"
+                />
+              </div>
+            </div>
+            <p class="description">Use k (thousand) or m (million).</p>
           </div>
 
           <div class="form-group">
             <label>Comments</label>
-             <div class="filter-group">
-                 <div>
-                    <label for="filterByMinComments">Min Comments</label>
-                    <input type="text" id="filterByMinComments" placeholder="e.g., 10" />
-                 </div>
-                  <div>
-                    <label for="filterByMaxComments">Max Comments</label>
-                    <input type="text" id="filterByMaxComments" placeholder="e.g., 1k" />
-                  </div>
-             </div>
-              <p class="description">Use k (thousand) or m (million).</p>
+            <div class="filter-group">
+              <div>
+                <label for="filterByMinComments">Min Comments</label>
+                <input
+                  type="text"
+                  id="filterByMinComments"
+                  placeholder="e.g., 10"
+                />
+              </div>
+              <div>
+                <label for="filterByMaxComments">Max Comments</label>
+                <input
+                  type="text"
+                  id="filterByMaxComments"
+                  placeholder="e.g., 1k"
+                />
+              </div>
+            </div>
+            <p class="description">Use k (thousand) or m (million).</p>
           </div>
         </section>
 
@@ -189,43 +266,78 @@
           <h2>Creator & Tag Lists</h2>
           <div class="form-group">
             <label for="filterAuthors">Blocked Creators</label>
-            <textarea id="filterAuthors" placeholder="e.g., Creator1, @AnotherCreator"></textarea>
-            <p class="description">Comma-separated list of creator names or handles to block. Case-insensitive.</p>
+            <textarea
+              id="filterAuthors"
+              placeholder="e.g., Creator1, @AnotherCreator"
+            ></textarea>
+            <p class="description">
+              Comma-separated list of creator names or handles to block.
+              Case-insensitive.
+            </p>
           </div>
           <div class="form-group">
             <label for="whitelistedAuthors">Whitelisted Creators</label>
-            <textarea id="whitelistedAuthors" placeholder="e.g., FavoriteCreator, @MustWatch"></textarea>
-            <p class="description">Comma-separated list. Shorts from these creators bypass all filters.</p>
+            <textarea
+              id="whitelistedAuthors"
+              placeholder="e.g., FavoriteCreator, @MustWatch"
+            ></textarea>
+            <p class="description">
+              Comma-separated list. Shorts from these creators bypass all
+              filters.
+            </p>
           </div>
           <div class="form-group">
             <label for="filterTags">Blocked Tags</label>
-            <textarea id="filterTags" placeholder="e.g., #topic1, #badtag"></textarea>
-            <p class="description">Comma-separated list of tags (including #) to block.</p>
+            <textarea
+              id="filterTags"
+              placeholder="e.g., #topic1, #badtag"
+            ></textarea>
+            <p class="description">
+              Comma-separated list of tags (including #) to block.
+            </p>
           </div>
-           <div class="form-group">
-                <label class="toggle-switch-label" for="scrollOnNoTagsInput">
-                    <span class="toggle-switch-text">Scroll if Short Has No Tags</span>
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="scrollOnNoTagsInput"/>
-                        <span class="slider"></span>
-                    </div>
-                </label>
-                <p class="description">If enabled, shorts without any tags in the description will be skipped.</p>
-           </div>
+          <div class="form-group">
+            <label class="toggle-switch-label" for="scrollOnNoTagsInput">
+              <span class="toggle-switch-text"
+                >Scroll if Short Has No Tags</span
+              >
+              <div class="toggle-switch">
+                <input type="checkbox" id="scrollOnNoTagsInput" />
+                <span class="slider"></span>
+              </div>
+            </label>
+            <p class="description">
+              If enabled, shorts without any tags in the description will be
+              skipped.
+            </p>
+          </div>
         </section>
 
         <!-- Shortcuts Panel -->
         <section id="panel-shortcuts" class="content-panel">
           <h2>Keyboard Shortcuts</h2>
-           <p class="description" style="margin-bottom: 1.5rem;">Define key combinations for quick actions. Use '+' to combine keys (e.g., <code>Shift+Alt+S</code>). See <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values" target="_blank" >MDN Key Values</a> for reference.</p>
+          <p class="description" style="margin-bottom: 1.5rem">
+            Define key combinations for quick actions. Use '+' to combine keys
+            (e.g., <code>Shift+Alt+S</code>). See
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"
+              target="_blank"
+              >MDN Key Values</a
+            >
+            for reference.
+          </p>
           <div class="form-group">
             <label for="shortCutInput">Toggle Extension On/Off</label>
             <input type="text" id="shortCutInput" />
           </div>
           <div class="form-group">
-            <label for="shortCutInteractInput">Like / Dislike Current Short</label>
+            <label for="shortCutInteractInput"
+              >Like / Dislike Current Short</label
+            >
             <input type="text" id="shortCutInteractInput" />
-            <p class="description">Press once to Like, press again quickly to Dislike.</p>
+            <p class="description">
+              Press once to Like, press again to Dislike.
+            </p>
           </div>
         </section>
 
@@ -234,13 +346,21 @@
     </div>
 
     <footer class="popup-footer">
-        <div class="footer-links">
-            Prefer Reels?
-            <a href="https://chromewebstore.google.com/detail/auto-reels-scroller/bpgleagdakihfeingnhnknblcfgbfcdo" target="_blank">Instagram Version</a>
-             |
-            <a href="https://chrome.google.com/webstore/detail/auto-youtube-shorts-scroller/ckbnikemebopgknkpgjlkbffpkkhblbe" target="_blank">Rate Extension</a>
-        </div>
-        <p style="margin-top: 0.5rem;">By Tyson3101</p>
+      <div class="footer-links">
+        Prefer Reels?
+        <a
+          href="https://chromewebstore.google.com/detail/auto-reels-scroller/bpgleagdakihfeingnhnknblcfgbfcdo"
+          target="_blank"
+          >Instagram Version</a
+        >
+        |
+        <a
+          href="https://chrome.google.com/webstore/detail/auto-youtube-shorts-scroller/ckbnikemebopgknkpgjlkbffpkkhblbe"
+          target="_blank"
+          >Rate Extension</a
+        >
+      </div>
+      <p style="margin-top: 0.5rem">By Tyson3101</p>
     </footer>
 
     <!-- Include the updated script -->

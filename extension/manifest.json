@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Auto Youtube Shorts Scroller",
-  "version": "3.1.3",
+  "version": "3.1.4",
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],

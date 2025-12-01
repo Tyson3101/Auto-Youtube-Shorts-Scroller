@@ -6,8 +6,8 @@ const VIDEOS_LIST_SELECTORS = [
     ".reel-video-in-sequence-new",
 ];
 const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
-const LIKE_BUTTON_SELECTOR = "#like-button button";
-const DISLIKE_BUTTON_SELECTOR = "#dislike-button button";
+const LIKE_BUTTON_SELECTOR = "#button-bar > reel-action-bar-view-model > like-button-view-model > toggle-button-view-model > button-view-model > label > button";
+const DISLIKE_BUTTON_SELECTOR = "#button-bar > reel-action-bar-view-model > dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const COMMENTS_SELECTOR = "ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
@@ -281,7 +281,7 @@ async function checkShortValidity(currentShort) {
     const creatorName = currentShort &&
         (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
             currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
-    console.log("[Auto Youtube Shorts Scroller]", {
+    console.log("[Auto Youtube Shorts Scroller] Filters:", {
         filters: [
             { videoLength, filterMinLength, filterMaxLength },
             { viewCount: viewCount?.innerText, filterMinViews, filterMaxViews },
