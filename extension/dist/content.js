@@ -8,7 +8,7 @@ const VIDEOS_LIST_SELECTORS = [
 const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
 const LIKE_BUTTON_SELECTOR = "#button-bar > reel-action-bar-view-model > like-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const DISLIKE_BUTTON_SELECTOR = "#button-bar > reel-action-bar-view-model > dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
-const COMMENTS_SELECTOR = "ytd-engagement-panel-section-list-renderer[target-id='engagement-panel-comments-section']";
+const COMMENTS_SELECTOR = "#content > ytd-section-list-renderer";
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
 const COMMENTS_COUNT_SELECTORS = [
@@ -176,8 +176,10 @@ async function scrollToNextShort(prevShortId = null, useDelayAndCheckComments = 
         return stopAutoScrolling();
     const comments = document.querySelector(COMMENTS_SELECTOR);
     const isCommentsOpen = () => {
-        const visibilityOfComments = comments?.attributes["VISIBILITY"]?.value;
-        return visibilityOfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED";
+        const visibilityAttr1OfComments = comments?.attributes["VISIBILITY"]?.value;
+        const visibilityAttr2OfComments = comments?.hasAttribute("panel-content-visible");
+        return (visibilityAttr1OfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED" ||
+            visibilityAttr2OfComments === true);
     };
     // Check if comments is open, and settings are set to scroll on comments
     if (comments && useDelayAndCheckComments) {
