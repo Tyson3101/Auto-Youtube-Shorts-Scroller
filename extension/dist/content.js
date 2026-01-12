@@ -18,6 +18,7 @@ const COMMENTS_COUNT_SELECTORS = [
 const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
 const AUTHOUR_NAME_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
 const AUTHOUR_NAME_SELECTOR_2 = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
+const AUTHOR_SUBSCRIBE_BUTTON_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > div > yt-subscribe-button-view-model";
 const NEXT_BUTTON_SELECTOR = "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const PREVIOUS_BUTTON_SELECTOR = "#navigation-button-up > ytd-button-renderer > yt-button-shape > button";
 // ------------------------------
@@ -39,6 +40,7 @@ let filterMinComments = "none";
 let filterMaxComments = "none";
 let blockedCreators = [];
 let whitelistedCreators = [];
+let whitelistSubscriptions = false;
 let blockedTags = [];
 let scrollOnNoTags = false;
 let additionalScrollDelay = 0;
@@ -283,6 +285,8 @@ async function checkShortValidity(currentShort) {
     const creatorName = currentShort &&
         (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
             currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
+    const subscribeButton = currentShort && currentShort.querySelector(AUTHOR_SUBSCRIBE_BUTTON_SELECTOR);
+
     console.log("[Auto Youtube Shorts Scroller] Filters:", {
         filters: [
             { videoLength, filterMinLength, filterMaxLength },
@@ -298,6 +302,7 @@ async function checkShortValidity(currentShort) {
             { blockedTags },
             { blockedCreators },
             { whitelistedCreators },
+            { whitelistSubscriptions, isSubscribed: subscribeButton === null}
         ],
     });
     if (!creatorName || !commentCount)
@@ -312,6 +317,10 @@ async function checkShortValidity(currentShort) {
             return true;
         }
     }
+    if (whitelistSubscriptions && subscribeButton === null) {
+        return true;
+    }
+    
     if (!checkValidVideoLength(videoLength))
         return false;
     if (viewCount && !checkValidViewCount(viewCount))
@@ -443,6 +452,7 @@ async function checkShortValidity(currentShort) {
             "scrollOnComments",
             "scrollOnNoTags",
             "whitelistedAuthors",
+            "whitelistSubscriptions",
             "additionalScrollDelay",
         ], (result) => {
             console.log("[Auto Youtube Shorts Scroller]", {
@@ -484,6 +494,8 @@ async function checkShortValidity(currentShort) {
                 blockedTags = [...result["filteredTags"]];
             if (result["whitelistedAuthors"])
                 whitelistedCreators = [...result["whitelistedAuthors"]];
+            if (result["whitelistSubscriptions"])
+                whitelistSubscriptions = result["whitelistSubscriptions"];
             if (result["scrollOnNoTags"])
                 scrollOnNoTags = result["scrollOnNoTags"];
             if (result["additionalScrollDelay"])
@@ -557,6 +569,10 @@ async function checkShortValidity(currentShort) {
             let newWhiteListedCreators = result["whitelistedAuthors"]?.newValue;
             if (newWhiteListedCreators != undefined) {
                 whitelistedCreators = [...newWhiteListedCreators];
+            }
+            let newWhitelistSubscriptions = result["whitelistSubscriptions"]?.newValue;
+            if (newWhitelistSubscriptions !== undefined) {
+                whitelistSubscriptions = newWhitelistSubscriptions;
             }
             let newScrollOnNoTags = result["scrollOnNoTags"]?.newValue;
             if (newScrollOnNoTags !== undefined) {

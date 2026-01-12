@@ -3,6 +3,7 @@ const errMsg = document.querySelector("#error-message");
 const statusToggle = document.querySelector("#status-toggle");
 const filteredAuthorsInput = document.querySelector("#filterAuthors");
 const whitelistedAuthorsInput = document.querySelector("#whitelistedAuthors");
+const whitelistSubscriptionsToggle = document.querySelector("#whitelistSubscriptions");
 const filteredTagsInput = document.querySelector("#filterTags");
 const shortCutInput = document.querySelector("#shortCutInput");
 const shortCutInteractInput = document.querySelector("#shortCutInteractInput");
@@ -94,6 +95,7 @@ function setupEventListeners() {
     whitelistedAuthorsInput.addEventListener("input", handleListInputChange(whitelistedAuthorsInput, "whitelistedAuthors"));
     filteredTagsInput.addEventListener("input", handleListInputChange(filteredTagsInput, "filteredTags"));
     // Use 'change' for inputs/selects that don't need instant updates
+    whitelistSubscriptionsToggle.addEventListener("change", handleCheckboxChange("whitelistSubscriptions"));
     shortCutInput.addEventListener("change", handleShortcutInputChange(shortCutInput, "shortCutKeys", "shift+d"));
     shortCutInteractInput.addEventListener("change", handleShortcutInputChange(shortCutInteractInput, "shortCutInteractKeys", "shift+g"));
     filterByMinLengthInput.addEventListener("change", handleSelectChange("filterByMinLength"));
@@ -202,6 +204,7 @@ function getAllSettingsForPopup() {
         "shortCutInteractKeys",
         "filteredAuthors",
         "whitelistedAuthors",
+        "whitelistSubscriptions",
         "filteredTags",
         "filterByMinLength",
         "filterByMaxLength",
@@ -227,6 +230,8 @@ function getAllSettingsForPopup() {
         filteredAuthorsInput.value = (result.filteredAuthors ?? ["Tyson3101"]).join(",");
         whitelistedAuthorsInput.value = (result.whitelistedAuthors ?? ["Tyson3101"]).join(","); // Default potentially empty?
         filteredTagsInput.value = (result.filteredTags ?? ["#nsfw", "#leagueoflegends"]).join(",");
+        // Bypass Filters
+        whitelistSubscriptionsToggle.checked = result.whitelistSubscriptions ?? false; // Default to false
         // Filters
         filterByMinLengthInput.value = result.filterByMinLength ?? "none";
         filterByMaxLengthInput.value = result.filterByMaxLength ?? "none";
