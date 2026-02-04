@@ -25,6 +25,9 @@ const AUTHOUR_NAME_SELECTOR =
 const AUTHOUR_NAME_SELECTOR_2 =
   "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
 
+const AUTHOR_SUBSCRIBE_BUTTON_SELECTOR =
+  "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > div > yt-subscribe-button-view-model";
+
 const NEXT_BUTTON_SELECTOR =
   "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const PREVIOUS_BUTTON_SELECTOR =
@@ -49,6 +52,7 @@ let filterMinComments = "none";
 let filterMaxComments = "none";
 let blockedCreators = [];
 let whitelistedCreators = [];
+let whitelistSubscriptions = false;
 let blockedTags = [];
 let scrollOnNoTags = false;
 let additionalScrollDelay = 0;
@@ -360,6 +364,9 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
       currentShort.querySelector(
         AUTHOUR_NAME_SELECTOR_2
       )) as HTMLAnchorElement);
+  const subscribeButton =
+    currentShort &&
+    currentShort.querySelector(AUTHOR_SUBSCRIBE_BUTTON_SELECTOR);
 
   console.log("[Auto Youtube Shorts Scroller] Filters:", {
     filters: [
@@ -376,6 +383,7 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
       { blockedTags },
       { blockedCreators },
       { whitelistedCreators },
+      { whitelistSubscriptions, isSubscribed: subscribeButton === null },
     ],
   });
 
@@ -392,6 +400,11 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
     ) {
       return true;
     }
+  }
+
+  // Ignores all checks if whitelisted by subscription
+  if (whitelistSubscriptions && subscribeButton === null) {
+    return true;
   }
 
   if (!checkValidVideoLength(videoLength)) return false;
@@ -537,6 +550,7 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
         "scrollOnComments",
         "scrollOnNoTags",
         "whitelistedAuthors",
+        "whitelistSubscriptions",
         "additionalScrollDelay",
       ],
       (result) => {
@@ -576,6 +590,8 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
         if (result["filteredTags"]) blockedTags = [...result["filteredTags"]];
         if (result["whitelistedAuthors"])
           whitelistedCreators = [...result["whitelistedAuthors"]];
+        if (result["whitelistSubscriptions"])
+          whitelistSubscriptions = result["whitelistSubscriptions"];
         if (result["scrollOnNoTags"]) scrollOnNoTags = result["scrollOnNoTags"];
         if (result["additionalScrollDelay"])
           additionalScrollDelay = result["additionalScrollDelay"];
@@ -648,6 +664,11 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
       let newWhiteListedCreators = result["whitelistedAuthors"]?.newValue;
       if (newWhiteListedCreators != undefined) {
         whitelistedCreators = [...newWhiteListedCreators];
+      }
+      let newWhitelistSubscriptions =
+        result["whitelistSubscriptions"]?.newValue;
+      if (newWhitelistSubscriptions !== undefined) {
+        whitelistSubscriptions = newWhitelistSubscriptions;
       }
       let newScrollOnNoTags = result["scrollOnNoTags"]?.newValue;
       if (newScrollOnNoTags !== undefined) {

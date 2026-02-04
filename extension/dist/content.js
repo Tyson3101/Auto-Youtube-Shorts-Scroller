@@ -285,8 +285,8 @@ async function checkShortValidity(currentShort) {
     const creatorName = currentShort &&
         (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
             currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
-    const subscribeButton = currentShort && currentShort.querySelector(AUTHOR_SUBSCRIBE_BUTTON_SELECTOR);
-
+    const subscribeButton = currentShort &&
+        currentShort.querySelector(AUTHOR_SUBSCRIBE_BUTTON_SELECTOR);
     console.log("[Auto Youtube Shorts Scroller] Filters:", {
         filters: [
             { videoLength, filterMinLength, filterMaxLength },
@@ -302,7 +302,7 @@ async function checkShortValidity(currentShort) {
             { blockedTags },
             { blockedCreators },
             { whitelistedCreators },
-            { whitelistSubscriptions, isSubscribed: subscribeButton === null}
+            { whitelistSubscriptions, isSubscribed: subscribeButton === null },
         ],
     });
     if (!creatorName || !commentCount)
@@ -317,10 +317,10 @@ async function checkShortValidity(currentShort) {
             return true;
         }
     }
+    // Ignores all checks if whitelisted by subscription
     if (whitelistSubscriptions && subscribeButton === null) {
         return true;
     }
-    
     if (!checkValidVideoLength(videoLength))
         return false;
     if (viewCount && !checkValidViewCount(viewCount))

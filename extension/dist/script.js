@@ -78,8 +78,7 @@ function setupEventListeners() {
         chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
             // Basic check if on YouTube - could be refined
             if (!tabs[0]?.url?.toLowerCase().includes("youtube.com/shorts")) {
-                errMsg.innerText =
-                    "Toggle works reliably on youtube.com/shorts pages.";
+                errMsg.innerText = "Toggle works reliably on youtube.com/shorts pages.";
                 // Optionally revert the toggle visually if not on YT
                 // e.target.checked = !isChecked;
                 chrome.storage.local.set({ applicationIsOn: isChecked }); // Still allow setting it
@@ -93,9 +92,9 @@ function setupEventListeners() {
     // Update listeners to use 'input' for textareas for better responsiveness
     filteredAuthorsInput.addEventListener("input", handleListInputChange(filteredAuthorsInput, "filteredAuthors"));
     whitelistedAuthorsInput.addEventListener("input", handleListInputChange(whitelistedAuthorsInput, "whitelistedAuthors"));
+    whitelistSubscriptionsToggle.addEventListener("change", handleCheckboxChange("whitelistSubscriptions"));
     filteredTagsInput.addEventListener("input", handleListInputChange(filteredTagsInput, "filteredTags"));
     // Use 'change' for inputs/selects that don't need instant updates
-    whitelistSubscriptionsToggle.addEventListener("change", handleCheckboxChange("whitelistSubscriptions"));
     shortCutInput.addEventListener("change", handleShortcutInputChange(shortCutInput, "shortCutKeys", "shift+d"));
     shortCutInteractInput.addEventListener("change", handleShortcutInputChange(shortCutInteractInput, "shortCutInteractKeys", "shift+g"));
     filterByMinLengthInput.addEventListener("change", handleSelectChange("filterByMinLength"));
@@ -230,8 +229,8 @@ function getAllSettingsForPopup() {
         filteredAuthorsInput.value = (result.filteredAuthors ?? ["Tyson3101"]).join(",");
         whitelistedAuthorsInput.value = (result.whitelistedAuthors ?? ["Tyson3101"]).join(","); // Default potentially empty?
         filteredTagsInput.value = (result.filteredTags ?? ["#nsfw", "#leagueoflegends"]).join(",");
-        // Bypass Filters
-        whitelistSubscriptionsToggle.checked = result.whitelistSubscriptions ?? false; // Default to false
+        whitelistSubscriptionsToggle.checked =
+            result.whitelistSubscriptions ?? false; // Default to false
         // Filters
         filterByMinLengthInput.value = result.filterByMinLength ?? "none";
         filterByMaxLengthInput.value = result.filterByMaxLength ?? "none";
@@ -283,6 +282,8 @@ function getAllSettingsForPopup() {
             defaultsToSet.filteredAuthors = ["Tyson3101"];
         if (result.whitelistedAuthors === undefined)
             defaultsToSet.whitelistedAuthors = []; // Maybe empty default?
+        if (result.whitelistSubscriptions === undefined)
+            defaultsToSet.whitelistSubscriptions = false; // Default to false
         if (result.filteredTags === undefined)
             defaultsToSet.filteredTags = ["#nsfw", "#leagueoflegends"];
         if (result.filterByMinLength === undefined)
