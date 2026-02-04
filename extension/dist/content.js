@@ -279,9 +279,10 @@ async function checkShortValidity(currentShort) {
     const videoLength = currentVideoElement?.duration;
     const viewCount = document.querySelector(VIEW_COUNT_SELECTOR);
     const likeCount = document.querySelector(LIKES_COUNT_SELECTOR);
-    const commentCount = currentShort &&
-        currentShort.querySelector(COMMENTS_COUNT_SELECTORS.join(","));
-    const tags = document.querySelectorAll(DESCRIPTION_TAGS_SELECTOR);
+    const commentCount = (currentShort &&
+        currentShort.querySelector(COMMENTS_COUNT_SELECTORS.join(","))) ||
+        document.querySelector(COMMENTS_COUNT_SELECTORS.join(","));
+    const tags = currentShort.querySelectorAll(DESCRIPTION_TAGS_SELECTOR);
     const creatorName = currentShort &&
         (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
             currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
@@ -670,6 +671,9 @@ function parseTextToNumber(text) {
     }
     if (text.endsWith("m")) {
         return parseFloat(text) * 1_000_000;
+    }
+    if (text.endsWith("b")) {
+        return parseFloat(text) * 1_000_000_000;
     }
     return parseInt(text.replace(/,/g, "")) || 0; // Handle normal numbers like "933"
 }

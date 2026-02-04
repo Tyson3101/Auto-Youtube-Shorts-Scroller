@@ -351,11 +351,14 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
     LIKES_COUNT_SELECTOR
   ) as HTMLSpanElement;
   const commentCount =
-    currentShort &&
-    (currentShort.querySelector(
+    (currentShort &&
+      (currentShort.querySelector(
+        COMMENTS_COUNT_SELECTORS.join(",")
+      ) as HTMLSpanElement)) ||
+    (document.querySelector(
       COMMENTS_COUNT_SELECTORS.join(",")
     ) as HTMLSpanElement);
-  const tags = document.querySelectorAll(
+  const tags = currentShort.querySelectorAll(
     DESCRIPTION_TAGS_SELECTOR
   ) as NodeListOf<HTMLAnchorElement>;
   const creatorName =
@@ -779,6 +782,9 @@ function parseTextToNumber(text: string): number {
   }
   if (text.endsWith("m")) {
     return parseFloat(text) * 1_000_000;
+  }
+  if (text.endsWith("b")) {
+    return parseFloat(text) * 1_000_000_000;
   }
 
   return parseInt(text.replace(/,/g, "")) || 0; // Handle normal numbers like "933"
