@@ -6,8 +6,8 @@ const VIDEOS_LIST_SELECTORS = [
     ".reel-video-in-sequence-new",
 ];
 const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
-const LIKE_BUTTON_SELECTOR = "#button-bar > reel-action-bar-view-model > like-button-view-model > toggle-button-view-model > button-view-model > label > button";
-const DISLIKE_BUTTON_SELECTOR = "#button-bar > reel-action-bar-view-model > dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
+const LIKE_BUTTON_SELECTOR = "like-button-view-model > toggle-button-view-model > button-view-model > label > button";
+const DISLIKE_BUTTON_SELECTOR = "dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const COMMENTS_SELECTOR = "#content > ytd-section-list-renderer";
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
@@ -667,8 +667,9 @@ function shortCutListener() {
         }
         else if (await checkKeys(shortCutInteractKeys, false)) {
             // Shortcut for like/dislike
-            const likeBtn = document.querySelector(LIKE_BUTTON_SELECTOR);
-            const dislikeBtn = document.querySelector(DISLIKE_BUTTON_SELECTOR);
+            const currentShort = findShortContainer();
+            const likeBtn = currentShort.querySelector(LIKE_BUTTON_SELECTOR);
+            const dislikeBtn = currentShort.querySelector(DISLIKE_BUTTON_SELECTOR);
             if (likeBtn?.getAttribute("aria-pressed") === "true" ||
                 dislikeBtn?.getAttribute("aria-pressed") === "true") {
                 dislikeBtn.click();

@@ -7,9 +7,9 @@ const VIDEOS_LIST_SELECTORS = [
 ];
 const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
 const LIKE_BUTTON_SELECTOR =
-  "#button-bar > reel-action-bar-view-model > like-button-view-model > toggle-button-view-model > button-view-model > label > button";
+  "like-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const DISLIKE_BUTTON_SELECTOR =
-  "#button-bar > reel-action-bar-view-model > dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
+  "dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const COMMENTS_SELECTOR = "#content > ytd-section-list-renderer";
 const LIKES_COUNT_SELECTOR =
   "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
@@ -799,10 +799,11 @@ function shortCutListener() {
       }
     } else if (await checkKeys(shortCutInteractKeys, false)) {
       // Shortcut for like/dislike
-      const likeBtn = document.querySelector(
+      const currentShort = findShortContainer();
+      const likeBtn = currentShort.querySelector(
         LIKE_BUTTON_SELECTOR
       ) as HTMLButtonElement;
-      const dislikeBtn = document.querySelector(
+      const dislikeBtn = currentShort.querySelector(
         DISLIKE_BUTTON_SELECTOR
       ) as HTMLButtonElement;
 
