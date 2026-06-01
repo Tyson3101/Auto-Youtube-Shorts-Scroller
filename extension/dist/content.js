@@ -8,7 +8,7 @@ const VIDEOS_LIST_SELECTORS = [
 const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
 const LIKE_BUTTON_SELECTOR = "like-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const DISLIKE_BUTTON_SELECTOR = "dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
-const COMMENTS_SELECTOR = "#content > ytd-section-list-renderer";
+const COMMENTS_SELECTOR = 'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"]';
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
 const COMMENTS_COUNT_SELECTORS = [
