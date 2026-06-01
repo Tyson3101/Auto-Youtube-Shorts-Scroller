@@ -19,6 +19,7 @@ const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
 const AUTHOUR_NAME_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
 const AUTHOUR_NAME_SELECTOR_2 = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
 const AUTHOR_SUBSCRIBE_BUTTON_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > div > yt-subscribe-button-view-model";
+const SPONSERED_REEL_SELECTOR = "ad-badge-view-model";
 const NEXT_BUTTON_SELECTOR = "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const PREVIOUS_BUTTON_SELECTOR = "#navigation-button-up > ytd-button-renderer > yt-button-shape > button";
 // ------------------------------
@@ -106,8 +107,8 @@ async function checkForNewShort() {
             return scrollToNextShort(prevShortId);
         }
         // Check if the current short is an ad
-        if (currentShort.querySelector("ytd-ad-slot-renderer") ||
-            currentShort.querySelector("ad-button-view-model")) {
+        if (currentShort.querySelector(SPONSERED_REEL_SELECTOR) ||
+            currentShort.querySelector("reels-ad-metadata-view-model")) {
             console.log("[Auto Youtube Shorts Scroller] Ad detected..., scrolling to next short...");
             return scrollToNextShort(currentShortId, false);
         }
