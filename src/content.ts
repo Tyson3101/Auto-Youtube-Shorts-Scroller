@@ -136,17 +136,6 @@ async function checkForNewShort() {
       return scrollToNextShort(prevShortId);
     }
 
-    // Check if the current short is an ad
-    if (
-      currentShort.querySelector(SPONSERED_REEL_SELECTOR) ||
-      currentShort.querySelector("reels-ad-metadata-view-model")
-    ) {
-      console.log(
-        "[Auto Youtube Shorts Scroller] Ad detected..., scrolling to next short..."
-      );
-      return scrollToNextShort(currentShortId, false);
-    }
-
     // Log the current short id
     console.log(
       "[Auto Youtube Shorts Scroller] Current ID of Short: ",
@@ -163,13 +152,17 @@ async function checkForNewShort() {
     currentVideoElement.addEventListener("ended", shortEnded);
     currentVideoElement._hasEndEvent = true;
 
-    // Check if the current short has metadata
-    const metaDataUpdated = await waitForAllMetadata(currentShort);
+    // Check if the current short has metadata, with check to see if metadata shows it's an ad.
+    const metaDataInformation = await waitForAllMetadata(currentShort);
+    if (metaDataInformation.isAd) {
+      console.log(
+        "[Auto Youtube Shorts Scroller] Ad detected, scrolling to next short..."
+      );
+      return scrollToNextShort(currentShortId, false);
+    }
 
-    // Check if short meets the filter settings
     const isValidShort = await checkShortValidity(currentShort);
-
-    if (metaDataUpdated && !isValidShort) {
+    if (metaDataInformation.metaDataLoaded && !isValidShort) {
       console.log(
         "[Auto Youtube Shorts Scroller] Short doesn't meet the filter settings, scrolling to next short..."
       );
@@ -372,8 +365,8 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
     currentShort &&
     currentShort.querySelector(AUTHOR_SUBSCRIBE_JOIN_BUTTON_SELECTOR);
   const isSubscribed =
-    subscribeButton?.innerHTML.toLowerCase().includes("subscribed") ||
-    joinButton?.innerHTML.toLowerCase().includes("join");
+    !!subscribeButton?.innerHTML.toLowerCase().includes("subscribed") ||
+    !!joinButton?.innerHTML.toLowerCase().includes("join");
 
   console.log("[Auto Youtube Shorts Scroller] Filters:", {
     filters: [
@@ -393,6 +386,9 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
       {
         whitelistSubscriptions,
         isSubscribed: isSubscribed,
+      },
+      {
+        isSponsered: !!currentShort.querySelector(SPONSERED_REEL_SELECTOR),
       },
     ],
   });
@@ -506,6 +502,8 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
   return true;
 }
 
+function checkIfShortIsSponsered(currentShort: HTMLDivElement) {}
+
 async function waitForVideoElement(
   currentShort: HTMLElement,
   currentShortId: number
@@ -513,7 +511,7 @@ async function waitForVideoElement(
   let tries = 0;
   let video: HTMLVideoElement | null = currentShort.querySelector("video");
 
-  while (!video) {
+  while (!video && currentShort.querySelector("ytd-reel-video-renderer")) {
     if (tries > MAX_RETRIES) {
       console.log(
         "[Auto Youtube Shorts Scroller] Video element not found, scrolling to next short..."
@@ -533,13 +531,18 @@ async function waitForVideoElement(
 
   return video;
 }
-
-async function waitForAllMetadata(currentShort: HTMLElement) {
+async function waitForAllMetadata(
+  currentShort: HTMLElement
+): Promise<{ isAd: boolean; metaDataLoaded: boolean }> {
   let tries = 0;
 
   while (tries < MAX_RETRIES) {
-    const creatorEl = currentShort.querySelector(AUTHOUR_NAME_SELECTOR);
+    // Ad check first — return immediately if detected, no need to wait for metadata
+    if (currentShort.querySelector(SPONSERED_REEL_SELECTOR)) {
+      return { isAd: true, metaDataLoaded: false };
+    }
 
+    const creatorEl = currentShort.querySelector(AUTHOUR_NAME_SELECTOR);
     const viewsEl = document.querySelector(
       VIEW_COUNT_SELECTOR
     ) as HTMLSpanElement;
@@ -550,10 +553,8 @@ async function waitForAllMetadata(currentShort: HTMLElement) {
     };
 
     const hasAllElements = creatorEl && viewsEl;
-
     const hasValidText =
       data.creatorName.length > 0 && data.viewCount.length > 0;
-
     const isDifferentFromPrevious =
       !previousMetaData ||
       data.creatorName !== previousMetaData.creatorName ||
@@ -564,7 +565,7 @@ async function waitForAllMetadata(currentShort: HTMLElement) {
         creatorName: data.creatorName,
         viewCount: data.viewCount,
       };
-      return true;
+      return { isAd: false, metaDataLoaded: true };
     }
 
     await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
@@ -572,10 +573,9 @@ async function waitForAllMetadata(currentShort: HTMLElement) {
   }
 
   console.log(
-    "[Auto Youtube Shorts Scroller] Metadata failed to hydrate properly"
+    "[Auto Youtube Shorts Scroller] Metadata failed to hydrate properly, some filters may not work for this short."
   );
-
-  return null;
+  return { isAd: false, metaDataLoaded: false };
 }
 
 // ------------------------------
