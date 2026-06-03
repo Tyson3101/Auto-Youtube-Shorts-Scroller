@@ -14,11 +14,12 @@ const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-r
 const COMMENTS_COUNT_SELECTORS = [
     "#comments-button > ytd-button-renderer > yt-button-shape > label > div > span",
     "#button-bar > reel-action-bar-view-model > button-view-model:nth-of-type(1) > label > div > span",
+    "reel-action-bar-view-model > button-view-model:nth-child(3) > label > div > span",
 ];
 const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
-const AUTHOUR_NAME_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
-const AUTHOUR_NAME_SELECTOR_2 = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
-const AUTHOR_SUBSCRIBE_BUTTON_SELECTOR = "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > div > yt-subscribe-button-view-model";
+const AUTHOUR_NAME_SELECTOR = "yt-reel-metapanel-view-model yt-reel-channel-bar-view-model > span > a";
+const AUTHOR_SUBSCRIBE_BUTTON_SELECTOR = "yt-subscribe-button-view-model > yt-animated-action > div > div > button > div";
+const AUTHOR_SUBSCRIBE_JOIN_BUTTON_SELECTOR = "yt-reel-channel-bar-view-model button-view-model > button > div";
 const SPONSERED_REEL_SELECTOR = "ad-badge-view-model";
 const NEXT_BUTTON_SELECTOR = "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const PREVIOUS_BUTTON_SELECTOR = "#navigation-button-up > ytd-button-renderer > yt-button-shape > button";
@@ -262,10 +263,13 @@ async function checkShortValidity(currentShort) {
         document.querySelector(COMMENTS_COUNT_SELECTORS.join(","));
     const tags = document.querySelectorAll(DESCRIPTION_TAGS_SELECTOR);
     const creatorName = currentShort &&
-        (currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
-            currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2));
+        currentShort.querySelector(AUTHOUR_NAME_SELECTOR);
     const subscribeButton = currentShort &&
         currentShort.querySelector(AUTHOR_SUBSCRIBE_BUTTON_SELECTOR);
+    const joinButton = currentShort &&
+        currentShort.querySelector(AUTHOR_SUBSCRIBE_JOIN_BUTTON_SELECTOR);
+    const isSubscribed = subscribeButton?.innerHTML.toLowerCase().includes("subscribed") ||
+        joinButton?.innerHTML.toLowerCase().includes("join");
     console.log("[Auto Youtube Shorts Scroller] Filters:", {
         filters: [
             { videoLength, filterMinLength, filterMaxLength },
@@ -281,7 +285,10 @@ async function checkShortValidity(currentShort) {
             { blockedTags },
             { blockedCreators },
             { whitelistedCreators },
-            { whitelistSubscriptions, isSubscribed: subscribeButton === null },
+            {
+                whitelistSubscriptions,
+                isSubscribed: isSubscribed,
+            },
         ],
     });
     if (!creatorName || !commentCount)
@@ -297,7 +304,7 @@ async function checkShortValidity(currentShort) {
         }
     }
     // Ignores all checks if whitelisted by subscription
-    if (whitelistSubscriptions && subscribeButton === null) {
+    if (whitelistSubscriptions && isSubscribed) {
         return true;
     }
     if (!checkValidVideoLength(videoLength))
@@ -399,8 +406,7 @@ async function waitForVideoElement(currentShort, currentShortId) {
 async function waitForAllMetadata(currentShort) {
     let tries = 0;
     while (tries < MAX_RETRIES) {
-        const creatorEl = currentShort.querySelector(AUTHOUR_NAME_SELECTOR) ||
-            currentShort.querySelector(AUTHOUR_NAME_SELECTOR_2);
+        const creatorEl = currentShort.querySelector(AUTHOUR_NAME_SELECTOR);
         const viewsEl = document.querySelector(VIEW_COUNT_SELECTOR);
         const data = {
             creatorName: creatorEl?.textContent?.trim() || "",
