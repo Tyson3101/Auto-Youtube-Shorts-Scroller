@@ -10,8 +10,10 @@ const LIKE_BUTTON_SELECTOR =
   "like-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const DISLIKE_BUTTON_SELECTOR =
   "dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
-const COMMENTS_SELECTOR =
-  'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"]';
+const COMMENTS_SELECTORS = [
+  'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"]',
+  '#title-text[title="Comments"]',
+];
 const LIKES_COUNT_SELECTOR =
   "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR =
@@ -173,6 +175,13 @@ async function checkForNewShort() {
       );
       return scrollToNextShort(currentShortId, true);
     }
+
+    // if paused for some reason, try and play the video
+    if (currentVideoElement.paused && applicationIsOn) {
+      try {
+        await currentVideoElement.play();
+      } catch {}
+    }
   }
 
   // Force removal of the loop attribute if it exists
@@ -206,15 +215,23 @@ async function scrollToNextShort(
 ) {
   if (!applicationIsOn) return stopAutoScrolling();
 
-  const comments = document.querySelector(COMMENTS_SELECTOR);
+  const comments = document.querySelector(COMMENTS_SELECTORS[0]);
+  const commentSecondarySelector = document.querySelector(
+    COMMENTS_SELECTORS[1]
+  );
   const isCommentsOpen = () => {
     const visibilityAttr1OfComments = comments?.attributes["VISIBILITY"]?.value;
-    const visibilityAttr2OfComments = comments?.hasAttribute(
-      "panel-content-visible"
-    );
+
+    const isInView =
+      commentSecondarySelector &&
+      (() => {
+        const rect = commentSecondarySelector.getBoundingClientRect();
+        return rect.top < window.innerHeight && rect.bottom > 0;
+      })();
+
     return (
       visibilityAttr1OfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED" ||
-      visibilityAttr2OfComments === true
+      isInView === true
     );
   };
 
@@ -380,7 +397,7 @@ async function checkShortValidity(currentShort: HTMLDivElement) {
     ],
   });
 
-  if (!creatorName || !commentCount) return false;
+  if (!creatorName || !commentCount) return true; // If creator name or comment count is not found, return true to avoid false blocking
 
   // Ignores all checks if whitelisted creator
   if (whitelistedCreators.length > 0) {

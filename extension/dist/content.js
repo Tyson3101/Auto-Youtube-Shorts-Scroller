@@ -8,7 +8,10 @@ const VIDEOS_LIST_SELECTORS = [
 const CURRENT_SHORT_SELECTOR = "ytd-reel-video-renderer";
 const LIKE_BUTTON_SELECTOR = "like-button-view-model > toggle-button-view-model > button-view-model > label > button";
 const DISLIKE_BUTTON_SELECTOR = "dislike-button-view-model > toggle-button-view-model > button-view-model > label > button";
-const COMMENTS_SELECTOR = 'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"]';
+const COMMENTS_SELECTORS = [
+    'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"]',
+    '#title-text[title="Comments"]',
+];
 const LIKES_COUNT_SELECTOR = "#factoids > factoid-renderer:nth-child(1) > div > span.ytwFactoidRendererValue > span";
 const VIEW_COUNT_SELECTOR = "#factoids > view-count-factoid-renderer > factoid-renderer > div > span.ytwFactoidRendererValue > span";
 const COMMENTS_COUNT_SELECTORS = [
@@ -127,6 +130,13 @@ async function checkForNewShort() {
             console.log("[Auto Youtube Shorts Scroller] Short doesn't meet the filter settings, scrolling to next short...");
             return scrollToNextShort(currentShortId, true);
         }
+        // if paused for some reason, try and play the video
+        if (currentVideoElement.paused && applicationIsOn) {
+            try {
+                await currentVideoElement.play();
+            }
+            catch { }
+        }
     }
     // Force removal of the loop attribute if it exists
     if (currentVideoElement?.hasAttribute("loop") && applicationIsOn) {
@@ -153,12 +163,17 @@ function shortEnded(e) {
 async function scrollToNextShort(prevShortId = null, useDelayAndCheckComments = true) {
     if (!applicationIsOn)
         return stopAutoScrolling();
-    const comments = document.querySelector(COMMENTS_SELECTOR);
+    const comments = document.querySelector(COMMENTS_SELECTORS[0]);
+    const commentSecondarySelector = document.querySelector(COMMENTS_SELECTORS[1]);
     const isCommentsOpen = () => {
         const visibilityAttr1OfComments = comments?.attributes["VISIBILITY"]?.value;
-        const visibilityAttr2OfComments = comments?.hasAttribute("panel-content-visible");
+        const isInView = commentSecondarySelector &&
+            (() => {
+                const rect = commentSecondarySelector.getBoundingClientRect();
+                return rect.top < window.innerHeight && rect.bottom > 0;
+            })();
         return (visibilityAttr1OfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED" ||
-            visibilityAttr2OfComments === true);
+            isInView === true);
     };
     // Check if comments is open, and settings are set to scroll on comments
     if (comments && useDelayAndCheckComments) {
@@ -292,7 +307,7 @@ async function checkShortValidity(currentShort) {
         ],
     });
     if (!creatorName || !commentCount)
-        return false;
+        return true; // If creator name or comment count is not found, return true to avoid false blocking
     // Ignores all checks if whitelisted creator
     if (whitelistedCreators.length > 0) {
         const creator = creatorName.innerText.trim().toLowerCase();
