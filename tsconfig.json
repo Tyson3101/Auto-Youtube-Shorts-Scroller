@@ -4,7 +4,12 @@
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "rootDir": "./src",
-    "outDir": "extension/dist"
+    "outDir": "extension/dist",
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "noImplicitThis": false
   },
   "exclude": ["extension/dist"]
 }

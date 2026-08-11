@@ -10,6 +10,8 @@ const allStorageKeys = [
   "filterByMaxComments",
   "scrollDirection",
   "amountOfPlaysToSkip",
+  "longShortDurationThreshold",
+  "longShortPlaysToSkip",
   "scrollOnComments",
   "shortCutKeys",
   "shortCutInteractKeys",
@@ -52,6 +54,12 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
     if (resultSync.amountOfPlaysToSkip == undefined) {
       chrome.storage.local.set({ amountOfPlaysToSkip: 1 });
+    }
+    if (resultSync.longShortDurationThreshold == undefined) {
+      chrome.storage.local.set({ longShortDurationThreshold: 0 });
+    }
+    if (resultSync.longShortPlaysToSkip == undefined) {
+      chrome.storage.local.set({ longShortPlaysToSkip: 1 });
     }
     if (resultSync.scrollOnComments == undefined) {
       chrome.storage.local.set({ scrollOnComments: false });
