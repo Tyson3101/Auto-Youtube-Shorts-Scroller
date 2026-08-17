@@ -1,3 +1,4 @@
+"use strict";
 // VARIBLES
 const errMsg = document.querySelector("#error-message");
 const statusToggle = document.querySelector("#status-toggle");
@@ -17,6 +18,9 @@ const filterByMinCommentsInput = document.querySelector("#filterByMinComments");
 const filterByMaxCommentsInput = document.querySelector("#filterByMaxComments");
 const scrollDirectionInput = document.querySelector("#scrollDirectionInput");
 const amountOfPlaysInput = document.querySelector("#amountOfPlaysInput");
+const customizeSkipDurationInput = document.querySelector("#customizeSkipDurationInput");
+const customizeSkipPlaysInput = document.querySelector("#customizeSkipPlaysInput");
+const enableDurationBasedScrollsInput = document.querySelector("#enableDurationBasedScrollsInput");
 const scrollOnCommentsInput = document.querySelector("#scrollOnCommentsInput");
 const scrollOnNoTagsInput = document.querySelector("#scrollOnNoTagsInput");
 const additionalScrollDelayInput = document.querySelector("#additionalScrollDelayInput");
@@ -107,6 +111,9 @@ function setupEventListeners() {
     filterByMaxCommentsInput.addEventListener("change", handleNumericInputChange("filterByMaxComments"));
     scrollDirectionInput.addEventListener("change", handleSelectChange("scrollDirection"));
     amountOfPlaysInput.addEventListener("change", handleIntegerInputChange("amountOfPlaysToSkip", 1));
+    customizeSkipDurationInput.addEventListener("change", handleFloatInputChange("longShortDurationThreshold", 0));
+    customizeSkipPlaysInput.addEventListener("change", handleIntegerInputChange("longShortPlaysToSkip", 1));
+    enableDurationBasedScrollsInput.addEventListener("change", handleCheckboxChange("enableDurationBasedScrolls"));
     additionalScrollDelayInput.addEventListener("change", handleIntegerInputChange("additionalScrollDelay", 0));
     scrollOnCommentsInput.addEventListener("change", handleCheckboxChange("scrollOnComments"));
     scrollOnNoTagsInput.addEventListener("change", handleCheckboxChange("scrollOnNoTags"));
@@ -190,6 +197,20 @@ function handleIntegerInputChange(storageKey, defaultValue) {
         }
     };
 }
+function handleFloatInputChange(storageKey, defaultValue) {
+    return (e) => {
+        const value = parseFloat(e.target.value);
+        if (isNaN(value) || value < 0) {
+            chrome.storage.local.set({ [storageKey]: defaultValue });
+            e.target.value = defaultValue.toString();
+        }
+        else {
+            const normalized = parseFloat(value.toFixed(2));
+            chrome.storage.local.set({ [storageKey]: normalized });
+            e.target.value = normalized.toString();
+        }
+    };
+}
 function handleCheckboxChange(storageKey) {
     return (e) => {
         chrome.storage.local.set({ [storageKey]: e.target.checked });
@@ -215,11 +236,15 @@ function getAllSettingsForPopup() {
         "filterByMaxComments",
         "scrollDirection",
         "amountOfPlaysToSkip",
+        "longShortDurationThreshold",
+        "longShortPlaysToSkip",
+        "enableDurationBasedScrolls",
         "scrollOnComments",
         "scrollOnNoTags",
         "additionalScrollDelay",
     ];
     chrome.storage.local.get(keysToGet, (result) => {
+        const defaultsToSet = {};
         // Master Status Toggle
         statusToggle.checked = result.applicationIsOn ?? true; // Default to true if undefined
         // Shortcuts
@@ -267,11 +292,12 @@ function getAllSettingsForPopup() {
         // General Settings
         scrollDirectionInput.value = result.scrollDirection ?? "down";
         amountOfPlaysInput.value = (result.amountOfPlaysToSkip ?? 1).toString();
+        customizeSkipDurationInput.value = (result.longShortDurationThreshold ?? 0).toString();
+        customizeSkipPlaysInput.value = (result.longShortPlaysToSkip ?? 1).toString();
+        enableDurationBasedScrollsInput.checked = result.enableDurationBasedScrolls ?? false;
         additionalScrollDelayInput.value = (result.additionalScrollDelay ?? 0).toString();
         scrollOnCommentsInput.checked = result.scrollOnComments ?? false; // Default to false
         scrollOnNoTagsInput.checked = result.scrollOnNoTags ?? false; // Default to false
-        // Initialize default values in storage if they were undefined
-        const defaultsToSet = {};
         if (result.applicationIsOn === undefined)
             defaultsToSet.applicationIsOn = true;
         if (result.shortCutKeys === undefined)
@@ -306,6 +332,12 @@ function getAllSettingsForPopup() {
             defaultsToSet.scrollDirection = "down";
         if (result.amountOfPlaysToSkip === undefined)
             defaultsToSet.amountOfPlaysToSkip = 1;
+        if (result.longShortDurationThreshold === undefined)
+            defaultsToSet.longShortDurationThreshold = 0;
+        if (result.longShortPlaysToSkip === undefined)
+            defaultsToSet.longShortPlaysToSkip = 1;
+        if (result.enableDurationBasedScrolls === undefined)
+            defaultsToSet.enableDurationBasedScrolls = false;
         if (result.scrollOnComments === undefined)
             defaultsToSet.scrollOnComments = false;
         if (result.scrollOnNoTags === undefined)

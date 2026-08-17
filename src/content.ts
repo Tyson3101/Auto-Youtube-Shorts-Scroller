@@ -34,6 +34,10 @@ const AUTHOR_SUBSCRIBE_JOIN_BUTTON_SELECTOR =
 
 const SPONSERED_REEL_SELECTOR = "ad-badge-view-model";
 
+interface CustomHTMLVideoElement extends HTMLVideoElement {
+  _hasEndEvent?: boolean;
+}
+
 const NEXT_BUTTON_SELECTOR =
   "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
 const PREVIOUS_BUTTON_SELECTOR =
@@ -42,12 +46,14 @@ const PREVIOUS_BUTTON_SELECTOR =
 // ------------------------------
 // APP VARIABLES
 // ------------------------------
-let shortCutToggleKeys = [];
-let shortCutInteractKeys = [];
+let shortCutToggleKeys: string[] = [];
+let shortCutInteractKeys: string[] = [];
 let scrollOnCommentsCheck = false;
 let scrollDirection = 1;
 let amountOfPlays = 0;
 let amountOfPlaysToSkip = 1;
+let longShortDurationThreshold = 0;
+let longShortPlaysToSkip = 1;
 let filterMinLength = "none";
 let filterMaxLength = "none";
 let filterMinViews = "none";
@@ -56,24 +62,29 @@ let filterMinLikes = "none";
 let filterMaxLikes = "none";
 let filterMinComments = "none";
 let filterMaxComments = "none";
-let blockedCreators = [];
-let whitelistedCreators = [];
+let blockedCreators: string[] = [];
+let whitelistedCreators: string[] = [];
 let whitelistSubscriptions = false;
-let blockedTags = [];
+let blockedTags: string[] = [];
 let scrollOnNoTags = false;
 let additionalScrollDelay = 0;
 
 // ------------------------------
 // STATE VARIABLES
 // ------------------------------
-let currentShortId = null;
+let currentShortId: number | null = null;
 let previousMetaData = { creatorName: null, viewCount: "" };
-let currentVideoElement = null;
+let currentVideoElement: CustomHTMLVideoElement | null = null;
 let applicationIsOn = false;
 let scrollTimeout: any;
 
 const MAX_RETRIES = 15;
 const RETRY_DELAY_MS = 500;
+
+function parseNumberSetting(value: any, defaultValue: number): number {
+  const parsed = typeof value === "number" ? value : parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : defaultValue;
+}
 
 // ------------------------------
 // MAIN FUNCTIONS
@@ -105,7 +116,7 @@ async function checkForNewShort() {
   if (!currentShort) return;
 
   // Checks if the current short is the same as the last one
-  if (currentShort?.id != currentShortId) {
+  if (currentShort?.id !== currentShortId?.toString()) {
     // Prevent scrolling from previous short ending
     if (scrollTimeout) clearTimeout(scrollTimeout);
 
@@ -192,7 +203,14 @@ function shortEnded(e: Event) {
   amountOfPlays++;
 
   // Checks amount of plays to skip the short
-  if (amountOfPlays >= amountOfPlaysToSkip) {
+  const shouldUseLongShortPlays =
+    longShortDurationThreshold > 0 &&
+    currentVideoElement?.duration > longShortDurationThreshold;
+  const effectivePlaysToSkip = shouldUseLongShortPlays
+    ? longShortPlaysToSkip
+    : amountOfPlaysToSkip;
+
+  if (amountOfPlays >= effectivePlaysToSkip) {
     // If its same or exceeded the amount of plays, scroll to the next short
     amountOfPlays = 0;
     scrollToNextShort(currentShortId);
@@ -309,7 +327,7 @@ function findShortContainer(id = null) {
   }
   // If no shorts are found, return the first short with the id of 0
   if (shorts.length === 0)
-    return document.getElementById(currentShortId || 0) as HTMLDivElement;
+    return document.getElementById(currentShortId?.toString() || "0") as HTMLDivElement;
   // If no id is provided, find the first short with the is-active attribute
   // If id is provided, return short with id index from shorts list selector
   const short =
@@ -630,6 +648,8 @@ async function waitForAllMetadata(
         "shortCutInteractKeys",
         "scrollDirection",
         "amountOfPlaysToSkip",
+        "longShortDurationThreshold",
+        "longShortPlaysToSkip",
         "filterByMinLength",
         "filterByMaxLength",
         "filterByMinViews",
@@ -658,8 +678,21 @@ async function waitForAllMetadata(
           if (result["scrollDirection"] === "up") scrollDirection = -1;
           else scrollDirection = 1;
         }
-        if (result["amountOfPlaysToSkip"])
-          amountOfPlaysToSkip = result["amountOfPlaysToSkip"];
+        if (result["amountOfPlaysToSkip"] !== undefined)
+          amountOfPlaysToSkip = parseNumberSetting(
+            result["amountOfPlaysToSkip"],
+            amountOfPlaysToSkip
+          );
+        if (result["longShortDurationThreshold"] !== undefined)
+          longShortDurationThreshold = parseNumberSetting(
+            result["longShortDurationThreshold"],
+            longShortDurationThreshold
+          );
+        if (result["longShortPlaysToSkip"] !== undefined)
+          longShortPlaysToSkip = parseNumberSetting(
+            result["longShortPlaysToSkip"],
+            longShortPlaysToSkip
+          );
         if (result["scrollOnComments"])
           scrollOnCommentsCheck = result["scrollOnComments"];
         if (result["filterByMinLength"])
@@ -707,8 +740,22 @@ async function waitForAllMetadata(
         else scrollDirection = 1;
       }
       let newAmountOfPlaysToSkip = result["amountOfPlaysToSkip"]?.newValue;
-      if (newAmountOfPlaysToSkip) {
+      if (newAmountOfPlaysToSkip !== undefined) {
         amountOfPlaysToSkip = newAmountOfPlaysToSkip;
+      }
+      let newLongShortDurationThreshold = result["longShortDurationThreshold"]?.newValue;
+      if (newLongShortDurationThreshold !== undefined) {
+        longShortDurationThreshold = parseNumberSetting(
+          newLongShortDurationThreshold,
+          longShortDurationThreshold
+        );
+      }
+      let newLongShortPlaysToSkip = result["longShortPlaysToSkip"]?.newValue;
+      if (newLongShortPlaysToSkip !== undefined) {
+        longShortPlaysToSkip = parseNumberSetting(
+          newLongShortPlaysToSkip,
+          longShortPlaysToSkip
+        );
       }
       let newScrollOnComments = result["scrollOnComments"]?.newValue;
       if (newScrollOnComments !== undefined) {
