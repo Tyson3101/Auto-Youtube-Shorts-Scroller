@@ -164,13 +164,18 @@ async function scrollToNextShort(prevShortId = null, useDelayAndCheckComments = 
     const commentSecondarySelector = document.querySelector(COMMENTS_SELECTORS[1]);
     const isCommentsOpen = () => {
         const visibilityAttr1OfComments = comments?.attributes["VISIBILITY"]?.value;
+        const hasPanelContentVisible = comments
+            ?.querySelector("[panel-target-id='engagement-panel-comments-section']")
+            ?.hasAttribute("panel-content-visible") === true;
         const isInView = commentSecondarySelector &&
             (() => {
                 const rect = commentSecondarySelector.getBoundingClientRect();
                 return rect.top < window.innerHeight && rect.bottom > 0;
             })();
+        logCommentsVisibility(visibilityAttr1OfComments, isInView, hasPanelContentVisible);
         return (visibilityAttr1OfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED" ||
-            isInView === true);
+            isInView === true ||
+            hasPanelContentVisible);
     };
     // Check if comments is open, and settings are set to scroll on comments
     if (comments && useDelayAndCheckComments) {
@@ -727,3 +732,20 @@ function parseTextToNumber(text) {
     }
     return parseInt(text.replace(/,/g, "")) || 0; // Handle normal numbers like "933"
 }
+let lastCommentsVisibilityState = "";
+const logCommentsVisibility = (visibilityAttr1OfComments, isInView, hasPanelContentVisible) => {
+    const state = JSON.stringify({
+        visibilityAttr1OfComments,
+        isInView,
+        hasPanelContentVisible,
+    });
+    // Don't log if nothing changed
+    if (state === lastCommentsVisibilityState)
+        return;
+    lastCommentsVisibilityState = state;
+    console.log("[Auto Youtube Shorts Scroller] Comments visibility check:", {
+        visibilityAttr1OfComments,
+        isInView,
+        hasPanelContentVisible,
+    });
+};

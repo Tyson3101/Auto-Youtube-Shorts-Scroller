@@ -214,6 +214,10 @@ async function scrollToNextShort(
   );
   const isCommentsOpen = () => {
     const visibilityAttr1OfComments = comments?.attributes["VISIBILITY"]?.value;
+    const hasPanelContentVisible =
+      comments
+        ?.querySelector("[panel-target-id='engagement-panel-comments-section']")
+        ?.hasAttribute("panel-content-visible") === true;
 
     const isInView =
       commentSecondarySelector &&
@@ -222,9 +226,16 @@ async function scrollToNextShort(
         return rect.top < window.innerHeight && rect.bottom > 0;
       })();
 
+    logCommentsVisibility(
+      visibilityAttr1OfComments,
+      isInView,
+      hasPanelContentVisible
+    );
+
     return (
       visibilityAttr1OfComments === "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED" ||
-      isInView === true
+      isInView === true ||
+      hasPanelContentVisible
     );
   };
 
@@ -869,3 +880,28 @@ function parseTextToNumber(text: string): number {
 
   return parseInt(text.replace(/,/g, "")) || 0; // Handle normal numbers like "933"
 }
+
+let lastCommentsVisibilityState = "";
+
+const logCommentsVisibility = (
+  visibilityAttr1OfComments: string | undefined,
+  isInView: boolean,
+  hasPanelContentVisible: boolean
+) => {
+  const state = JSON.stringify({
+    visibilityAttr1OfComments,
+    isInView,
+    hasPanelContentVisible,
+  });
+
+  // Don't log if nothing changed
+  if (state === lastCommentsVisibilityState) return;
+
+  lastCommentsVisibilityState = state;
+
+  console.log("[Auto Youtube Shorts Scroller] Comments visibility check:", {
+    visibilityAttr1OfComments,
+    isInView,
+    hasPanelContentVisible,
+  });
+};
